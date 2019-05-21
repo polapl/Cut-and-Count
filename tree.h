@@ -15,7 +15,7 @@ struct Node {
 class Bag {
 public:
     enum BagType {
-        LEAF,
+        LEAF = 0,
         INTRODUCE_NODE,
         INTRODUCE_EDGE,
         FORGET_NODE,
@@ -33,6 +33,7 @@ public:
     Node* introduced_node;
     Node* forgotten_node;
     std::pair<Node*, Node*> introduced_edge;
+    long long int edge_weight;
 
     std::vector<Bag*> Generate(const std::vector<Bag::BagType>& types, int probability);
 
@@ -48,11 +49,21 @@ public:
 class Tree {
 public:
     Tree() {}
+    Tree(int tree_width, int max_weight) : tree_width(tree_width), max_weight(max_weight) {}
     Bag* root;
-    int max_width = 5;
-
+    int tree_width;
+    int max_weight;
+    // Arg 1: number of bags whose children have generated type -
+    // total number of bags is sum of the number and all "introduce subtrees"
+    // increased by 5 (root with its following forget bags), 
+    // Arg 2: probability per node it's a terminal
     void Generate(int, int);
+    // Bags should have only type and terminal set.
+    void GenerateFromInput(std::vector<Bag*> &bags);
     // Arg: probability yes [0,100]
     void IntroduceEdges(int);
     void DotTransitionGraph(std::string file_path);
+    int GetGraphSize();
+    int GetTreeSize();
+    int GetTreeWidth();
 };

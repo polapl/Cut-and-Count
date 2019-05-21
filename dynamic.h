@@ -3,9 +3,9 @@
 #include "tree.h"
 
 class Dynamic {
-  Dynamic(Tree* tree, int tree_size, int k, int l) : tree(tree), tree_size(tree_size), k(k), l(l) {}
+ public:
+  Dynamic(Tree* tree, int l) : tree(tree), l(l) {}
   int Compute();
   Tree* tree;
   int l;
-  int tree_size;
 };

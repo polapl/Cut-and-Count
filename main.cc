@@ -13,11 +13,12 @@ void init(int seed) {
 }
 
 int main(int argc, char** argv) {
-  // init(atoi(argv[1]));
-  Tree tree;
-  // size, probabilty
-  tree.Generate(1000, 10);
-  tree.IntroduceEdges(10);
+  Tree tree(5, 100);
+  tree.Generate(5, 50);
+  tree.IntroduceEdges(50);
   tree.DotTransitionGraph("example.dot");
+  Dynamic* dyn= new Dynamic(&tree, 3);
+  int res = dyn->Compute();
+  cout << res << endl;
   return 0;
 }
