@@ -4,10 +4,96 @@
 
 #include <gtest/gtest.h>
 
+/*
 TEST(SquareRootTest, PositiveNos) {
   Tree tree;
   tree.Generate(10,10);
   EXPECT_EQ(1,1);
+}
+*/
+
+TEST(SimpleTriangle, SimpleTriangle) {
+  Node a(0, true);
+  Node b(1, false);
+  Node c(2, true);
+  std::vector<Bag*> bags {
+    new Bag(Bag::BagType::FORGET_NODE, &a),
+    new Bag(Bag::BagType::FORGET_NODE, &b),
+    new Bag(Bag::BagType::INTRODUCE_EDGE, std::make_pair(&a, &b), 1),
+    new Bag(Bag::BagType::FORGET_NODE, &c),
+    new Bag(Bag::BagType::INTRODUCE_EDGE, std::make_pair(&a, &c), 1),
+    new Bag(Bag::BagType::INTRODUCE_EDGE, std::make_pair(&b, &c), 1),
+    new Bag(Bag::BagType::INTRODUCE_NODE, &a),
+    new Bag(Bag::BagType::INTRODUCE_NODE, &b),
+    new Bag(Bag::BagType::INTRODUCE_NODE, &c),
+    new Bag(Bag::BagType::LEAF)
+  };
+  Tree tree(bags);
+  tree.DotTransitionGraph("example.dot");
+  tree.tree_width = 3;
+  Dynamic* dyn= new Dynamic(&tree, 3);
+  int res = dyn->Compute();
+  printf("res = %d\n", res);
+  EXPECT_EQ(res,1);
+}
+
+TEST(SimplePath, SimplePath) {
+  Node a(0, true);
+  Node b(1, false);
+  Node c(2, true);
+  std::vector<Bag*> bags {
+    new Bag(Bag::BagType::FORGET_NODE, &c),
+    new Bag(Bag::BagType::FORGET_NODE, &b),
+    new Bag(Bag::BagType::INTRODUCE_EDGE, std::make_pair(&b, &c), 1),
+    new Bag(Bag::BagType::INTRODUCE_NODE, &c),
+    new Bag(Bag::BagType::FORGET_NODE, &a),
+    new Bag(Bag::BagType::INTRODUCE_EDGE, std::make_pair(&a, &b), 1),
+    new Bag(Bag::BagType::INTRODUCE_NODE, &b),
+    new Bag(Bag::BagType::INTRODUCE_NODE, &a),
+    new Bag(Bag::BagType::LEAF)
+  };
+  Tree tree(bags);
+  tree.DotTransitionGraph("example.dot");
+  printf("TU TERAZ\n");
+  tree.tree_width = 3;
+  Dynamic* dyn= new Dynamic(&tree, 3);
+  int res = dyn->Compute();
+  printf("res = %d\n", res);
+  EXPECT_EQ(res,2);
+}
+
+TEST(SimpleSquare, SimplePath) {
+  Node a(0, true);
+  Node b(1, true);
+  Node c(2, false);
+  Node d(3, false);
+  std::vector<Bag*> bags {
+    new Bag(Bag::BagType::FORGET_NODE, &a),
+    new Bag(Bag::BagType::FORGET_NODE, &b),
+    new Bag(Bag::BagType::MERGE),
+    new Bag(Bag::BagType::FORGET_NODE, &c),
+    new Bag(Bag::BagType::INTRODUCE_EDGE, std::make_pair(&a, &c), 1),
+    new Bag(Bag::BagType::INTRODUCE_EDGE, std::make_pair(&b, &c), 1),
+    new Bag(Bag::BagType::INTRODUCE_NODE, &a),
+    new Bag(Bag::BagType::INTRODUCE_NODE, &c),
+    new Bag(Bag::BagType::INTRODUCE_NODE, &b),
+    new Bag(Bag::BagType::LEAF),
+    new Bag(Bag::BagType::FORGET_NODE, &d),
+    new Bag(Bag::BagType::INTRODUCE_EDGE, std::make_pair(&a, &d), 2),
+    new Bag(Bag::BagType::INTRODUCE_EDGE, std::make_pair(&b, &d), 2),
+    new Bag(Bag::BagType::INTRODUCE_NODE, &a),
+    new Bag(Bag::BagType::INTRODUCE_NODE, &d),
+    new Bag(Bag::BagType::INTRODUCE_NODE, &b),
+    new Bag(Bag::BagType::LEAF)
+  };
+  Tree tree(bags);
+  tree.DotTransitionGraph("example.dot");
+  printf("TU TERAZ\n");
+  tree.tree_width = 3;
+  Dynamic* dyn= new Dynamic(&tree, 3);
+  int res = dyn->Compute();
+  printf("res = %d\n", res);
+  EXPECT_EQ(res,2);
 }
 
 int main(int argc, char **argv) {

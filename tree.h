@@ -23,6 +23,10 @@ public:
     };
 
     Bag(Bag::BagType type, Bag* parent, Bag** ref, const std::vector<Node*>& nodes);
+    
+    Bag(Bag::BagType type, Node* introduced_node);
+    Bag(Bag::BagType type, std::pair<Node*, Node*> introduced_edge, int edge_weight);
+    Bag(Bag::BagType type);
 
     std::vector<Node*> nodes;
     BagType type;
@@ -40,6 +44,7 @@ public:
     std::string Label() const;
     std::string ToString() const;
     void Print() const;
+    void print();
 
     int rank;
     int id;
@@ -59,7 +64,7 @@ public:
     // Arg 2: probability per node it's a terminal
     void Generate(int, int);
     // Bags should have only type and terminal set.
-    void GenerateFromInput(std::vector<Bag*> &bags);
+    Tree(std::vector<Bag*> &bags);
     // Arg: probability yes [0,100]
     void IntroduceEdges(int);
     void DotTransitionGraph(std::string file_path);
