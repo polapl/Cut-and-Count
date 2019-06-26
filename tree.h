@@ -71,4 +71,5 @@ public:
     int GetGraphSize();
     int GetTreeSize();
     int GetTreeWidth();
+    void AddNodeToAllBags(Bag* b, Node* n);
 };

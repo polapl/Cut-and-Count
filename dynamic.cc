@@ -7,7 +7,6 @@
 
 #include "tree.h"
 using namespace std;
-//int int int -> int
 
 class Set {
   public:
@@ -234,7 +233,7 @@ void recursive(dynamic_results &vec, int k, int l, Bag* bag) {
   }
 }
 
-int Dynamic::Compute() {
+int Dynamic::Compute() {  
   dynamic_results vec = std::vector<std::vector<std::vector<std::map<int, int>>>>(this->tree->GetTreeSize() + 2);
   for(int i=0; i <= this->tree->GetTreeSize(); i++) {
     vec[i] = std::vector<std::vector<std::map<int, int>>>(this->l + 2);

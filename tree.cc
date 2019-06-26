@@ -102,8 +102,11 @@ void Tree::Generate(int size, int probability) {
     Bag* parent = root;
     queue<Bag*> Q;
 
-    for (int i=0; i<5; i++) {
-        vector<Bag*> bags = parent->Generate(vector<Bag::BagType> {Bag::BagType::FORGET_NODE}, probability);
+    vector<Bag*> bags = parent->Generate(vector<Bag::BagType> {Bag::BagType::FORGET_NODE}, 1);
+    parent = bags[0];
+
+    for (int i=0; i<4; i++) {
+        bags = parent->Generate(vector<Bag::BagType> {Bag::BagType::FORGET_NODE}, probability);
         parent = bags[0];
     }
     Q.push(parent);
@@ -327,7 +330,7 @@ std::pair<Bag*, std::vector<Bag*>::iterator> generate_rec(Bag* parent, std::vect
       current->nodes = vector<Node*>{};
       current->left = rec.first;
       current->right = nullptr;
-      current->print();
+      //current->print();
       return std::make_pair(current, ++next_to_add);
     }
     case Bag::INTRODUCE_NODE:
@@ -338,7 +341,7 @@ std::pair<Bag*, std::vector<Bag*>::iterator> generate_rec(Bag* parent, std::vect
       current->right = nullptr;
       current->nodes = current->left->nodes;
       current->nodes.push_back(current->introduced_node);
-      current->print();
+      //current->print();
       return std::make_pair(current, rec.second);
     }
     case Bag::FORGET_NODE:
@@ -352,7 +355,7 @@ std::pair<Bag*, std::vector<Bag*>::iterator> generate_rec(Bag* parent, std::vect
             current->nodes.push_back(n);
           }
       }
-      current->print();
+      //current->print();
       return std::make_pair(current, rec.second);
     }
     case Bag::MERGE:
@@ -363,7 +366,7 @@ std::pair<Bag*, std::vector<Bag*>::iterator> generate_rec(Bag* parent, std::vect
       rec = generate_rec(current, rec.second);
       current->right = rec.first;
       current->nodes = current->left->nodes;
-      current->print();
+      //current->print();
       return std::make_pair(current, rec.second);
     }
     case Bag::INTRODUCE_EDGE:
@@ -373,7 +376,7 @@ std::pair<Bag*, std::vector<Bag*>::iterator> generate_rec(Bag* parent, std::vect
       current->left = rec.first;
       current->right = nullptr;
       current->nodes = current->left->nodes;
-      current->print();
+      //current->print();
       return std::make_pair(current, rec.second);
     }
     default:
@@ -382,8 +385,21 @@ std::pair<Bag*, std::vector<Bag*>::iterator> generate_rec(Bag* parent, std::vect
 }
 
 Tree::Tree(std::vector<Bag*> &bags) {
-  printf("GEN\n");
   std::pair<Bag*, std::vector<Bag*>::iterator> rec = generate_rec(nullptr, bags.begin());
-  printf("after\n");
   this->root = rec.first;
+}
+
+void Tree::AddNodeToAllBags(Bag* b, Node* n) {
+    if (b == nullptr) return;
+    if (b->type == Bag::INTRODUCE_NODE && b->introduced_node == n) {
+        b->parent->left = b->left;
+        b->left->parent = b->parent;
+    }
+    bool already_present = false;
+    for (auto& el: b->nodes) {
+        if (el == n) already_present = true;
+    } 
+    if (!already_present) b->nodes.push_back(n);
+    AddNodeToAllBags(b->left, n);
+    AddNodeToAllBags(b->right, n);
 }

@@ -2,6 +2,8 @@ cmake_minimum_required (VERSION 3.0.2)
 
 project(magisterka)
 
+set(CMAKE_CXX_FLAGS "-g -O0")
+
 add_executable(magisterka main.cc)
 add_library(tree_lib tree.cc)
 add_library(dynamic_lib dynamic.cc)

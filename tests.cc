@@ -1,8 +1,11 @@
 #include "tree.h"
 #include "standard_dynamic.h"
 #include "dynamic.h"
+#include "subset_view.h"
+#include "disjoint_set.h"
 
 #include <gtest/gtest.h>
+using namespace std;
 
 /*
 TEST(SquareRootTest, PositiveNos) {
@@ -12,7 +15,44 @@ TEST(SquareRootTest, PositiveNos) {
 }
 */
 
-TEST(SimpleTriangle, SimpleTriangle) {
+TEST(StandardDynamic,StandardDynamic) {
+  
+  vector<string> A{"Pola","Ala","Kasia","Basia","Wania", "Andrzejos"};
+  PartitionView<string> pset(A);
+
+  for (auto& it : pset) { // jedna z mozliwych partycji
+    printf("TU\n");
+  }
+  
+  
+  /*
+  Node a(0, true);
+  Node b(1, false);
+  Node c(2, true);
+  std::vector<Bag*> bags {
+    new Bag(Bag::BagType::FORGET_NODE, &a),
+    new Bag(Bag::BagType::FORGET_NODE, &b),
+    new Bag(Bag::BagType::INTRODUCE_EDGE, std::make_pair(&a, &b), 1),
+    new Bag(Bag::BagType::FORGET_NODE, &c),
+    new Bag(Bag::BagType::INTRODUCE_EDGE, std::make_pair(&a, &c), 1),
+    new Bag(Bag::BagType::INTRODUCE_EDGE, std::make_pair(&b, &c), 1),
+    new Bag(Bag::BagType::INTRODUCE_NODE, &a),
+    new Bag(Bag::BagType::INTRODUCE_NODE, &b),
+    new Bag(Bag::BagType::INTRODUCE_NODE, &c),
+    new Bag(Bag::BagType::LEAF)
+  };
+  Tree tree(bags);
+  tree.AddNodeToAllBags(tree.root, &a);
+  tree.DotTransitionGraph("example.dot");
+  tree.tree_width = 3;
+  StandardDynamic* dyn= new StandardDynamic(&tree, 3);
+  int res = dyn->Compute();
+  printf("res = %d\n", res);
+  EXPECT_EQ(res,1);
+  */
+}
+
+/*TEST(SimpleTriangle, SimpleTriangle) {
   Node a(0, true);
   Node b(1, false);
   Node c(2, true);
@@ -94,7 +134,7 @@ TEST(SimpleSquare, SimplePath) {
   int res = dyn->Compute();
   printf("res = %d\n", res);
   EXPECT_EQ(res,2);
-}
+}*/
 
 int main(int argc, char **argv) {
     testing::InitGoogleTest(&argc, argv);
