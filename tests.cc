@@ -16,21 +16,20 @@ TEST(SquareRootTest, PositiveNos) {
 */
 
 TEST(StandardDynamic,StandardDynamic) {
-  
+  /*
   vector<string> A{"Pola","Ala","Kasia","Basia","Wania", "Andrzejos"};
   PartitionView<string> pset(A);
 
   for (auto& it : pset) { // jedna z mozliwych partycji
-    printf("TU\n");
+    printf("TU2\n");
   }
+  */
   
   
-  /*
-  Node a(0, true);
+  Node c(0, true);
   Node b(1, false);
-  Node c(2, true);
+  Node a(2, true);
   std::vector<Bag*> bags {
-    new Bag(Bag::BagType::FORGET_NODE, &a),
     new Bag(Bag::BagType::FORGET_NODE, &b),
     new Bag(Bag::BagType::INTRODUCE_EDGE, std::make_pair(&a, &b), 1),
     new Bag(Bag::BagType::FORGET_NODE, &c),
@@ -49,7 +48,7 @@ TEST(StandardDynamic,StandardDynamic) {
   int res = dyn->Compute();
   printf("res = %d\n", res);
   EXPECT_EQ(res,1);
-  */
+  
 }
 
 /*TEST(SimpleTriangle, SimpleTriangle) {

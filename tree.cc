@@ -331,6 +331,11 @@ std::pair<Bag*, std::vector<Bag*>::iterator> generate_rec(Bag* parent, std::vect
       current->left = rec.first;
       current->right = nullptr;
       //current->print();
+      printf("cur: %d, nodes:\n", current->id);
+      for (auto& it: current->nodes) {
+          printf("%d ", it->value);
+      }
+      printf("\n");
       return std::make_pair(current, ++next_to_add);
     }
     case Bag::INTRODUCE_NODE:
@@ -342,6 +347,11 @@ std::pair<Bag*, std::vector<Bag*>::iterator> generate_rec(Bag* parent, std::vect
       current->nodes = current->left->nodes;
       current->nodes.push_back(current->introduced_node);
       //current->print();
+      printf("cur: %d, nodes:\n", current->id);
+      for (auto& it: current->nodes) {
+          printf("%d ", it->value);
+      }
+      printf("\n");
       return std::make_pair(current, rec.second);
     }
     case Bag::FORGET_NODE:
@@ -356,6 +366,11 @@ std::pair<Bag*, std::vector<Bag*>::iterator> generate_rec(Bag* parent, std::vect
           }
       }
       //current->print();
+      printf("cur: %d, nodes:\n", current->id);
+      for (auto& it: current->nodes) {
+          printf("%d ", it->value);
+      }
+      printf("\n");
       return std::make_pair(current, rec.second);
     }
     case Bag::MERGE:
@@ -367,6 +382,11 @@ std::pair<Bag*, std::vector<Bag*>::iterator> generate_rec(Bag* parent, std::vect
       current->right = rec.first;
       current->nodes = current->left->nodes;
       //current->print();
+      printf("cur: %d, nodes:\n", current->id);
+      for (auto& it: current->nodes) {
+          printf("%d ", it->value);
+      }
+      printf("\n");
       return std::make_pair(current, rec.second);
     }
     case Bag::INTRODUCE_EDGE:
@@ -376,6 +396,11 @@ std::pair<Bag*, std::vector<Bag*>::iterator> generate_rec(Bag* parent, std::vect
       current->left = rec.first;
       current->right = nullptr;
       current->nodes = current->left->nodes;
+      printf("cur: %d, nodes:\n", current->id);
+      for (auto& it: current->nodes) {
+          printf("%d ", it->value);
+      }
+      printf("\n");
       //current->print();
       return std::make_pair(current, rec.second);
     }

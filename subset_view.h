@@ -3,7 +3,12 @@
 #include <algorithm>
 #include <vector>
 #include <map>
+
+#include <cmath>
+
 using namespace std;
+
+#define unset_bit(v, k)  ((v) & (~(1ULL << (k))))
 
 template <typename C, typename A>
 bool contains(const C& container, const A& value) {
@@ -104,6 +109,59 @@ class SubsetView {
             return mask_;
         }
 
+        unsigned long long hash_with_el(const T& el, bool on) {
+            //printf("hash_with: %lld\n", hash());
+            //printf("el to add: %d\n", *el);
+            //for(const auto& it: data_set_) {
+            //    printf("%d ", *it);
+            //}
+            //printf("\n");
+
+            unsigned long long idx = 0;
+            for (const auto& it: data_set_) {
+                if (it > el) break;
+                idx++;
+            }
+            //printf("idx: %lld\n", idx);
+            unsigned long long mask = mask_;
+            mask >>= idx;
+            mask <<= idx + 1;
+            mask += (1 << idx);
+            unsigned long long prefix = (1 << idx) - 1;
+            prefix &= mask_;
+            unsigned long long res = prefix + mask;
+            if (!on) res = unset_bit(res, idx);
+            return res;
+        }
+
+        unsigned long long hash_without_el(const T& el) {
+            /*
+            printf("hash_without: %lld, el: %d\n", hash(), el->value);
+            for(const auto& it: data_set_) {
+                printf("%d ", *it);
+            }
+            printf("\n");
+            */
+            unsigned long long idx = 0;
+            for (const auto& it: data_set_) {
+                if (it == el) break;
+                idx++;
+            }
+            //printf("%lld\n", idx);
+            unsigned long long mask = mask_;
+            //printf("    mask: %d\n", mask);
+            mask >>= idx + 1;
+            //printf("    mask: %d\n", mask);
+            mask <<= idx;
+            //printf("    mask: %d\n", mask);
+            unsigned long long prefix = (1 << idx) - 1;
+            //printf("    prefix: %d\n", prefix);
+            prefix &= mask_;
+            //printf("    prefix: %d\n", prefix);
+            //printf("    prefix + mask: %d\n", prefix + mask);
+            return prefix + mask;
+        }
+
         bool is_present(T el) {
             unsigned long long cp = mask_;
             int inx = -1;
@@ -131,37 +189,28 @@ class PartitionView {
 
         class iterator {
             public:
-                /*bool operator==(const iterator& it) {
-                    if (it.r_ == 1) return r_ == 1;
-                    return c_ == it.c_;
-                }*/
 
                 bool operator!=(const iterator& it) {
-                    printf("op: %d %d\n", it.r_, r_);
-                    if (it.r_ != r_) return true;
-                    if (r_ == 1) return false;
+                    if (it.last_) return !last_;
                     return it.c_ != c_;
                 }
 
                 void operator++() {
-                    while (c_[r_] > g_[r_-1] && r_) {
-                        r_--;
+                    //print();
+                    r_ = data_.size() - 1;
+                    while (c_[r_] > g_[r_-1] && r_) r_--;
+                    if (r_ == 0) {
+                        last_ = true;
+                        return;
                     }
-                    if (r_ == 1) return;
-                    if (r_) c_[r_] = c_[r_]+1;
-                    if (c_[r_] > g_[r_]) {
-                        g_[r_] = c_[r_];
-                    }
-                    while (r_ < n1_) {
-                        r_++;
+                    c_[r_]++;
+                    g_[r_] = max(g_[r_], c_[r_]);
+                    r_++;
+                    while (r_ < data_.size()) {
                         c_[r_] = 1;
                         g_[r_] = g_[r_-1];
+                        r_++;
                     }
-                    for (int j = 1; j <= g_[n1_] + 1; ++j) {
-                        c_[n1_] = j;
-                        print();
-                    }
-                    if (n1_) r_ = 1;
                 }
 
                 vector<int>& operator*() {
@@ -171,7 +220,7 @@ class PartitionView {
                 unsigned long long hash() {
                     unsigned long long result = 0;
                     int base = 1; 
-                    for (int i=1; i<data_.size(); i++) {
+                    for (int i=0; i<data_.size(); i++) {
                         result += c_[i] * base;
                         base *= data_.size();
                     }
@@ -184,28 +233,34 @@ class PartitionView {
                         printf("%d ", it);
                     }
                     printf("\n");
+                    /*
                     printf("print g: ");
                     for (const auto& it : g_) {
                         printf("%d ", it);
                     }
                     printf("\nr_=%d\n", r_);
+                    */
                 }
 
                 bool singleton(T el) {
-                    int partition;
-                    for (int i=1; i < data_.size(); i++) {
-                        if (data_[i] == el) partition = c_[i];
+                    int partition, idx;
+                    for (int i=0; i < data_.size(); i++) {
+                        if (data_[i] == el) {
+                            partition = c_[i];
+                            idx = i;
+                        }
                     }
-                    for (int i=1; i < data_.size(); i++) {
+                    for (int i=0; i < data_.size(); i++) {
+                        if (i == idx) continue;
                         if (c_[i] == partition) return false;
                     }
                     return true;
                 }
 
                 void remove_singleton(T& el_to_remove) {
-                    int partition = -1, idx;
-                    for (int i=1; i < data_.size(); i++) {
-                        if (partition >= 0) c_[i]--;
+                    int partition = 1000000, idx;
+                    for (int i=0; i < data_.size(); i++) {
+                        if (c_[i] > partition) c_[i]--;
                         g_[i] = max(g_[i-1], c_[i]);
                         if (data_[i] != el_to_remove) continue;
                         partition = c_[i];
@@ -214,20 +269,70 @@ class PartitionView {
                     data_.erase(data_.begin() + idx);
                     c_.erase(c_.begin() + idx);
                     g_.erase(g_.begin() + idx);
-                    n1_ = data_.size()-1;
+                }
+
+                int max_partition() {
+                    return g_[data_.size() - 1];
+                }
+
+                void fix_object() {
+                    int next_part = 1;
+                    map<int, int> transl;
+                    for(int i=0; i<data_.size(); i++) {
+                        if (transl.find(c_[i]) != transl.end()) {
+                            c_[i] = transl[c_[i]];
+                            if (i > 0) g_[i] = max(c_[i], g_[i-1]);
+                            continue;
+                        }
+                        transl[c_[i]] = next_part;
+                        next_part++;
+                        c_[i] = transl[c_[i]];
+                        if (i > 0) g_[i] = max(c_[i], g_[i-1]);
+                    }
+                }
+
+                void add_to_partition(const T& el, int part) {
+                    int i = 0;
+                    while (i < data_.size() && data_[i] < el) {
+                        i++;
+                    }
+                    data_.insert(data_.begin() + i, el);
+                    c_.insert(c_.begin() + i, part);
+                    g_.insert(g_.begin() + i, 1);
+                    fix_object();
+                }
+
+                int partition(const T& el) const {
+                    for (int i=0; i < data_.size(); i++) {
+                        if (data_[i] == el) return c_[i];
+                    }
+                }
+
+                void merge(int a, int b) {
+                    int min = (a <= b ? a : b);
+                    int max = (a <= b ? b : a);
+                    for (int i=0; i < c_.size(); i++) {
+                        if (c_[i] == max) c_[i] = min;
+                        if (c_[i] > max) c_[i]--;
+                    }
+                }
+
+                map<int, vector<T>> distribution() {
+                    map<int, vector<T>> res;
+                    for (int i=0; i<data_.size(); i++) {
+                        res[c_[i]].push_back(data_[i]);
+                    }
+                    return res;
                 }
 
             private:
-                iterator(vector<T>& data, int r) : data_(data), r_(r) {
-                    data_.insert(data_.begin(), T());
-                    c_ = vector<int>(data_.size());
-                    g_ = vector<int>(data_.size());
-                    c_[0] = 0;
-                    n1_ = data_.size()-1;
-                    g_[0] = 0;
+                iterator(vector<T>& data, bool last) : data_(data), last_(last) {
+                    c_ = vector<int>(data_.size(), 1);
+                    g_ = vector<int>(data_.size(), 1);
                 }
 
-                int r_, n1_;
+                int r_;
+                bool last_;
                 vector<T> data_;
                 vector<int> c_;
                 vector<int> g_;
@@ -235,11 +340,11 @@ class PartitionView {
         };
 
         iterator begin() {
-            return iterator(data_, 0);
+            return iterator(data_, false);
         }
 
         iterator end() {
-            return iterator(data_, 1);
+            return iterator(data_, true);
         }
 
     private:

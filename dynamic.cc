@@ -1,11 +1,14 @@
 #include "dynamic.h"
 
+#include <cmath>
+
 #include <utility>
 #include <unordered_map>
 #include <iostream>
 #include <map>
 
 #include "tree.h"
+
 using namespace std;
 
 class Set {
@@ -97,10 +100,6 @@ namespace {
 typedef long long ll_t;
 // Bag id -> number of edges -> f -> weight -> how many solutions
 typedef vector<vector<vector<map<int, int>>>> dynamic_results ;
-
-ll_t pow(const ll_t x, const ll_t y) {
-  return y ? (y & 1 ? x : 1) * pow(x * x, y >> 1) : 1;
-}
 }  // namespace
 
 void recursive(dynamic_results &vec, int k, int l, Bag* bag) {

@@ -16,8 +16,11 @@ class DisjointSet {
         friend class DisjointSet;
         public:
         Representative(const T& t) : repr_(t) {}
-        bool operator==(const Representative& a) {
-            return a.repr_ == repr_;
+        bool operator==(const Representative& a) const {
+            return repr_ == a.repr_;
+        }
+        bool operator<(const Representative& a) const {
+            return repr_ < a.repr_;
         }
 
         private:

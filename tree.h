@@ -9,6 +9,10 @@ struct Node {
     int value;
     bool terminal;
 
+    bool operator<(const Node& a) {
+        return this->value < a.value;
+    }
+
     Node(int value, bool terminal): value(value), terminal(terminal) {}
 };
 
