@@ -29,12 +29,12 @@ void push_vec(queue<T>& Q, const vector<T>& v) {
 
 int max_node = 0;
 
-Node* nextNode(int probability) {
+Node nextNode(int probability) {
     bool terminal = (rand() % 100 < probability) ? true : false;
-    return new Node(max_node++, terminal);
+    return Node(max_node++, terminal);
 }
 
-Bag::Bag(Bag::BagType type, Bag* parent, Bag** ref, const vector<Node*>& nodes) : type(type), id(get_next_id()), parent(parent), nodes(nodes), left(nullptr), right(nullptr)  {
+Bag::Bag(Bag::BagType type, Bag* parent, Bag** ref, const vector<Node>& nodes) : type(type), id(get_next_id()), parent(parent), nodes(nodes), left(nullptr), right(nullptr)  {
     if (parent == nullptr) {
         rank = 0;
     }
@@ -44,7 +44,7 @@ Bag::Bag(Bag::BagType type, Bag* parent, Bag** ref, const vector<Node*>& nodes) 
     }
 }
 
-Bag::Bag(Bag::BagType type, Node* node) : type(type), id(get_next_id()) {
+Bag::Bag(Bag::BagType type, const Node& node) : type(type), id(get_next_id()) {
     if (type == Bag::BagType::INTRODUCE_NODE) {
         this->introduced_node = node;
     } 
@@ -52,7 +52,7 @@ Bag::Bag(Bag::BagType type, Node* node) : type(type), id(get_next_id()) {
         this->forgotten_node = node;
     }
 }
-Bag::Bag(Bag::BagType type, std::pair<Node*, Node*> introduced_edge, int edge_weight) : type(type), introduced_edge(introduced_edge), edge_weight(edge_weight), id(get_next_id()) {}
+Bag::Bag(Bag::BagType type, const std::pair<Node, Node>& introduced_edge, int edge_weight) : type(type), introduced_edge(introduced_edge), edge_weight(edge_weight), id(get_next_id()) {}
 Bag::Bag(Bag::BagType type) : type(type), id(get_next_id()) {}
 
 vector<Bag*> Bag::Generate(const vector<Bag::BagType>& types, int probability) {
@@ -60,8 +60,8 @@ vector<Bag*> Bag::Generate(const vector<Bag::BagType>& types, int probability) {
     switch(this->type) {
         case Bag::BagType::FORGET_NODE:
         {
-            vector<Node*> nodes = this->nodes;
-            Node* forgotten_node = nextNode(probability);
+            vector<Node> nodes = this->nodes;
+            Node forgotten_node = nextNode(probability);
             nodes.push_back(forgotten_node);
             Bag* b = new Bag(types[0], this, &this->left, nodes);
             this->forgotten_node = forgotten_node;
@@ -70,9 +70,9 @@ vector<Bag*> Bag::Generate(const vector<Bag::BagType>& types, int probability) {
         }
         case Bag::BagType::INTRODUCE_NODE:
         {
-            vector<Node*> nodes = this->nodes;
+            vector<Node> nodes = this->nodes;
             int r = rand() % (nodes.size());
-            Node* introduced_node = nodes[r];
+            Node introduced_node = nodes[r];
             nodes.erase(nodes.begin() + r);
             Bag* b = new Bag(types[0], this, &this->left, nodes);
             this->introduced_node = introduced_node;
@@ -97,7 +97,7 @@ vector<Bag*> Bag::Generate(const vector<Bag::BagType>& types, int probability) {
 }
 
 void Tree::Generate(int size, int probability) {
-    Bag* root = new Bag(Bag::BagType::FORGET_NODE, nullptr, nullptr, vector<Node*>{});
+    Bag* root = new Bag(Bag::BagType::FORGET_NODE, nullptr, nullptr, vector<Node>{});
     this->root = root;
     Bag* parent = root;
     queue<Bag*> Q;
@@ -167,7 +167,7 @@ void Tree::Generate(int size, int probability) {
 void Dfs(Bag* bag, int probability, int max_weight) {
     if (bag == nullptr) return;
     if (bag->type == Bag::BagType::FORGET_NODE) {
-        assert(bag->forgotten_node);
+        //assert(bag->forgotten_node);
         Bag* bag_it = bag;
         for (auto& x : bag->nodes) {
             int r = rand() % 100;
@@ -220,7 +220,6 @@ void Tree::DotTransitionGraph(string file_path) {
             myfile << front->parent->id << " -- " << front->id << ";" << endl;
         }
     }
-    //cout << "po forze" << endl;
 
     myfile << "}\n";
     myfile.close();
@@ -258,18 +257,18 @@ void Tree::DotTransitionGraph(string file_path) {
             case Bag::BagType::INTRODUCE_NODE:
                 type = "INTRODUCE_NODE";
                 color = "aquamarine";
-                additional_info = to_string(this->introduced_node->value);
+                additional_info = to_string(this->introduced_node.value);
                 break;
             case Bag::BagType::INTRODUCE_EDGE:
                 type = "INTRODUCE_EDGE";
                 color = "cornflowerblue";
-                additional_info = to_string(this->introduced_edge.first->value);
-                additional_info += to_string(this->introduced_edge.second->value);
+                additional_info = to_string(this->introduced_edge.first.value);
+                additional_info += to_string(this->introduced_edge.second.value);
                 break;
             case Bag::BagType::FORGET_NODE:
                 type = "FORGET_NODE";
                 color = "cyan4";
-                additional_info = to_string(this->forgotten_node->value);
+                additional_info = to_string(this->forgotten_node.value);
                 break;
             case Bag::BagType::MERGE:
                 type = "MERGE";
@@ -283,7 +282,7 @@ void Tree::DotTransitionGraph(string file_path) {
         stringstream label;
         label << type << " " << additional_info << " [id: " << this->id << "] : { ";
         for (const auto& x : this->nodes) {
-            label << x->value << " , ";
+            label << x.value << " , ";
         }
         label << "}\", color=" << color << ", style=filled";
         return label.str();
@@ -304,18 +303,15 @@ int Tree::GetTreeWidth() {
 void Bag::print() {
     cout << "nodes:\n";
     for (auto& el: this->nodes) {
-        cout << el->value << " ";
+        cout << el.value << " ";
     }
     cout << "type: " << this->type << endl;
     if (this->parent) cout << "parent: " << this->parent->id << endl;
-    printf("zomfg\n");
     if (this->left) cout << "left: " << this->left->id << endl;
-    printf("zomfg\n");
     if (this->right) cout << "right: " << this->right->id << endl;
-    printf("zomfg\n");
-    if (this->introduced_node) cout << this->introduced_node << endl;
-    if (this->forgotten_node) cout << this->forgotten_node << endl;
-    if (this->introduced_edge.first) cout << this->introduced_edge.first->value << this->introduced_edge.second->value << endl;
+    //cout << this->introduced_node.value << endl;
+    //cout << this->forgotten_node.value << endl;
+    //cout << this->introduced_edge.first.value << this->introduced_edge.second.value << endl;
 }
 
 std::pair<Bag*, std::vector<Bag*>::iterator> generate_rec(Bag* parent, std::vector<Bag*>::iterator next_to_add) {
@@ -327,13 +323,13 @@ std::pair<Bag*, std::vector<Bag*>::iterator> generate_rec(Bag* parent, std::vect
     case Bag::LEAF:
     {
       current->parent = parent;
-      current->nodes = vector<Node*>{};
+      current->nodes = vector<Node>{};
       current->left = rec.first;
       current->right = nullptr;
       //current->print();
       printf("cur: %d, nodes:\n", current->id);
       for (auto& it: current->nodes) {
-          printf("%d ", it->value);
+          printf("%d ", it.value);
       }
       printf("\n");
       return std::make_pair(current, ++next_to_add);
@@ -349,7 +345,7 @@ std::pair<Bag*, std::vector<Bag*>::iterator> generate_rec(Bag* parent, std::vect
       //current->print();
       printf("cur: %d, nodes:\n", current->id);
       for (auto& it: current->nodes) {
-          printf("%d ", it->value);
+          printf("%d ", it.value);
       }
       printf("\n");
       return std::make_pair(current, rec.second);
@@ -361,14 +357,14 @@ std::pair<Bag*, std::vector<Bag*>::iterator> generate_rec(Bag* parent, std::vect
       current->left = rec.first;
       current->right = nullptr;
       for (auto& n: current->left->nodes) {
-          if(n->value != current->forgotten_node->value) {
+          if(n.value != current->forgotten_node.value) {
             current->nodes.push_back(n);
           }
       }
       //current->print();
       printf("cur: %d, nodes:\n", current->id);
       for (auto& it: current->nodes) {
-          printf("%d ", it->value);
+          printf("%d ", it.value);
       }
       printf("\n");
       return std::make_pair(current, rec.second);
@@ -384,7 +380,7 @@ std::pair<Bag*, std::vector<Bag*>::iterator> generate_rec(Bag* parent, std::vect
       //current->print();
       printf("cur: %d, nodes:\n", current->id);
       for (auto& it: current->nodes) {
-          printf("%d ", it->value);
+          printf("%d ", it.value);
       }
       printf("\n");
       return std::make_pair(current, rec.second);
@@ -398,7 +394,7 @@ std::pair<Bag*, std::vector<Bag*>::iterator> generate_rec(Bag* parent, std::vect
       current->nodes = current->left->nodes;
       printf("cur: %d, nodes:\n", current->id);
       for (auto& it: current->nodes) {
-          printf("%d ", it->value);
+          printf("%d ", it.value);
       }
       printf("\n");
       //current->print();
@@ -414,7 +410,7 @@ Tree::Tree(std::vector<Bag*> &bags) {
   this->root = rec.first;
 }
 
-void Tree::AddNodeToAllBags(Bag* b, Node* n) {
+void Tree::AddNodeToAllBags(Bag* b, Node n) {
     if (b == nullptr) return;
     if (b->type == Bag::INTRODUCE_NODE && b->introduced_node == n) {
         b->parent->left = b->left;

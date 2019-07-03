@@ -1,7 +1,6 @@
 #include "dynamic.h"
 
 #include <cmath>
-
 #include <utility>
 #include <unordered_map>
 #include <iostream>
@@ -68,9 +67,9 @@ class Set {
       }
   };
 
-  Set(const vector<Node*>& nodes) : nodes_(nodes) {}
+  Set(const vector<Node>& nodes) : nodes_(nodes) {}
 
-  vector<Node*> nodes_;
+  vector<Node> nodes_;
   
   Iterator begin() {
     //cout << "begin()\n";
@@ -80,7 +79,7 @@ class Set {
 
     Iterator iterator(false);
     for (const auto& it : nodes_) {
-      iterator.m_[it->value] = 0;
+      iterator.m_[it.value] = 0;
     }
     return iterator;
   }
@@ -119,19 +118,19 @@ void recursive(dynamic_results &vec, int k, int l, Bag* bag) {
     }
     if (bag->type == Bag::FORGET_NODE && set.nodes_.size() == 0) {
       map<int, int> m;
-      m[bag->forgotten_node->value] = 0;
+      m[bag->forgotten_node.value] = 0;
       auto new_it = Set::from_map(m);
       for (auto& weight: vec[bag->left->id][j][*new_it]) {
         vec[bag->id][j][0][weight.first] += weight.second;
       }
       
-      m[bag->forgotten_node->value] = 1;
+      m[bag->forgotten_node.value] = 1;
       new_it.set_current_state(m);
       for (auto& weight: vec[bag->left->id][j][*new_it]) {
         vec[bag->id][j][0][weight.first] += weight.second;
       }
       
-      m[bag->forgotten_node->value] = 2;
+      m[bag->forgotten_node.value] = 2;
       new_it.set_current_state(m);
       for (auto& weight: vec[bag->left->id][j][*new_it]) {
         vec[bag->id][j][0][weight.first] += weight.second;
@@ -146,21 +145,21 @@ void recursive(dynamic_results &vec, int k, int l, Bag* bag) {
         case Bag::INTRODUCE_NODE:
         {
           auto m = it.get_current_state();
-          m.erase(bag->introduced_node->value);
+          m.erase(bag->introduced_node.value);
           auto new_it = Set::from_map(m);
           for (auto& weight: vec[bag->left->id][j][*new_it]) {
             vec[bag->id][j][*it][weight.first] += weight.second;
           }
           // terminale musza byc wziete
-          if (bag->introduced_node->terminal && 
-              it.get_current_state()[bag->introduced_node->value] == 0) {
+          if (bag->introduced_node.terminal && 
+              it.get_current_state()[bag->introduced_node.value] == 0) {
 
             vec[bag->id][j][*it].clear();
             vec[bag->id][j][*it][0] = 0;
           }
           // v1
-          if (bag->introduced_node->value == 0 &&
-              it.get_current_state()[bag->introduced_node->value] != 1) {
+          if (bag->introduced_node.value == 0 &&
+              it.get_current_state()[bag->introduced_node.value] != 1) {
             vec[bag->id][j][*it].clear();
             vec[bag->id][j][*it][0] = 0;
           }
@@ -178,19 +177,19 @@ void recursive(dynamic_results &vec, int k, int l, Bag* bag) {
         case Bag::FORGET_NODE:
         {
           auto m = it.get_current_state();
-          m[bag->forgotten_node->value] = 0;
+          m[bag->forgotten_node.value] = 0;
           auto new_it = Set::from_map(m);
           for (auto& weight: vec[bag->left->id][j][*new_it]) {
             vec[bag->id][j][*it][weight.first] += weight.second;
           }
           
-          m[bag->forgotten_node->value] = 1;
+          m[bag->forgotten_node.value] = 1;
           new_it.set_current_state(m);
           for (auto& weight: vec[bag->left->id][j][*new_it]) {
             vec[bag->id][j][*it][weight.first] += weight.second;
           }
           
-          m[bag->forgotten_node->value] = 2;
+          m[bag->forgotten_node.value] = 2;
           new_it.set_current_state(m);
           for (auto& weight: vec[bag->left->id][j][*new_it]) {
             vec[bag->id][j][*it][weight.first] += weight.second;
@@ -215,8 +214,8 @@ void recursive(dynamic_results &vec, int k, int l, Bag* bag) {
         case Bag::INTRODUCE_EDGE:
         {
           vec[bag->id][j][*it] = vec[bag->left->id][j][*it];
-          int id_1 = it.get_current_state()[bag->introduced_edge.first->value];
-          int id_2 = it.get_current_state()[bag->introduced_edge.second->value];
+          int id_1 = it.get_current_state()[bag->introduced_edge.first.value];
+          int id_2 = it.get_current_state()[bag->introduced_edge.second.value];
           if (j>0 && id_1 == id_2 && id_1 > 0) {
             for (auto& weight: vec[bag->left->id][j-1][*it]) {
               vec[bag->id][j][*it][weight.first + bag->edge_weight] += weight.second;

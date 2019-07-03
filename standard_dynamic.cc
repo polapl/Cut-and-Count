@@ -13,30 +13,30 @@ const unsigned long long int INF = 1000000;
 typedef std::vector<std::vector<std::vector<unsigned long long>>> dynamic_results ;
 
 
-void merge_child_partitions(Node* first, Node* second, dynamic_results& vec, Bag* t) {
+void merge_child_partitions(const Node& first, const Node& second, dynamic_results& vec, Bag* t) {
   //printf("merge_child_partitions\n");
-  SubsetView<Node*> sset(t->nodes);
+  SubsetView<Node> sset(t->nodes);
   for(; sset; ++sset) {
     if (!sset.is_present(first) || !sset.is_present(second))
       continue;
-    vector<Node*> sset_materialize = sset.materialize();
-    printf("sset_materialize: ");
-    for(const auto& it: sset_materialize) {
-      printf("%d ", *it);
-    }
-    printf("\n");
-    printf("FORGET NODE: %d\n", t->parent->forgotten_node);
-    PartitionView<Node*> pset(sset_materialize);
+    vector<Node> sset_materialize = sset.materialize();
+    //printf("sset_materialize: ");
+    //for(const auto& it: sset_materialize) {
+    //  printf("%d ", it.value);
+    //}
+    //printf("\n");
+    //printf("FORGET NODE: %d\n", t->parent->forgotten_node.value);
+    PartitionView<Node> pset(sset_materialize);
     for (auto it = pset.begin(); it != pset.end(); ++it) {
       int p1 = it.partition(first);
       int p2 = it.partition(second);
       if (p1 == p2) continue;
-      PartitionView<Node*>::iterator copy = it;
-      printf("BEFORE: ");
-      copy.print();
+      PartitionView<Node>::iterator copy = it;
+      //printf("BEFORE: ");
+      //copy.print();
       copy.merge(p1, p2);
-      printf("AFTER: ");
-      copy.print();
+      //printf("AFTER: ");
+      //copy.print();
       vec[t->parent->id][sset.hash()][copy.hash()] = min(
         vec[t->parent->id][sset.hash()][copy.hash()],
         vec[t->id][sset.hash()][it.hash()] + 1
@@ -51,20 +51,20 @@ void recursive(dynamic_results &vec, int k, int l, Bag* bag) {
   recursive(vec, k, l, bag->left);
   recursive(vec, k, l, bag->right);
 
-  SubsetView<Node*> sset(bag->nodes);
+  SubsetView<Node> sset(bag->nodes);
   for(; sset; ++sset) {
     bool one_edge_introduced = false;
-    vector<Node*> sset_materialize = sset.materialize();
+    vector<Node> sset_materialize = sset.materialize();
 
     printf("\nsset_materialize %d:", bag->id);
     for(auto& it: sset_materialize) {
-      printf("  %d ", it->value);
+      printf("  %d ", it.value);
     }
     printf("\n");
 
-    PartitionView<Node*> pset(sset_materialize);
+    PartitionView<Node> pset(sset_materialize);
     for (auto it = pset.begin(); it != pset.end(); ++it) {
-      //printf("vec[%d][%lld][%lld]\n", bag->id, sset.hash(), it.hash());
+      printf("vec[%d][%lld][%lld]\n", bag->id, sset.hash(), it.hash());
       it.print();
       switch(bag->type) {
         case Bag::LEAF:
@@ -77,7 +77,7 @@ void recursive(dynamic_results &vec, int k, int l, Bag* bag) {
         case Bag::INTRODUCE_NODE:
         {
           vec[bag->id][sset.hash()][it.hash()] = vec[bag->left->id][sset.hash_without_el(bag->introduced_node)][it.hash()];
-          if (bag->introduced_node->terminal && !sset.is_present(bag->introduced_node)) {
+          if (bag->introduced_node.terminal && !sset.is_present(bag->introduced_node)) {
             //printf("NIE SPELNIA WARUNKOW\n");
             vec[bag->id][sset.hash()][it.hash()] = INF;
           } else if (sset.is_present(bag->introduced_node) && !it.singleton(bag->introduced_node)) {
@@ -95,17 +95,18 @@ void recursive(dynamic_results &vec, int k, int l, Bag* bag) {
         }
         case Bag::FORGET_NODE:
         {
+          //printf("popatrz na %d %d %d = %d", bag->left->id, sset.hash_with_el(bag->forgotten_node, false), it.hash(), vec[bag->left->id][sset.hash_with_el(bag->forgotten_node, false)][it.hash()]);
           vec[bag->id][sset.hash()][it.hash()] = vec[bag->left->id][sset.hash_with_el(bag->forgotten_node, false)][it.hash()];
           int max_part = it.max_partition();
           for(int i=1; i<=max_part; i++) {
-            PartitionView<Node*>::iterator partition_copy = it;
+            PartitionView<Node>::iterator partition_copy = it;
             partition_copy.add_to_partition(bag->forgotten_node, i);
             unsigned long long tymczasowy = sset.hash_with_el(bag->forgotten_node, true);
-            printf("partition el is added: %d\n", i);
-            printf("new part: ");
+            //printf("partition el is added: %d\n", i);
+            //printf("new part: ");
             partition_copy.print();
-            printf("full hash: %lld, part hash: %lld\n", tymczasowy, partition_copy.hash());
-            printf("%d %lld %lld\n", bag->left->id, tymczasowy, partition_copy.hash());
+            //printf("full hash: %lld, part hash: %lld\n", tymczasowy, partition_copy.hash());
+            //printf("%d %lld %lld\n", bag->left->id, tymczasowy, partition_copy.hash());
             vec[bag->id][sset.hash()][it.hash()] = 
               min(vec[bag->id][sset.hash()][it.hash()],
                   vec[bag->left->id][tymczasowy][partition_copy.hash()]);
@@ -119,33 +120,48 @@ void recursive(dynamic_results &vec, int k, int l, Bag* bag) {
           // part1 and part2 are used to iterate through all possible pairs that:
           // - do not create an cycle
           // - sum up to pset
-          PartitionView<Node*> part1 = PartitionView<Node*>(sset_materialize);
-          PartitionView<Node*> part2 = PartitionView<Node*>(sset_materialize);
+          PartitionView<Node> part1 = PartitionView<Node>(sset_materialize);
+          PartitionView<Node> part2 = PartitionView<Node>(sset_materialize);
           for (auto part_it1 = part1.begin(); part_it1 != part1.end(); ++part_it1) {
             DisjointSet<int> disjoint_set;
+            //printf("w secie: ");
             for (const auto& s_m_it : sset_materialize) {
-              disjoint_set.add(s_m_it->value);
+              //printf("%d ", s_m_it.value);
+              disjoint_set.add(s_m_it.value);
             }
+            //printf("\n");
             // disjoint_set.Create(sset_materialize.begin(), sset_materialize.end());
             const auto& distribution1 = part_it1.distribution();
             // Merge sets from part1.
             for (auto distr_it: distribution1) {
               for (int s = 1; s < distr_it.second.size(); s++) {
-                disjoint_set.join(distr_it.second[0]->value, distr_it.second[s]->value);
+                //printf("  1: join: %d %d\n", distr_it.second[0].value, distr_it.second[s].value);
+                disjoint_set.join(distr_it.second[0].value, distr_it.second[s].value);
               }
+            }
+            //printf("reprezentanci: \n");
+            for (const auto& s_m_it : sset_materialize) {
+              //printf("%d ", disjoint_set.find(s_m_it.value));
             }
             for (auto part_it2 = part2.begin(); part_it2 != part2.end(); ++part_it2) {
               bool cycle = false;
               DisjointSet<int> disjoint_set_copy = disjoint_set;
               const auto& distribution2 = part_it2.distribution();
+              //part_it1.print();
+              //printf(" vs "); 
+              //part_it2.print();
               for (auto distr_it: distribution2) {
                 for (int s=1; s<distr_it.second.size(); s++) {
-                  if (disjoint_set_copy.find(distr_it.second[0]->value) ==
-                      disjoint_set_copy.find(distr_it.second[s]->value)) {
+                  //printf("  2: join: %d %d\n", distr_it.second[0].value, distr_it.second[s].value);
+                  disjoint_set_copy.find(distr_it.second[0].value).print();
+                  disjoint_set_copy.find(distr_it.second[s].value).print();
+                  if (disjoint_set_copy.find(distr_it.second[0].value) ==
+                      disjoint_set_copy.find(distr_it.second[s].value)) {
                         cycle = true;
+                        //printf("cykl\n");
                         break;
                       }
-                  disjoint_set_copy.join(distr_it.second[0]->value, distr_it.second[s]->value);
+                  disjoint_set_copy.join(distr_it.second[0].value, distr_it.second[s].value);
                 }
               }
               if (!cycle) {
@@ -154,28 +170,31 @@ void recursive(dynamic_results &vec, int k, int l, Bag* bag) {
                 auto pset_distribution = it.distribution();
                 for (const auto& map_it : pset_distribution) {
                   for (int s = 1; s < map_it.second.size(); s++) {
-                    if (disjoint_set_copy.find(map_it.second[0]->value) ==
-                        disjoint_set_copy.find(map_it.second[s]->value)) continue;
+                    // printf("%d %d ", distr_it.second[0].value, distr_it.second[s].value);
+                    if (disjoint_set_copy.find(map_it.second[0].value) ==
+                        disjoint_set_copy.find(map_it.second[s].value)) continue;
                     equal = false;
                   }
                 }
+                //if (!equal) printf("not equal 1\n");
                 // Check whether find(x) == find(y) => x and y in the same part in pset.
-                map<DisjointSet<int>::Representative, vector<Node*>> merged_parts;
+                map<DisjointSet<int>::Representative, vector<Node>> merged_parts;
                 for (const auto& s_m_it : sset_materialize) {
-                  merged_parts[disjoint_set_copy.find(s_m_it->value)].push_back(s_m_it);
+                  merged_parts[disjoint_set_copy.find(s_m_it.value)].push_back(s_m_it);
                 }
                 for (const auto& merged_parts_it: merged_parts) {
                   for (int s = 1; s < merged_parts_it.second.size(); s++) {
-                    Node* el1 = merged_parts_it.second[0];
-                    Node* el2 = merged_parts_it.second[s];
+                    Node el1 = merged_parts_it.second[0];
+                    Node el2 = merged_parts_it.second[s];
                     if (it.partition(el1) != it.partition(el2)) equal = false;
                   }
                 }
+                //if (!equal) printf("not equal 2\n");
+                //else printf("equal\n");
                 if (!equal) continue;
                 vec[bag->id][sset.hash()][it.hash()] = min(vec[bag->id][sset.hash()][it.hash()],
                   vec[bag->left->id][sset.hash()][part_it1.hash()] +
                   vec[bag->right->id][sset.hash()][part_it2.hash()]);
-                
               }
             }
           }

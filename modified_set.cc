@@ -1,6 +1,3 @@
-#ifndef ALGORITHM_DISJOINT_SET_H_
-#define ALGORITHM_DISJOINT_SET_H_
-
 #include <functional>
 #include <unordered_map>
 #include <list>
@@ -22,12 +19,9 @@ class DisjointSet {
         bool operator<(const Representative& a) const {
             return repr_ < a.repr_;
         }
-        void print() {
-            printf("%d\n", repr_);
-        }
 
         private:
-        const T repr_;
+        const T& repr_;
     };
 
     Representative find(const T& t) {
@@ -37,7 +31,6 @@ class DisjointSet {
             path.push_back(GetObjectRepresentative(path.back()));
         }
         RelaxRepresentativePath(path.back(), path);
-        //printf("path back: %d\n", path.back());
         return Representative(path.back());
     }
 
@@ -103,7 +96,19 @@ class DisjointSet {
         }
     }
 
+
     std::unordered_map<T, internal_repr_mem> data_;
 };
 
-#endif  // ALGORITHM_DISJOINT_SET_H_
+#include <iostream>
+
+int main() {
+    DisjointSet<int> d;
+    std::vector<int> v{1,2,3,4,5,6,7,8,9,0};
+    for (const auto& x : v) {
+        d.add(x);
+    }
+
+    d.join(0, 1);
+    std::cout << (d.find(0) == d.find(1)? "EQUAL" : "NOT EQUAL") << std::endl;
+}

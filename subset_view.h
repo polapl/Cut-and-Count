@@ -110,19 +110,12 @@ class SubsetView {
         }
 
         unsigned long long hash_with_el(const T& el, bool on) {
-            //printf("hash_with: %lld\n", hash());
-            //printf("el to add: %d\n", *el);
-            //for(const auto& it: data_set_) {
-            //    printf("%d ", *it);
-            //}
-            //printf("\n");
 
             unsigned long long idx = 0;
             for (const auto& it: data_set_) {
-                if (it > el) break;
+                if (el < it) break;
                 idx++;
             }
-            //printf("idx: %lld\n", idx);
             unsigned long long mask = mask_;
             mask >>= idx;
             mask <<= idx + 1;
@@ -135,34 +128,21 @@ class SubsetView {
         }
 
         unsigned long long hash_without_el(const T& el) {
-            /*
-            printf("hash_without: %lld, el: %d\n", hash(), el->value);
-            for(const auto& it: data_set_) {
-                printf("%d ", *it);
-            }
-            printf("\n");
-            */
+
             unsigned long long idx = 0;
             for (const auto& it: data_set_) {
                 if (it == el) break;
                 idx++;
             }
-            //printf("%lld\n", idx);
             unsigned long long mask = mask_;
-            //printf("    mask: %d\n", mask);
             mask >>= idx + 1;
-            //printf("    mask: %d\n", mask);
             mask <<= idx;
-            //printf("    mask: %d\n", mask);
             unsigned long long prefix = (1 << idx) - 1;
-            //printf("    prefix: %d\n", prefix);
             prefix &= mask_;
-            //printf("    prefix: %d\n", prefix);
-            //printf("    prefix + mask: %d\n", prefix + mask);
             return prefix + mask;
         }
 
-        bool is_present(T el) {
+        bool is_present(const T& el) {
             unsigned long long cp = mask_;
             int inx = -1;
             for (int i=0; i<data_set_.size(); i++) {
@@ -196,7 +176,6 @@ class PartitionView {
                 }
 
                 void operator++() {
-                    //print();
                     r_ = data_.size() - 1;
                     while (c_[r_] > g_[r_-1] && r_) r_--;
                     if (r_ == 0) {
@@ -233,16 +212,9 @@ class PartitionView {
                         printf("%d ", it);
                     }
                     printf("\n");
-                    /*
-                    printf("print g: ");
-                    for (const auto& it : g_) {
-                        printf("%d ", it);
-                    }
-                    printf("\nr_=%d\n", r_);
-                    */
                 }
 
-                bool singleton(T el) {
+                bool singleton(const T& el) {
                     int partition, idx;
                     for (int i=0; i < data_.size(); i++) {
                         if (data_[i] == el) {
@@ -257,7 +229,7 @@ class PartitionView {
                     return true;
                 }
 
-                void remove_singleton(T& el_to_remove) {
+                void remove_singleton(const T& el_to_remove) {
                     int partition = 1000000, idx;
                     for (int i=0; i < data_.size(); i++) {
                         if (c_[i] > partition) c_[i]--;
@@ -294,12 +266,18 @@ class PartitionView {
                 void add_to_partition(const T& el, int part) {
                     int i = 0;
                     while (i < data_.size() && data_[i] < el) {
+                        //printf("%d < %d\n", data_[i], el);
                         i++;
                     }
+                    //printf("i = %d\n", i);
                     data_.insert(data_.begin() + i, el);
                     c_.insert(c_.begin() + i, part);
                     g_.insert(g_.begin() + i, 1);
+                    //printf("PRZED\n");
+                    //print();
                     fix_object();
+                    //printf("PO\n");
+                    //print();
                 }
 
                 int partition(const T& el) const {
