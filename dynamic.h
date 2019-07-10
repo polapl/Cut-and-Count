@@ -5,7 +5,7 @@
 class Dynamic {
  public:
   Dynamic(Tree* tree, int l) : tree(tree), l(l) {}
-  int Compute();
+  unsigned long long Compute();
   Tree* tree;
   int l;
 };

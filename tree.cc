@@ -88,24 +88,22 @@ vector<Bag*> Bag::Generate(const vector<Bag::BagType>& types, int probability) {
             bags.push_back(b2);
             break;
         }
-        case Bag::BagType::LEAF:
-            cout << "Leaf\n";
-        default:
-            cout << "Default\n";
     }
     return bags;
 }
 
 void Tree::Generate(int size, int probability) {
+    bag_id = 0;
+    max_node = 0;
     Bag* root = new Bag(Bag::BagType::FORGET_NODE, nullptr, nullptr, vector<Node>{});
     this->root = root;
     Bag* parent = root;
     queue<Bag*> Q;
 
-    vector<Bag*> bags = parent->Generate(vector<Bag::BagType> {Bag::BagType::FORGET_NODE}, 1);
+    vector<Bag*> bags = parent->Generate(vector<Bag::BagType> {Bag::BagType::FORGET_NODE}, 100);
     parent = bags[0];
 
-    for (int i=0; i<4; i++) {
+    for (int i = 0; i < tree_width - 1; i++) {
         bags = parent->Generate(vector<Bag::BagType> {Bag::BagType::FORGET_NODE}, probability);
         parent = bags[0];
     }
@@ -116,20 +114,26 @@ void Tree::Generate(int size, int probability) {
         Bag::BagType::FORGET_NODE,
     };
     while (!Q.empty() && size >= 0) {
+        printf("tree width: %d\n", this->tree_width);
         Bag* front = Q.front();
+        front->print();
         Q.pop();
         if (front == nullptr) continue;
         if (front->nodes.size() == 0 && front != this->root) {
+            printf("1\n");
             front->type = Bag::BagType::LEAF;
             front->parent->introduced_node = (front->parent->nodes)[0];
             continue;
         }
         if (front->type == Bag::BagType::MERGE) {
             int r1, r2;
-            if (front->nodes.size() == this->tree_width + 1) {
+            if (front->nodes.size() == this->tree_width + 1 ||
+                (front->nodes.size() == this->tree_width && front->type == Bag::BagType::FORGET_NODE)) {
+                printf("2a\n");
                 r1 = rand() % 2;
                 r2 = rand() % 2;
             } else {
+                printf("2b\n");
                 r1 = rand() % 3;
                 r2 = rand() % 3;
             }
@@ -141,9 +145,12 @@ void Tree::Generate(int size, int probability) {
             continue;
         } 
         int r;
-        if (front->nodes.size() == this->tree_width + 1) {
+        if (front->nodes.size() == this->tree_width + 1 ||
+            (front->nodes.size() == this->tree_width && front->type == Bag::BagType::FORGET_NODE)) {
+            printf("3a\n");
             r = rand() % 2;
         } else {
+            printf("3b\n");
             r = rand() % 3; 
         }
         Bag::BagType type = types[r];
@@ -156,6 +163,7 @@ void Tree::Generate(int size, int probability) {
         Q.pop();
         if (front == nullptr) continue;
         if (front->nodes.size() == 0 && front != this->root) {
+            printf("4\n");
             front->type = Bag::BagType::LEAF;
             continue;
         }
@@ -167,7 +175,6 @@ void Tree::Generate(int size, int probability) {
 void Dfs(Bag* bag, int probability, int max_weight) {
     if (bag == nullptr) return;
     if (bag->type == Bag::BagType::FORGET_NODE) {
-        //assert(bag->forgotten_node);
         Bag* bag_it = bag;
         for (auto& x : bag->nodes) {
             int r = rand() % 100;
@@ -202,7 +209,6 @@ void Tree::DotTransitionGraph(string file_path) {
     myfile << "edge [penwidth = 25, layer=\"background\", arrowhead=vee, arrowsize=25.0];" << endl;
     queue<Bag*> Q;
     Q.push(this->root);
-    //this->root->Print();
     while (!Q.empty()) {
         Bag* front = Q.front();
         Q.pop();
@@ -213,7 +219,6 @@ void Tree::DotTransitionGraph(string file_path) {
         if (front->right) {
             Q.push(front->right);
         }
-        //cout << front->id << endl;
         rank[front->rank].push_back(front->id);
         myfile << front->id << " [label= \"" << front->Label() << "]" << endl;
         if (front->parent != nullptr) {
@@ -258,6 +263,7 @@ void Tree::DotTransitionGraph(string file_path) {
                 type = "INTRODUCE_NODE";
                 color = "aquamarine";
                 additional_info = to_string(this->introduced_node.value);
+                if(this->introduced_node.terminal) additional_info += "*";
                 break;
             case Bag::BagType::INTRODUCE_EDGE:
                 type = "INTRODUCE_EDGE";
@@ -309,9 +315,6 @@ void Bag::print() {
     if (this->parent) cout << "parent: " << this->parent->id << endl;
     if (this->left) cout << "left: " << this->left->id << endl;
     if (this->right) cout << "right: " << this->right->id << endl;
-    //cout << this->introduced_node.value << endl;
-    //cout << this->forgotten_node.value << endl;
-    //cout << this->introduced_edge.first.value << this->introduced_edge.second.value << endl;
 }
 
 std::pair<Bag*, std::vector<Bag*>::iterator> generate_rec(Bag* parent, std::vector<Bag*>::iterator next_to_add) {
@@ -326,12 +329,6 @@ std::pair<Bag*, std::vector<Bag*>::iterator> generate_rec(Bag* parent, std::vect
       current->nodes = vector<Node>{};
       current->left = rec.first;
       current->right = nullptr;
-      //current->print();
-      printf("cur: %d, nodes:\n", current->id);
-      for (auto& it: current->nodes) {
-          printf("%d ", it.value);
-      }
-      printf("\n");
       return std::make_pair(current, ++next_to_add);
     }
     case Bag::INTRODUCE_NODE:
@@ -342,12 +339,6 @@ std::pair<Bag*, std::vector<Bag*>::iterator> generate_rec(Bag* parent, std::vect
       current->right = nullptr;
       current->nodes = current->left->nodes;
       current->nodes.push_back(current->introduced_node);
-      //current->print();
-      printf("cur: %d, nodes:\n", current->id);
-      for (auto& it: current->nodes) {
-          printf("%d ", it.value);
-      }
-      printf("\n");
       return std::make_pair(current, rec.second);
     }
     case Bag::FORGET_NODE:
@@ -361,12 +352,6 @@ std::pair<Bag*, std::vector<Bag*>::iterator> generate_rec(Bag* parent, std::vect
             current->nodes.push_back(n);
           }
       }
-      //current->print();
-      printf("cur: %d, nodes:\n", current->id);
-      for (auto& it: current->nodes) {
-          printf("%d ", it.value);
-      }
-      printf("\n");
       return std::make_pair(current, rec.second);
     }
     case Bag::MERGE:
@@ -377,12 +362,6 @@ std::pair<Bag*, std::vector<Bag*>::iterator> generate_rec(Bag* parent, std::vect
       rec = generate_rec(current, rec.second);
       current->right = rec.first;
       current->nodes = current->left->nodes;
-      //current->print();
-      printf("cur: %d, nodes:\n", current->id);
-      for (auto& it: current->nodes) {
-          printf("%d ", it.value);
-      }
-      printf("\n");
       return std::make_pair(current, rec.second);
     }
     case Bag::INTRODUCE_EDGE:
@@ -392,16 +371,8 @@ std::pair<Bag*, std::vector<Bag*>::iterator> generate_rec(Bag* parent, std::vect
       current->left = rec.first;
       current->right = nullptr;
       current->nodes = current->left->nodes;
-      printf("cur: %d, nodes:\n", current->id);
-      for (auto& it: current->nodes) {
-          printf("%d ", it.value);
-      }
-      printf("\n");
-      //current->print();
       return std::make_pair(current, rec.second);
     }
-    default:
-      printf("DEFAULT\n");
   } 
 }
 
@@ -410,17 +381,23 @@ Tree::Tree(std::vector<Bag*> &bags) {
   this->root = rec.first;
 }
 
-void Tree::AddNodeToAllBags(Bag* b, Node n) {
+void Tree::AddNodeToAllBags(Bag* b, Node n, bool front) {
     if (b == nullptr) return;
     if (b->type == Bag::INTRODUCE_NODE && b->introduced_node == n) {
-        b->parent->left = b->left;
-        b->left->parent = b->parent;
+        if (b->parent->left == b) {
+            b->parent->left = b->left; 
+            b->left->parent = b->parent;
+        } else {
+            b->parent->right = b->left; 
+            b->left->parent = b->parent;
+        }
     }
     bool already_present = false;
     for (auto& el: b->nodes) {
         if (el == n) already_present = true;
     } 
-    if (!already_present) b->nodes.push_back(n);
-    AddNodeToAllBags(b->left, n);
-    AddNodeToAllBags(b->right, n);
+    if (!already_present && !front) b->nodes.push_back(n);
+    if (!already_present && front) b->nodes.insert(b->nodes.begin(), n);
+    AddNodeToAllBags(b->left, n, front);
+    AddNodeToAllBags(b->right, n, front);
 }

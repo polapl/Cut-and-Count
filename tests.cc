@@ -7,14 +7,6 @@
 #include <gtest/gtest.h>
 using namespace std;
 
-/*
-TEST(SquareRootTest, PositiveNos) {
-  Tree tree;
-  tree.Generate(10,10);
-  EXPECT_EQ(1,1);
-}
-*/
-
 TEST(StandardDynamic_SimpleTriangle, StandardDynamic_SimpleTriangle) {
   Node c(0, true);
   Node b(1, false);
@@ -31,14 +23,12 @@ TEST(StandardDynamic_SimpleTriangle, StandardDynamic_SimpleTriangle) {
     new Bag(Bag::BagType::LEAF)
   };
   Tree tree(bags);
-  tree.AddNodeToAllBags(tree.root, a);
+  tree.AddNodeToAllBags(tree.root, a, false);
   tree.DotTransitionGraph("example.dot");
   tree.tree_width = 3;
-  StandardDynamic* dyn= new StandardDynamic(&tree, 3);
+  StandardDynamic* dyn= new StandardDynamic(&tree);
   int res = dyn->Compute();
-  printf("res = %d\n", res);
   EXPECT_EQ(res,1);
-  
 }
 
 TEST(StandardDynamic_SimplePath, StandardDynamic_SimplePath) {
@@ -57,10 +47,10 @@ TEST(StandardDynamic_SimplePath, StandardDynamic_SimplePath) {
   };
 
   Tree tree(bags);
-  tree.AddNodeToAllBags(tree.root, a);
+  tree.AddNodeToAllBags(tree.root, a, false);
   tree.DotTransitionGraph("example.dot");
   tree.tree_width = 3;
-  StandardDynamic* dyn= new StandardDynamic(&tree, 3);
+  StandardDynamic* dyn= new StandardDynamic(&tree);
   int res = dyn->Compute();
   printf("res = %d\n", res);
   EXPECT_EQ(res,2);
@@ -90,10 +80,10 @@ TEST(StandardDynamic_SimpleSquare, StandardDynamic_SimpleSquare) {
     new Bag(Bag::BagType::LEAF)
   };
   Tree tree(bags);
-  tree.AddNodeToAllBags(tree.root, a);
+  tree.AddNodeToAllBags(tree.root, a, false);
   tree.DotTransitionGraph("example.dot");
   tree.tree_width = 3;
-  StandardDynamic* dyn= new StandardDynamic(&tree, 3);
+  StandardDynamic* dyn= new StandardDynamic(&tree);
   int res = dyn->Compute();
   printf("res = %d\n", res);
   EXPECT_EQ(res,2);
@@ -120,11 +110,8 @@ TEST(SimpleTriangle, SimpleTriangle) {
   tree.tree_width = 3;
   Dynamic* dyn= new Dynamic(&tree, 3);
   int res = dyn->Compute();
-  printf("res = %d\n", res);
   EXPECT_EQ(res,1);
 }
-
-
 
 TEST(SimplePath, SimplePath) {
   Node a(0, true);
@@ -143,11 +130,9 @@ TEST(SimplePath, SimplePath) {
   };
   Tree tree(bags);
   tree.DotTransitionGraph("example.dot");
-  printf("TU TERAZ\n");
   tree.tree_width = 3;
   Dynamic* dyn= new Dynamic(&tree, 3);
   int res = dyn->Compute();
-  printf("res = %d\n", res);
   EXPECT_EQ(res,2);
 }
 
@@ -177,14 +162,61 @@ TEST(SimpleSquare, SimpleSquare) {
   };
   Tree tree(bags);
   tree.DotTransitionGraph("example.dot");
-  printf("TU TERAZ\n");
   tree.tree_width = 3;
   Dynamic* dyn= new Dynamic(&tree, 3);
   int res = dyn->Compute();
-  printf("res = %d\n", res);
   EXPECT_EQ(res,2);
 }
 
+TEST(SmallTests_HighProbability, SmallTests_HighProbability) {
+  int number_of_tests = 1;
+  while(number_of_tests--) {
+    Tree tree(3, 100);
+    printf("tree width = %d\n", tree.tree_width);
+    tree.Generate(50, 50);
+    tree.IntroduceEdges(50);
+    tree.DotTransitionGraph("example_dyn.dot");
+    
+    Dynamic* dyn= new Dynamic(&tree, 50);
+    unsigned long long res_dyn = dyn->Compute();
+    
+    tree.AddNodeToAllBags(tree.root, tree.root->forgotten_node, true);
+    tree.root = tree.root->left;
+    delete tree.root->parent;
+    tree.root->parent = nullptr;
+    tree.DotTransitionGraph("example_standard.dot");
+    tree.tree_width++;
+    StandardDynamic* standard_dyn= new StandardDynamic(&tree);
+    unsigned long long res_standard = standard_dyn->Compute();
+    printf("RESULTS: %d vs. %d\n", res_dyn, res_standard);
+    EXPECT_EQ(res_dyn, res_standard);
+  }
+}
+/*
+TEST(SmallTests_LowProbability, SmallTests_LowProbability) {
+  int number_of_tests = 14;
+  while(number_of_tests--) {
+    Tree tree(2, 100);
+    tree.Generate(5, 20);
+    tree.IntroduceEdges(50);
+    tree.DotTransitionGraph("example_dyn.dot");
+    
+    Dynamic* dyn= new Dynamic(&tree, 3);
+    unsigned long long res_dyn = dyn->Compute();
+    
+    tree.AddNodeToAllBags(tree.root, tree.root->forgotten_node, true);
+    tree.root = tree.root->left;
+    delete tree.root->parent;
+    tree.root->parent = nullptr;
+    tree.DotTransitionGraph("example_standard.dot");
+    tree.tree_width++;
+    StandardDynamic* standard_dyn= new StandardDynamic(&tree);
+    unsigned long long res_standard = standard_dyn->Compute();
+    printf("RESULTS: %d vs. %d\n", res_dyn, res_standard);
+    EXPECT_EQ(res_dyn, res_standard);
+  }
+}
+*/
 int main(int argc, char **argv) {
     testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();

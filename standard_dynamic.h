@@ -4,8 +4,7 @@
 
 class StandardDynamic {
  public:
-  StandardDynamic(Tree* tree, int l) : tree(tree), l(l) {}
-  int Compute();
+  StandardDynamic(Tree* tree) : tree(tree) {}
+  unsigned long long Compute();
   Tree* tree;
-  int l;
 };

@@ -22,9 +22,6 @@ class DisjointSet {
         bool operator<(const Representative& a) const {
             return repr_ < a.repr_;
         }
-        void print() {
-            printf("%d\n", repr_);
-        }
 
         private:
         const T repr_;
@@ -37,7 +34,6 @@ class DisjointSet {
             path.push_back(GetObjectRepresentative(path.back()));
         }
         RelaxRepresentativePath(path.back(), path);
-        //printf("path back: %d\n", path.back());
         return Representative(path.back());
     }
 

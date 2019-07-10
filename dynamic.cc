@@ -9,6 +9,7 @@
 #include "tree.h"
 
 using namespace std;
+const unsigned long long int INF = 1000000;
 
 class Set {
   public:
@@ -106,14 +107,13 @@ void recursive(dynamic_results &vec, int k, int l, Bag* bag) {
   recursive(vec, k, l, bag->left);
   recursive(vec, k, l, bag->right);
 
-  printf("bag->id: %d\n", bag->id);
+  //printf("bag->id: %d\n", bag->id);
 
   Set set(bag->nodes);
 
   for(int j=0; j<=l; j++){
     if (bag->type == Bag::LEAF) {
       vec[bag->id][j][0][0] = (j == 0) ? 1 : 0;
-      //printf("LEAF[%d][%d][%d] = %d\n", bag->id, j, 0, vec[bag->id][j][0]); 
       continue;
     }
     if (bag->type == Bag::FORGET_NODE && set.nodes_.size() == 0) {
@@ -135,7 +135,6 @@ void recursive(dynamic_results &vec, int k, int l, Bag* bag) {
       for (auto& weight: vec[bag->left->id][j][*new_it]) {
         vec[bag->id][j][0][weight.first] += weight.second;
       }
-      
       //printf("FORGET_NODE[%d][%d][0] = %d\n", bag->id, j, vec[bag->id][j][0]);
       continue;
     }
@@ -148,6 +147,10 @@ void recursive(dynamic_results &vec, int k, int l, Bag* bag) {
           m.erase(bag->introduced_node.value);
           auto new_it = Set::from_map(m);
           for (auto& weight: vec[bag->left->id][j][*new_it]) {
+            //printf("vec[%d][%d][%d][%d] += %d\n", bag->id, j, *it, weight.first, weight.second);
+            //printf("vec[%d].size() = %d", bag->id, vec[bag->id].size());
+            //printf("vec[%d][%d].size() = %d", bag->id, j, vec[bag->id][j].size());
+            //printf("vec[%d][%d][%d].size() = %d", bag->id, j, *it, vec[bag->id][j][*it].size());
             vec[bag->id][j][*it][weight.first] += weight.second;
           }
           // terminale musza byc wziete
@@ -163,15 +166,7 @@ void recursive(dynamic_results &vec, int k, int l, Bag* bag) {
             vec[bag->id][j][*it].clear();
             vec[bag->id][j][*it][0] = 0;
           }
-          //printf("INTRODUCE_NODE[%d][%d][%lld] = %d\n", bag->id, j, *it, vec[bag->id][j][*it]);
-          
-          /*
-          for (auto& m_el: it.give_m_()) {
-            printf("%d ", m_el.second);
-          }
-          printf("\n");
-          */
-          
+          //printf("INTRODUCE_NODE[%d][%d][%lld] = %d\n", bag->id, j, *it, vec[bag->id][j][*it]);       
           break;
         }
         case Bag::FORGET_NODE:
@@ -193,8 +188,7 @@ void recursive(dynamic_results &vec, int k, int l, Bag* bag) {
           new_it.set_current_state(m);
           for (auto& weight: vec[bag->left->id][j][*new_it]) {
             vec[bag->id][j][*it][weight.first] += weight.second;
-          }
-          
+          }   
           //printf("FORGET_NODE[%d][%d][%lld] = %d\n", bag->id, j, *it, vec[bag->id][j][*it]);
           break;
         }
@@ -224,42 +218,45 @@ void recursive(dynamic_results &vec, int k, int l, Bag* bag) {
           //printf("INTRODUCE_EDGE[%d][%d][%lld] = %d\n", bag->id, j, *it, vec[bag->id][j][*it]);
           break;
         }
-        default:
-          printf("DEFAULT\n");
       } 
     }
   }
 }
 
-int Dynamic::Compute() {  
-  dynamic_results vec = std::vector<std::vector<std::vector<std::map<int, int>>>>(this->tree->GetTreeSize() + 2);
+unsigned long long Dynamic::Compute() {  
+  /*
+  dynamic_results vec = std::vector<std::vector<std::vector<std::map<int, int>>>>(this->tree->GetTreeSize() + 1);
   for(int i=0; i <= this->tree->GetTreeSize(); i++) {
-    vec[i] = std::vector<std::vector<std::map<int, int>>>(this->l + 2);
+    vec[i] = std::vector<std::vector<std::map<int, int>>>(this->l + 1);
     for(int j=0; j <= this->l; j++){
-      vec[i][j] = std::vector<std::map<int, int>>(pow(3, this->tree->GetTreeWidth() + 1) + 2);
-      for(int f=0; f <= pow(3, this->tree->GetTreeWidth() + 1); f++) {
+      vec[i][j] = std::vector<std::map<int, int>>(pow(3, this->tree->GetTreeWidth() + 2) + 1);
+      for(int f=0; f <= pow(3, this->tree->GetTreeWidth() + 2); f++) {
         vec[i][j][f][0] = 0;
       }
     }
   }
-  recursive(vec, this->tree->GetTreeWidth(), this->l, this->tree->root);
-  for(int i=0; i <= this->tree->GetTreeSize(); i++) {
-    for(int j=0; j <= this->l; j++){
-      for(int f=0; f <= pow(3, this->tree->GetTreeWidth() + 1); f++) {
-        if (vec[i][j][f].size() == 1) continue;
-        printf("[%d][%d][%d]: ", i, j, f);
-        for (auto& weight: vec[i][j][f]) {
-          printf(": (%d, %d), ", weight.first, weight.second);
-        }
-        printf("\n");
+  */
+  int A = this->tree->GetTreeSize() + 1;
+  int B = this->l + 1;
+  int k = this->tree->GetTreeWidth();
+  int C = pow(3, k + 1)*k + 1;
+  printf("A = %d, B = %d, C = %d\n", A, B, C);
+  dynamic_results vec = std::vector<std::vector<std::vector<std::map<int, int>>>>(A, std::vector<std::vector<std::map<int, int>>>(B, std::vector<std::map<int, int>>(C)));
+  for(int i=0; i < A; i++) {
+    for(int j=0; j < B; j++){
+      for(int f=0; f < C; f++) {
+        vec[i][j][f][0] = 0;
       }
     }
   }
+  printf("przed recursive\n");
+  recursive(vec, this->tree->GetTreeWidth(), this->l, this->tree->root);
+  printf("po recursive\n");
   for(int i=0; i <= this->l; i++) {
     for (auto& weight: vec[tree->root->id][i][0]) {
       if (weight.second % 2 == 1)
         return i;
     }
   }
-  return -1;
+  return INF;
 }

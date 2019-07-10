@@ -7,7 +7,7 @@
 
 struct Node {
     int value;
-    bool terminal;
+    bool terminal = false;
 
     bool operator<(const Node& a) const {
         return this->value < a.value;
@@ -71,11 +71,10 @@ public:
     Bag* root;
     int tree_width;
     int max_weight;
-    // Arg 1: number of bags whose children have generated type -
-    // total number of bags is sum of the number and all "introduce subtrees"
-    // increased by 5 (root with its following forget bags), 
-    // Arg 2: probability per node it's a terminal
+    // Arg 1: number of bags whose children have randomly generated type.
+    // Arg 2: probability per node it is a terminal.
     void Generate(int, int);
+    // Used only for manual tests.
     // Bags should have only type and terminal set.
     Tree(std::vector<Bag*> &bags);
     // Arg: probability yes [0,100]
@@ -84,5 +83,5 @@ public:
     int GetGraphSize();
     int GetTreeSize();
     int GetTreeWidth();
-    void AddNodeToAllBags(Bag* b, Node n);
+    void AddNodeToAllBags(Bag* b, Node n, bool front);
 };

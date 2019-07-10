@@ -56,3 +56,35 @@ add_custom_command(OUTPUT ${IMAGES}
 )
 
 add_custom_target(generate_image DEPENDS ${IMAGES})
+
+# =============================================================================
+
+set(
+    TEX_FILES
+    "thesis.tex"
+)
+
+string(REPLACE "tex" "pdf" PDF_FILES "${TEX_FILES}")
+
+set(
+    THESIS_OUT
+    "${CMAKE_CURRENT_BINARY_DIR}/${PDF_FILES}"
+)
+
+set(
+    THESIS_TEXT
+    "${PROJECT_SOURCE_DIR}/${TEX_FILES}"
+)
+
+
+
+add_custom_command(OUTPUT ${THESIS_OUT}
+    COMMAND pdflatex ${THESIS_TEXT}
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+    DEPENDS ${THESIS_TEXT}
+    COMMENT "Generating thesis PDF"
+    VERBATIM
+)
+
+
+add_custom_target(generate_pdf DEPENDS ${THESIS_OUT})

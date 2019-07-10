@@ -266,18 +266,12 @@ class PartitionView {
                 void add_to_partition(const T& el, int part) {
                     int i = 0;
                     while (i < data_.size() && data_[i] < el) {
-                        //printf("%d < %d\n", data_[i], el);
                         i++;
                     }
-                    //printf("i = %d\n", i);
                     data_.insert(data_.begin() + i, el);
                     c_.insert(c_.begin() + i, part);
                     g_.insert(g_.begin() + i, 1);
-                    //printf("PRZED\n");
-                    //print();
                     fix_object();
-                    //printf("PO\n");
-                    //print();
                 }
 
                 int partition(const T& el) const {
@@ -328,20 +322,3 @@ class PartitionView {
     private:
         vector<T>& data_;
 };
-
-/*
- Sample usage:
- int main() {
-    vector<string> A{"Pola","Ala","Kasia","Basia","Wania", "Andrzejos"};
-    SubsetView<string> sset(A);
-    for (; sset; ++sset) {
-        cout << "{ ";
-        for (const auto& o : sset) {
-            cout << " " << o;
-        }
-        cout << " }\n";
-    } 
-    return 0;
-}
-
-*/
