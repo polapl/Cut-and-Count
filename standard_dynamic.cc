@@ -12,10 +12,11 @@ using namespace std;
 
 const unsigned long long int INF = 1000000;
 
-// typedef std::vector<std::vector<std::vector<unsigned long long>>> dynamic_results ;
-// typedef array<array<array<unsigned long long, INF>, INF>, INF> dynamic_results;
 typedef unordered_map<size_t, unordered_map<size_t, unordered_map<size_t, unsigned long long>>> dynamic_results;
 
+// Used for Bag of INTRODUCE_EDGE type.
+// If we introduce a new edge that connects two different partition subsets,
+// we have to merge them.
 void merge_child_partitions(const Node& first, const Node& second, dynamic_results& vec, Bag* t) {
   SubsetView<Node> sset(t->nodes);
   for(; sset; ++sset) {
@@ -28,19 +29,11 @@ void merge_child_partitions(const Node& first, const Node& second, dynamic_resul
       int p2 = it.partition(second);
       if (p1 == p2) continue;
       PartitionView<Node>::iterator copy = it;
-      //printf("merge %d %d\n", p1, p2);
-      //printf("przed: ");
-      //copy.print();
       copy.merge(p1, p2);
-      //printf("po: ");
-      //copy.print();
       vec[t->parent->id][sset.hash()][copy.hash()] = min(
         vec[t->parent->id][sset.hash()][copy.hash()],
         vec[t->id][sset.hash()][it.hash()] + 1
       );
-      //printf("vec[%d][%d][%d] = %d\n", t->id, sset.hash(), it.hash(), vec[t->id][sset.hash()][it.hash()]);
-      //printf("min: %d vs %d\n", vec[t->parent->id][sset.hash()][copy.hash()], vec[t->id][sset.hash()][it.hash()] + 1);
-      //printf("vec[%d][%d][%d] = %d\n", t->parent->id, sset.hash(), copy.hash(), vec[t->parent->id][sset.hash()][copy.hash()]);
     }
   }
 }
@@ -54,21 +47,13 @@ void recursive(dynamic_results &vec, int k, Bag* bag) {
   bool one_edge_introduced = false;
 
   SubsetView<Node> sset(bag->nodes);
+  // Iterate through all subsets of bag->nodes
   for(; sset; ++sset) {
-
-    
     vector<Node> sset_materialize = sset.materialize();
-    /*
-    printf("\nsset_materialize %d:", bag->id);
-    for(auto& it: sset_materialize) {
-      printf("  %d ", it.value);
-    }
-    printf("\n");
-    */
-    PartitionView<Node> pset(sset_materialize);
-    for (auto it = pset.begin(); it != pset.end(); ++it) {
 
-      //it.print();
+    PartitionView<Node> pset(sset_materialize);
+    // Iterate through all possible partitions
+    for (auto it = pset.begin(); it != pset.end(); ++it) {
 
       switch(bag->type) {
         case Bag::LEAF:
@@ -96,14 +81,11 @@ void recursive(dynamic_results &vec, int k, Bag* bag) {
         case Bag::FORGET_NODE:
         {
           vec[bag->id][sset.hash()][it.hash()] = vec[bag->left->id][sset.hash_with_el(bag->forgotten_node, false)][it.hash()];
-          //printf("przepisuje z: vec[%d][%d][%d] = %d\n", bag->left->id, sset.hash_with_el(bag->forgotten_node, false), it.hash(), vec[bag->left->id][sset.hash_with_el(bag->forgotten_node, false)][it.hash()]);
           int max_part = it.max_partition();
           for(int i=1; i<=max_part; i++) {
             PartitionView<Node>::iterator partition_copy = it;
             partition_copy.add_to_partition(bag->forgotten_node, i);
             unsigned long long tymczasowy = sset.hash_with_el(bag->forgotten_node, true);
-            // printf("partition copy: ");
-            // partition_copy.print();
             vec[bag->id][sset.hash()][it.hash()] = 
               min(vec[bag->id][sset.hash()][it.hash()],
                   vec[bag->left->id][tymczasowy][partition_copy.hash()]);
@@ -119,6 +101,7 @@ void recursive(dynamic_results &vec, int k, Bag* bag) {
           // - sum up to pset
           PartitionView<Node> part1 = PartitionView<Node>(sset_materialize);
           PartitionView<Node> part2 = PartitionView<Node>(sset_materialize);
+          // Check whether after merging part1 and part2 we will end up with cycle
           for (auto part_it1 = part1.begin(); part_it1 != part1.end(); ++part_it1) {
             DisjointSet<int> disjoint_set;
             for (const auto& s_m_it : sset_materialize) {
@@ -207,7 +190,6 @@ void recursive(dynamic_results &vec, int k, Bag* bag) {
       } 
     }
   }
-
 }
   
 
@@ -216,7 +198,6 @@ unsigned long long StandardDynamic::Compute() {
   int k = this->tree->GetTreeWidth();
   int B = pow(2, k + 2) + 1;
   int C = pow(k, k + 2) + 1;
-  // dynamic_results vec = std::vector<std::vector<std::vector<unsigned long long>>>(A, std::vector<std::vector<unsigned long long>>(B, std::vector<unsigned long long>(C, INF)));
   dynamic_results vec;
 
   for (int i=0; i<A; i++) {

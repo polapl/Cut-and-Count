@@ -11,6 +11,13 @@
 using namespace std;
 const unsigned long long int INF = 1000000;
 
+// Given a set, class Set is used to iterate through all assignments
+// of its elements to 0,1 or 2.
+// In terms of cut & cout algoritm:
+// 0 ~= isolated Node
+// 1 ~= partial solution in V1
+// 2 ~= partial solution in V2 
+
 class Set {
   public:
   class Iterator {
@@ -104,6 +111,7 @@ typedef vector<vector<vector<map<int, int>>>> dynamic_results ;
 
 void recursive(dynamic_results &vec, int k, int l, Bag* bag) {
   if(bag == nullptr) return;
+  // Firstly compute partial results for subtrees.
   recursive(vec, k, l, bag->left);
   recursive(vec, k, l, bag->right);
 
@@ -147,13 +155,9 @@ void recursive(dynamic_results &vec, int k, int l, Bag* bag) {
           m.erase(bag->introduced_node.value);
           auto new_it = Set::from_map(m);
           for (auto& weight: vec[bag->left->id][j][*new_it]) {
-            //printf("vec[%d][%d][%d][%d] += %d\n", bag->id, j, *it, weight.first, weight.second);
-            //printf("vec[%d].size() = %d", bag->id, vec[bag->id].size());
-            //printf("vec[%d][%d].size() = %d", bag->id, j, vec[bag->id][j].size());
-            //printf("vec[%d][%d][%d].size() = %d", bag->id, j, *it, vec[bag->id][j][*it].size());
             vec[bag->id][j][*it][weight.first] += weight.second;
           }
-          // terminale musza byc wziete
+          // Terminals have to be taken
           if (bag->introduced_node.terminal && 
               it.get_current_state()[bag->introduced_node.value] == 0) {
 
@@ -224,18 +228,6 @@ void recursive(dynamic_results &vec, int k, int l, Bag* bag) {
 }
 
 unsigned long long Dynamic::Compute() {  
-  /*
-  dynamic_results vec = std::vector<std::vector<std::vector<std::map<int, int>>>>(this->tree->GetTreeSize() + 1);
-  for(int i=0; i <= this->tree->GetTreeSize(); i++) {
-    vec[i] = std::vector<std::vector<std::map<int, int>>>(this->l + 1);
-    for(int j=0; j <= this->l; j++){
-      vec[i][j] = std::vector<std::map<int, int>>(pow(3, this->tree->GetTreeWidth() + 2) + 1);
-      for(int f=0; f <= pow(3, this->tree->GetTreeWidth() + 2); f++) {
-        vec[i][j][f][0] = 0;
-      }
-    }
-  }
-  */
   int A = this->tree->GetTreeSize() + 1;
   int B = this->l + 1;
   int k = this->tree->GetTreeWidth();
@@ -249,9 +241,7 @@ unsigned long long Dynamic::Compute() {
       }
     }
   }
-  printf("przed recursive\n");
   recursive(vec, this->tree->GetTreeWidth(), this->l, this->tree->root);
-  printf("po recursive\n");
   for(int i=0; i <= this->l; i++) {
     for (auto& weight: vec[tree->root->id][i][0]) {
       if (weight.second % 2 == 1)

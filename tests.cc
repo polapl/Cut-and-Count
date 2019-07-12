@@ -192,9 +192,9 @@ TEST(SmallTests_HighProbability, SmallTests_HighProbability) {
     EXPECT_EQ(res_dyn, res_standard);
   }
 }
-/*
+
 TEST(SmallTests_LowProbability, SmallTests_LowProbability) {
-  int number_of_tests = 14;
+  int number_of_tests = 2;
   while(number_of_tests--) {
     Tree tree(2, 100);
     tree.Generate(5, 20);
@@ -216,7 +216,7 @@ TEST(SmallTests_LowProbability, SmallTests_LowProbability) {
     EXPECT_EQ(res_dyn, res_standard);
   }
 }
-*/
+
 int main(int argc, char **argv) {
     testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();

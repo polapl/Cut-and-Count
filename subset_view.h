@@ -20,6 +20,7 @@ bool contains(const vector<A>& container, const A& value) {
     return find(container.begin(), container.end(), value) != container.end();
 }
 
+// Class to iterate through all subsets of a given set.
 template <typename T>
 class SubsetView {
     public:
@@ -162,6 +163,7 @@ class SubsetView {
         vector<T>& data_set_;
 };
 
+// Class to iterate through all partitions of a given set.
 template <typename T>
 class PartitionView {
     public:
@@ -229,6 +231,9 @@ class PartitionView {
                     return true;
                 }
 
+                // Instead of modyfying object, make this function static
+                // and directly return hash as it would be after singleton
+                // removal.
                 void remove_singleton(const T& el_to_remove) {
                     int partition = 1000000, idx;
                     for (int i=0; i < data_.size(); i++) {
@@ -307,6 +312,7 @@ class PartitionView {
                 bool last_;
                 vector<T> data_;
                 vector<int> c_;
+                // g_[i] = max of {c_[0],...,c_[i-1]}
                 vector<int> g_;
                 friend class PartitionView;
         };

@@ -95,14 +95,17 @@ vector<Bag*> Bag::Generate(const vector<Bag::BagType>& types, int probability) {
 void Tree::Generate(int size, int probability) {
     bag_id = 0;
     max_node = 0;
+    // Root is always of FORGET_NODE type.
     Bag* root = new Bag(Bag::BagType::FORGET_NODE, nullptr, nullptr, vector<Node>{});
     this->root = root;
     Bag* parent = root;
     queue<Bag*> Q;
 
+    // First Node is always a terminal.
     vector<Bag*> bags = parent->Generate(vector<Bag::BagType> {Bag::BagType::FORGET_NODE}, 100);
     parent = bags[0];
 
+    // Add as many forget Bags as possible in order to introduce new Nodes.
     for (int i = 0; i < tree_width - 1; i++) {
         bags = parent->Generate(vector<Bag::BagType> {Bag::BagType::FORGET_NODE}, probability);
         parent = bags[0];
@@ -113,8 +116,8 @@ void Tree::Generate(int size, int probability) {
         Bag::BagType::MERGE,
         Bag::BagType::FORGET_NODE,
     };
+    // The rest of a graph is generated randomly.
     while (!Q.empty() && size >= 0) {
-        printf("tree width: %d\n", this->tree_width);
         Bag* front = Q.front();
         front->print();
         Q.pop();
@@ -125,15 +128,15 @@ void Tree::Generate(int size, int probability) {
             front->parent->introduced_node = (front->parent->nodes)[0];
             continue;
         }
+        // Merge has always two children.
         if (front->type == Bag::BagType::MERGE) {
             int r1, r2;
+            // If we reached tree_width and cannot introduce any new Nodes.
             if (front->nodes.size() == this->tree_width + 1 ||
                 (front->nodes.size() == this->tree_width && front->type == Bag::BagType::FORGET_NODE)) {
-                printf("2a\n");
                 r1 = rand() % 2;
                 r2 = rand() % 2;
             } else {
-                printf("2b\n");
                 r1 = rand() % 3;
                 r2 = rand() % 3;
             }
@@ -145,12 +148,11 @@ void Tree::Generate(int size, int probability) {
             continue;
         } 
         int r;
+        // If we reached tree_width and cannot introduce any new Nodes.
         if (front->nodes.size() == this->tree_width + 1 ||
             (front->nodes.size() == this->tree_width && front->type == Bag::BagType::FORGET_NODE)) {
-            printf("3a\n");
             r = rand() % 2;
         } else {
-            printf("3b\n");
             r = rand() % 3; 
         }
         Bag::BagType type = types[r];
@@ -163,7 +165,6 @@ void Tree::Generate(int size, int probability) {
         Q.pop();
         if (front == nullptr) continue;
         if (front->nodes.size() == 0 && front != this->root) {
-            printf("4\n");
             front->type = Bag::BagType::LEAF;
             continue;
         }
@@ -317,6 +318,9 @@ void Bag::print() {
     if (this->right) cout << "right: " << this->right->id << endl;
 }
 
+// This function is used only for testing.
+// It generates tree based on a given vector of Bags,
+// preserving their order from top (root) to bottom (leaves).
 std::pair<Bag*, std::vector<Bag*>::iterator> generate_rec(Bag* parent, std::vector<Bag*>::iterator next_to_add) {
   Bag* current = *next_to_add;
   

@@ -5,6 +5,7 @@
 #include <vector>
 #include <utility>
 
+// Node corresponds to a graph node.
 struct Node {
     int value;
     bool terminal = false;
@@ -25,6 +26,7 @@ struct Node {
     Node(int value, bool terminal): value(value), terminal(terminal) {}
 };
 
+// Bag corresponds to a tree node, may contain many Nodes.
 class Bag {
 public:
     enum BagType {
@@ -47,11 +49,15 @@ public:
     Bag* left;
     Bag* right;
 
+    // Set only when bag is of INTRODUCE_NODE type.
     Node introduced_node;
+    // Set only when bag is of FORGET_NODE type.
     Node forgotten_node;
+    // Set only when bag is of INTRODUCE_EDGE type.
     std::pair<Node, Node> introduced_edge;
     long long int edge_weight;
 
+    // Generates children bags based on the given types and probability.
     std::vector<Bag*> Generate(const std::vector<Bag::BagType>& types, int probability);
 
     std::string Label() const;
@@ -79,9 +85,12 @@ public:
     Tree(std::vector<Bag*> &bags);
     // Arg: probability yes [0,100]
     void IntroduceEdges(int);
+    // Visualization
     void DotTransitionGraph(std::string file_path);
     int GetGraphSize();
     int GetTreeSize();
     int GetTreeWidth();
+    // Used for standard dynamic which assumes one terminal Node
+    // is present in all Bags.
     void AddNodeToAllBags(Bag* b, Node n, bool front);
 };

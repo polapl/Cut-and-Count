@@ -6,6 +6,7 @@
 #include <list>
 #include <vector>
 
+// Find & Union implementation.
 template <typename T>
 class DisjointSet {
     public:
