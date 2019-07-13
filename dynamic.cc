@@ -141,25 +141,27 @@ void recursive(dynamic_results &vec, int k, int l, Bag* bag) {
     }
     int counter = 0;
     for(auto it = set.begin(); it != set.end(); ++it, ++counter) {
+      unsigned long long it_hash = *it;
+
       switch(bag->type) {
         case Bag::INTRODUCE_NODE:
         {
           auto hash_without_node = it.hash_without_node(bag->introduced_node.value);
           for (auto& weight: vec[bag->left->id][j][hash_without_node]) {
-            vec[bag->id][j][*it][weight.first] += weight.second;
+            vec[bag->id][j][it_hash][weight.first] += weight.second;
           }
           // Terminals have to be taken
           if (bag->introduced_node.terminal && 
               it.get_value(bag->introduced_node.value) == 0) {
 
-            vec[bag->id][j][*it].clear();
-            vec[bag->id][j][*it][0] = 0;
+            vec[bag->id][j][it_hash].clear();
+            vec[bag->id][j][it_hash][0] = 0;
           }
           // v1
           if (bag->introduced_node.value == 0 &&
               it.get_value(bag->introduced_node.value) != 1) {
-            vec[bag->id][j][*it].clear();
-            vec[bag->id][j][*it][0] = 0;
+            vec[bag->id][j][it_hash].clear();
+            vec[bag->id][j][it_hash][0] = 0;
           }
           //printf("INTRODUCE_NODE[%d][%d][%lld] = %d\n", bag->id, j, *it, vec[bag->id][j][*it]);       
           break;
@@ -168,17 +170,17 @@ void recursive(dynamic_results &vec, int k, int l, Bag* bag) {
         {
           auto hash_with_node = it.hash_with_node(bag->forgotten_node.value, 0);
           for (auto& weight: vec[bag->left->id][j][hash_with_node]) {
-            vec[bag->id][j][*it][weight.first] += weight.second;
+            vec[bag->id][j][it_hash][weight.first] += weight.second;
           }
           
           hash_with_node = it.hash_with_node(bag->forgotten_node.value, 1);
           for (auto& weight: vec[bag->left->id][j][hash_with_node]) {
-            vec[bag->id][j][*it][weight.first] += weight.second;
+            vec[bag->id][j][it_hash][weight.first] += weight.second;
           }
           
           hash_with_node = it.hash_with_node(bag->forgotten_node.value, 2);
           for (auto& weight: vec[bag->left->id][j][hash_with_node]) {
-            vec[bag->id][j][*it][weight.first] += weight.second;
+            vec[bag->id][j][it_hash][weight.first] += weight.second;
           }   
           //printf("FORGET_NODE[%d][%d][%lld] = %d\n", bag->id, j, *it, vec[bag->id][j][*it]);
           break;
@@ -186,9 +188,9 @@ void recursive(dynamic_results &vec, int k, int l, Bag* bag) {
         case Bag::MERGE:
         {
           for (int i=0; i<=j; i++) {
-            for(auto& weight1: vec[bag->left->id][i][*it]) {
-              for(auto& weight2: vec[bag->right->id][j-i][*it]) {
-                vec[bag->id][j][*it][weight1.first + weight2.first] += weight1.second * weight2.second;
+            for(auto& weight1: vec[bag->left->id][i][it_hash]) {
+              for(auto& weight2: vec[bag->right->id][j-i][it_hash]) {
+                vec[bag->id][j][it_hash][weight1.first + weight2.first] += weight1.second * weight2.second;
               }
             }
             
@@ -198,12 +200,12 @@ void recursive(dynamic_results &vec, int k, int l, Bag* bag) {
         }
         case Bag::INTRODUCE_EDGE:
         {
-          vec[bag->id][j][*it] = vec[bag->left->id][j][*it];
+          vec[bag->id][j][it_hash] = vec[bag->left->id][j][it_hash];
           int id_1 = it.get_value(bag->introduced_edge.first.value);
           int id_2 = it.get_value(bag->introduced_edge.second.value);
           if (j>0 && id_1 == id_2 && id_1 > 0) {
-            for (auto& weight: vec[bag->left->id][j-1][*it]) {
-              vec[bag->id][j][*it][weight.first + bag->edge_weight] += weight.second;
+            for (auto& weight: vec[bag->left->id][j-1][it_hash]) {
+              vec[bag->id][j][it_hash][weight.first + bag->edge_weight] += weight.second;
             }
           }
           //printf("INTRODUCE_EDGE[%d][%d][%lld] = %d\n", bag->id, j, *it, vec[bag->id][j][*it]);

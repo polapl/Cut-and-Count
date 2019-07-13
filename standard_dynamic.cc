@@ -36,6 +36,8 @@ void set_value(dynamic_results& vec, int a, int b, int c, unsigned long long val
 void merge_child_partitions(const Node& first, const Node& second, dynamic_results& vec, Bag* t) {
   SubsetView<Node> sset(t->nodes);
   for(; sset; ++sset) {
+    ull sset_hash = sset.hash();
+    
     if (!sset.is_present(first) || !sset.is_present(second))
       continue;
     vector<Node> sset_materialize = sset.materialize();
@@ -46,9 +48,9 @@ void merge_child_partitions(const Node& first, const Node& second, dynamic_resul
       if (p1 == p2) continue;
       //PartitionView<Node>::iterator copy = it;
       int merged = it.merge(p1, p2);
-      ull current = get_value(vec, t->parent->id, sset.hash(), merged);
-      ull partial = get_value(vec, t->id, sset.hash(), it.hash());
-      set_value(vec, t->parent->id, sset.hash(), merged, min(current, partial + 1));
+      ull current = get_value(vec, t->parent->id, sset_hash, merged);
+      ull partial = get_value(vec, t->id, sset_hash, it.hash());
+      set_value(vec, t->parent->id, sset_hash, merged, min(current, partial + 1));
     }
   }
 }
@@ -64,17 +66,20 @@ void recursive(dynamic_results &vec, int k, Bag* bag) {
   SubsetView<Node> sset(bag->nodes);
   // Iterate through all subsets of bag->nodes
   for(; sset; ++sset) {
+    ull sset_hash = sset.hash();
+          
     vector<Node> sset_materialize = sset.materialize();
 
     PartitionView<Node> pset(sset_materialize);
     // Iterate through all possible partitions
     for (auto it = pset.begin(); it != pset.end(); ++it) {
+      ull it_hash = it.hash();
 
       switch(bag->type) {
         case Bag::LEAF:
         {
-          set_value(vec, bag->id, sset.hash(), it.hash(), 0);
-          //printf("LEAF[%d][%lld][%lld] = %lld\n", bag->id, sset.hash(), it.hash(), vec[bag->id][sset.hash()][it.hash()]);
+          set_value(vec, bag->id, sset_hash, it_hash, 0);
+          //printf("LEAF[%d][%lld][%lld] = %lld\n", bag->id, sset.hash(), it_hash, vec[bag->id][sset.hash()][it.hash()]);
           break;
         }
         case Bag::INTRODUCE_NODE:
@@ -84,26 +89,27 @@ void recursive(dynamic_results &vec, int k, Bag* bag) {
           if (sset.is_present(bag->introduced_node)) {
             int partition_without_node = it.remove_singleton(bag->introduced_node);
             unsigned long long partial = get_value(vec, bag->left->id, sset.hash_without_el(bag->introduced_node), partition_without_node);
-            set_value(vec, bag->id, sset.hash(), it.hash(), partial);
+            set_value(vec, bag->id, sset_hash, it_hash, partial);
           } else {
-            unsigned long long partial = get_value(vec, bag->left->id, sset.hash_without_el(bag->introduced_node), it.hash());
-            set_value(vec, bag->id, sset.hash(), it.hash(), partial);
+            unsigned long long partial = get_value(vec, bag->left->id, sset.hash_without_el(bag->introduced_node), it_hash);
+            set_value(vec, bag->id, sset_hash, it_hash, partial);
           }
           //printf("INTRODUCE_NODE[%d][%lld][%lld] = %lld\n", bag->id, sset.hash(), it.hash(), vec[bag->id][sset.hash()][it.hash()]);
           break;
         }
         case Bag::FORGET_NODE:
         {
-          ull partial = get_value(vec, bag->left->id, sset.hash_with_el(bag->forgotten_node, false), it.hash());
-          set_value(vec, bag->id, sset.hash(), it.hash(), partial);
+          ull partial = get_value(vec, bag->left->id, sset.hash_with_el(bag->forgotten_node, false), it_hash);
+          set_value(vec, bag->id, sset_hash, it_hash, partial);
           int max_part = it.max_partition();
+
           for(int i=1; i<=max_part; i++) {
-            PartitionView<Node>::iterator partition_copy = it;
-            partition_copy.add_to_partition(bag->forgotten_node, i);
-            unsigned long long tymczasowy = sset.hash_with_el(bag->forgotten_node, true);
-            ull current = get_value(vec, bag->id, sset.hash(), it.hash());
-            partial = get_value(vec, bag->left->id, tymczasowy, partition_copy.hash());
-            set_value(vec, bag->id, sset.hash(), it.hash(), min(current, partial));
+            //PartitionView<Node>::iterator partition_copy = it;
+            ull partition_with_node_hash = it.add_to_partition_hash(bag->forgotten_node, i);
+            ull set_with_node_hash = sset.hash_with_el(bag->forgotten_node, true);
+            ull current = get_value(vec, bag->id, sset_hash, it_hash);
+            partial = get_value(vec, bag->left->id, set_with_node_hash, partition_with_node_hash);
+            set_value(vec, bag->id, sset_hash, it_hash, min(current, partial));
           }
           //printf("FORGET_NODE[%d][%lld][%lld] = %lld\n", bag->id, sset.hash(), it.hash(),
           //       vec[bag->id][sset.hash()][it.hash()]);
@@ -114,32 +120,32 @@ void recursive(dynamic_results &vec, int k, Bag* bag) {
           // part1 and part2 are used to iterate through all possible pairs that:
           // - do not create an cycle
           // - sum up to pset
-          PartitionView<Node> part1 = PartitionView<Node>(sset_materialize);
-          PartitionView<Node> part2 = PartitionView<Node>(sset_materialize);
+          //PartitionView<Node> part1 = PartitionView<Node>(sset_materialize);
+          //PartitionView<Node> part2 = PartitionView<Node>(sset_materialize);
           // Check whether after merging part1 and part2 we will end up with cycle
-          for (auto part_it1 = part1.begin(); part_it1 != part1.end(); ++part_it1) {
+          for (auto part_it1 = pset.begin(); part_it1 != pset.end(); ++part_it1) {
             DisjointSet<int> disjoint_set;
             for (const auto& s_m_it : sset_materialize) {
               disjoint_set.add(s_m_it.value);
             }
             const auto& distribution1 = part_it1.distribution();
-            for (auto distr_it: distribution1) {
+            for (const auto& distr_it: distribution1) {
               for (int s = 1; s < distr_it.second.size(); s++) {
-                disjoint_set.join(distr_it.second[0].value, distr_it.second[s].value);
+                disjoint_set.join(distr_it.second[0].get().value, distr_it.second[s].get().value);
               }
             }
-            for (auto part_it2 = part2.begin(); part_it2 != part2.end(); ++part_it2) {
+            for (auto part_it2 = pset.begin(); part_it2 != pset.end(); ++part_it2) {
               bool cycle = false;
               DisjointSet<int> disjoint_set_copy = disjoint_set;
               const auto& distribution2 = part_it2.distribution();
-              for (auto distr_it: distribution2) {
+              for (const auto& distr_it: distribution2) {
                 for (int s=1; s<distr_it.second.size(); s++) {
-                  if (disjoint_set_copy.find(distr_it.second[0].value) ==
-                      disjoint_set_copy.find(distr_it.second[s].value)) {
+                  if (disjoint_set_copy.find(distr_it.second[0].get().value) ==
+                      disjoint_set_copy.find(distr_it.second[s].get().value)) {
                         cycle = true;
                         break;
                       }
-                  disjoint_set_copy.join(distr_it.second[0].value, distr_it.second[s].value);
+                  disjoint_set_copy.join(distr_it.second[0].get().value, distr_it.second[s].get().value);
                 }
               }
               if (!cycle) {
@@ -148,8 +154,8 @@ void recursive(dynamic_results &vec, int k, Bag* bag) {
                 auto pset_distribution = it.distribution();
                 for (const auto& map_it : pset_distribution) {
                   for (int s = 1; s < map_it.second.size(); s++) {
-                    if (disjoint_set_copy.find(map_it.second[0].value) ==
-                        disjoint_set_copy.find(map_it.second[s].value)) continue;
+                    if (disjoint_set_copy.find(map_it.second[0].get().value) ==
+                        disjoint_set_copy.find(map_it.second[s].get().value)) continue;
                     equal = false;
                   }
                 }
@@ -166,10 +172,10 @@ void recursive(dynamic_results &vec, int k, Bag* bag) {
                   }
                 }
                 if (!equal) continue;
-                ull current = get_value(vec, bag->id, sset.hash(), it.hash());
-                ull partial_1 = get_value(vec, bag->left->id, sset.hash(), part_it1.hash());
-                ull partial_2 = get_value(vec, bag->right->id, sset.hash(), part_it2.hash());
-                set_value(vec, bag->id, sset.hash(), it.hash(), min(current, partial_1 + partial_2));
+                ull current = get_value(vec, bag->id, sset_hash, it_hash);
+                ull partial_1 = get_value(vec, bag->left->id, sset_hash, part_it1.hash());
+                ull partial_2 = get_value(vec, bag->right->id, sset_hash, part_it2.hash());
+                set_value(vec, bag->id, sset_hash, it_hash, min(current, partial_1 + partial_2));
               }
             }
           }
@@ -182,8 +188,8 @@ void recursive(dynamic_results &vec, int k, Bag* bag) {
           // If we cannot take this edge to solution because
           // one of its endpoints is not in the current subset.
           if (!sset.is_present(bag->introduced_edge.first) || !sset.is_present(bag->introduced_edge.second)) {
-            ull partial = get_value(vec, bag->left->id, sset.hash(), it.hash());
-            set_value(vec, bag->id, sset.hash(), it.hash(), partial);
+            ull partial = get_value(vec, bag->left->id, sset_hash, it_hash);
+            set_value(vec, bag->id, sset_hash, it_hash, partial);
             break;
           }
           int part_a = it.partition(bag->introduced_edge.first);
@@ -191,8 +197,8 @@ void recursive(dynamic_results &vec, int k, Bag* bag) {
           // If we cannot take this edge to solution because
           // its endpoints are in different partitions.
           if (part_a != part_b) {
-            ull partial = get_value(vec, bag->left->id, sset.hash(), it.hash());
-            set_value(vec, bag->id, sset.hash(), it.hash(), partial);
+            ull partial = get_value(vec, bag->left->id, sset_hash, it_hash);
+            set_value(vec, bag->id, sset_hash, it_hash, partial);
             break;
           }
           // When we may take the edge to the solution.

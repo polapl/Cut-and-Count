@@ -268,15 +268,40 @@ class PartitionView {
                     }
                 }
 
-                void add_to_partition(const T& el, int part) {
+                int add_to_partition_hash(const T& el, int part) {
                     int i = 0;
                     while (i < data_.size() && data_[i] < el) {
                         i++;
                     }
-                    data_.insert(data_.begin() + i, el);
+                    //data_.insert(data_.begin() + i, el);
                     c_.insert(c_.begin() + i, part);
-                    g_.insert(g_.begin() + i, 1);
-                    fix_object();
+                    //g_.insert(g_.begin() + i, 1);
+                    
+                    //fix_object();
+                    unsigned long long result = 0;
+                    int base = 1; 
+
+                    int next_part = 1;
+                    map<int, int> transl;
+                    for(int i=0; i<data_.size() + 1; i++) {
+                        int c_i;
+                        if (transl.find(c_[i]) != transl.end()) {
+                            c_i = transl[c_[i]];
+                            //if (i > 0) g_[i] = max(c_[i], g_[i-1]);
+                            //continue;
+                        } else {
+                            transl[c_[i]] = next_part;
+                            next_part++;
+                            c_i = transl[c_[i]];
+                            //if (i > 0) g_[i] = max(c_[i], g_[i-1]);
+                        }
+
+                        result += c_i * base;
+                        base *= (data_.size() + 1);
+                    }
+                    c_.erase(c_.begin() + i);
+
+                    return result;
                 }
 
                 int partition(const T& el) const {
@@ -303,8 +328,8 @@ class PartitionView {
                     return result;
                 }
 
-                map<int, vector<T>> distribution() {
-                    map<int, vector<T>> res;
+                map<int, vector<std::reference_wrapper<T>>> distribution() {
+                    map<int, vector<std::reference_wrapper<T>>> res;
                     for (int i=0; i<data_.size(); i++) {
                         res[c_[i]].push_back(data_[i]);
                     }

@@ -194,7 +194,7 @@ TEST(SmallTests_HighProbability, SmallTests_HighProbability) {
 }
 
 TEST(SmallTests_LowProbability, SmallTests_LowProbability) {
-  int number_of_tests = 2;
+  int number_of_tests = 10;
   while(number_of_tests--) {
     Tree tree(2, 100);
     tree.Generate(5, 20);
