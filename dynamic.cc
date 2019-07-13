@@ -38,24 +38,31 @@ class Set {
       return hash();
     }
 
+    long long int hash_with_node(int id, int val) {
+      m_[id] = val;
+      auto res = hash();
+      m_.erase(id);
+      return res;
+    }
+
+    long long int hash_without_node(int id) {
+      int val = m_[id];
+      m_.erase(id);
+      auto res = hash();
+      m_[id] = val;
+      return res;
+    }
+
+    int get_value(int id) {
+      return m_[id];
+    }
+
     bool operator==(const Iterator& it) const {
       return **this == *it; // not nice but works
     }
 
     bool operator!=(const Iterator& it) const {
       return **this != *it; // not nice but works
-    }
-
-    map<int, int> get_current_state() {
-      return m_;
-    }
-
-    void set_current_state(const map<int, int>& m) {
-      m_ = m;
-    }
-
-    map<int, int> give_m_() {
-      return m_;
     }
 
     private:
@@ -94,13 +101,6 @@ class Set {
   Iterator end() {
     return Iterator(true);
   }
-
-  static Iterator from_map(const map<int, int>& m) {
-    Iterator it(false);
-    it.m_ = m;
-    it.last_ == it.m_.size() == 0;
-    return it;
-  }
 };
 
 namespace {
@@ -125,22 +125,15 @@ void recursive(dynamic_results &vec, int k, int l, Bag* bag) {
       continue;
     }
     if (bag->type == Bag::FORGET_NODE && set.nodes_.size() == 0) {
-      map<int, int> m;
-      m[bag->forgotten_node.value] = 0;
-      auto new_it = Set::from_map(m);
-      for (auto& weight: vec[bag->left->id][j][*new_it]) {
+      for (auto& weight: vec[bag->left->id][j][0]) {
         vec[bag->id][j][0][weight.first] += weight.second;
       }
       
-      m[bag->forgotten_node.value] = 1;
-      new_it.set_current_state(m);
-      for (auto& weight: vec[bag->left->id][j][*new_it]) {
+      for (auto& weight: vec[bag->left->id][j][1]) {
         vec[bag->id][j][0][weight.first] += weight.second;
       }
       
-      m[bag->forgotten_node.value] = 2;
-      new_it.set_current_state(m);
-      for (auto& weight: vec[bag->left->id][j][*new_it]) {
+      for (auto& weight: vec[bag->left->id][j][2]) {
         vec[bag->id][j][0][weight.first] += weight.second;
       }
       //printf("FORGET_NODE[%d][%d][0] = %d\n", bag->id, j, vec[bag->id][j][0]);
@@ -151,22 +144,20 @@ void recursive(dynamic_results &vec, int k, int l, Bag* bag) {
       switch(bag->type) {
         case Bag::INTRODUCE_NODE:
         {
-          auto m = it.get_current_state();
-          m.erase(bag->introduced_node.value);
-          auto new_it = Set::from_map(m);
-          for (auto& weight: vec[bag->left->id][j][*new_it]) {
+          auto hash_without_node = it.hash_without_node(bag->introduced_node.value);
+          for (auto& weight: vec[bag->left->id][j][hash_without_node]) {
             vec[bag->id][j][*it][weight.first] += weight.second;
           }
           // Terminals have to be taken
           if (bag->introduced_node.terminal && 
-              it.get_current_state()[bag->introduced_node.value] == 0) {
+              it.get_value(bag->introduced_node.value) == 0) {
 
             vec[bag->id][j][*it].clear();
             vec[bag->id][j][*it][0] = 0;
           }
           // v1
           if (bag->introduced_node.value == 0 &&
-              it.get_current_state()[bag->introduced_node.value] != 1) {
+              it.get_value(bag->introduced_node.value) != 1) {
             vec[bag->id][j][*it].clear();
             vec[bag->id][j][*it][0] = 0;
           }
@@ -175,22 +166,18 @@ void recursive(dynamic_results &vec, int k, int l, Bag* bag) {
         }
         case Bag::FORGET_NODE:
         {
-          auto m = it.get_current_state();
-          m[bag->forgotten_node.value] = 0;
-          auto new_it = Set::from_map(m);
-          for (auto& weight: vec[bag->left->id][j][*new_it]) {
+          auto hash_with_node = it.hash_with_node(bag->forgotten_node.value, 0);
+          for (auto& weight: vec[bag->left->id][j][hash_with_node]) {
             vec[bag->id][j][*it][weight.first] += weight.second;
           }
           
-          m[bag->forgotten_node.value] = 1;
-          new_it.set_current_state(m);
-          for (auto& weight: vec[bag->left->id][j][*new_it]) {
+          hash_with_node = it.hash_with_node(bag->forgotten_node.value, 1);
+          for (auto& weight: vec[bag->left->id][j][hash_with_node]) {
             vec[bag->id][j][*it][weight.first] += weight.second;
           }
           
-          m[bag->forgotten_node.value] = 2;
-          new_it.set_current_state(m);
-          for (auto& weight: vec[bag->left->id][j][*new_it]) {
+          hash_with_node = it.hash_with_node(bag->forgotten_node.value, 2);
+          for (auto& weight: vec[bag->left->id][j][hash_with_node]) {
             vec[bag->id][j][*it][weight.first] += weight.second;
           }   
           //printf("FORGET_NODE[%d][%d][%lld] = %d\n", bag->id, j, *it, vec[bag->id][j][*it]);
@@ -212,8 +199,8 @@ void recursive(dynamic_results &vec, int k, int l, Bag* bag) {
         case Bag::INTRODUCE_EDGE:
         {
           vec[bag->id][j][*it] = vec[bag->left->id][j][*it];
-          int id_1 = it.get_current_state()[bag->introduced_edge.first.value];
-          int id_2 = it.get_current_state()[bag->introduced_edge.second.value];
+          int id_1 = it.get_value(bag->introduced_edge.first.value);
+          int id_2 = it.get_value(bag->introduced_edge.second.value);
           if (j>0 && id_1 == id_2 && id_1 > 0) {
             for (auto& weight: vec[bag->left->id][j-1][*it]) {
               vec[bag->id][j][*it][weight.first + bag->edge_weight] += weight.second;
