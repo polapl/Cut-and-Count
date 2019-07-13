@@ -75,6 +75,8 @@ class SubsetView {
         iterator end() {
             return iterator(0, data_set_);
         }
+
+        // Returns current subset
         vector<T> materialize() const {
             vector<T> result;
             int idx = 0;
@@ -234,18 +236,16 @@ class PartitionView {
                 // Instead of modyfying object, make this function static
                 // and directly return hash as it would be after singleton
                 // removal.
-                void remove_singleton(const T& el_to_remove) {
-                    int partition = 1000000, idx;
-                    for (int i=0; i < data_.size(); i++) {
-                        if (c_[i] > partition) c_[i]--;
-                        g_[i] = max(g_[i-1], c_[i]);
-                        if (data_[i] != el_to_remove) continue;
-                        partition = c_[i];
-                        idx = i;
+                int remove_singleton(const T& el_to_remove) {
+                    int partition = this->partition(el_to_remove);
+                    unsigned long long result = 0;
+                    int base = 1; 
+                    for (int i=0; i<data_.size(); i++) {
+                        if (data_[i] == el_to_remove) continue;
+                        result += (c_[i] > partition ? c_[i] - 1 : c_[i]) * base;
+                        base *= data_.size() - 1;
                     }
-                    data_.erase(data_.begin() + idx);
-                    c_.erase(c_.begin() + idx);
-                    g_.erase(g_.begin() + idx);
+                    return result;
                 }
 
                 int max_partition() {
@@ -285,13 +285,22 @@ class PartitionView {
                     }
                 }
 
-                void merge(int a, int b) {
+                int merge(int a, int b) {
                     int min = (a <= b ? a : b);
                     int max = (a <= b ? b : a);
+                    /*
                     for (int i=0; i < c_.size(); i++) {
                         if (c_[i] == max) c_[i] = min;
                         if (c_[i] > max) c_[i]--;
                     }
+                    */
+                    unsigned long long result = 0;
+                    int base = 1; 
+                    for (int i=0; i<data_.size(); i++) {
+                        result += (c_[i] == max ? min : (c_[i] > max ? c_[i] - 1 : c_[i])) * base;
+                        base *= data_.size();
+                    }
+                    return result;
                 }
 
                 map<int, vector<T>> distribution() {

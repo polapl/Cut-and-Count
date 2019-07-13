@@ -13,6 +13,22 @@ using namespace std;
 const unsigned long long int INF = 1000000;
 
 typedef unordered_map<size_t, unordered_map<size_t, unordered_map<size_t, unsigned long long>>> dynamic_results;
+typedef unsigned long long  ull;
+
+unsigned long long get_value(const dynamic_results& vec, int a, int b, int c) {
+  auto first_map = vec.find(a);
+  if (first_map == vec.end()) return INF;
+  auto second_map = (*first_map).second.find(b);
+  if (second_map == (*first_map).second.end()) return INF;
+  auto third_map = (*second_map).second.find(c);
+  if (third_map == (*second_map).second.end()) return INF;
+  return (*third_map).second;
+}
+
+void set_value(dynamic_results& vec, int a, int b, int c, unsigned long long val) {
+  if (val == INF) return;
+  vec[a][b][c] = val;
+}
 
 // Used for Bag of INTRODUCE_EDGE type.
 // If we introduce a new edge that connects two different partition subsets,
@@ -28,12 +44,11 @@ void merge_child_partitions(const Node& first, const Node& second, dynamic_resul
       int p1 = it.partition(first);
       int p2 = it.partition(second);
       if (p1 == p2) continue;
-      PartitionView<Node>::iterator copy = it;
-      copy.merge(p1, p2);
-      vec[t->parent->id][sset.hash()][copy.hash()] = min(
-        vec[t->parent->id][sset.hash()][copy.hash()],
-        vec[t->id][sset.hash()][it.hash()] + 1
-      );
+      //PartitionView<Node>::iterator copy = it;
+      int merged = it.merge(p1, p2);
+      ull current = get_value(vec, t->parent->id, sset.hash(), merged);
+      ull partial = get_value(vec, t->id, sset.hash(), it.hash());
+      set_value(vec, t->parent->id, sset.hash(), merged, min(current, partial + 1));
     }
   }
 }
@@ -58,37 +73,37 @@ void recursive(dynamic_results &vec, int k, Bag* bag) {
       switch(bag->type) {
         case Bag::LEAF:
         {
-          vec[bag->id][sset.hash()][it.hash()] = (unsigned long long) 0;
+          set_value(vec, bag->id, sset.hash(), it.hash(), 0);
           //printf("LEAF[%d][%lld][%lld] = %lld\n", bag->id, sset.hash(), it.hash(), vec[bag->id][sset.hash()][it.hash()]);
           break;
         }
         case Bag::INTRODUCE_NODE:
         {
-          if (bag->introduced_node.terminal && !sset.is_present(bag->introduced_node)) {
-            vec[bag->id][sset.hash()][it.hash()] = INF;
-          } else if (sset.is_present(bag->introduced_node) && !it.singleton(bag->introduced_node)) {
-            vec[bag->id][sset.hash()][it.hash()] = INF;
-          } else if (sset.is_present(bag->introduced_node)) {
-            auto partition_without_node = it;
-            partition_without_node.remove_singleton(bag->introduced_node);
-            vec[bag->id][sset.hash()][it.hash()] = vec[bag->left->id][sset.hash_without_el(bag->introduced_node)][partition_without_node.hash()];
+          if (bag->introduced_node.terminal && !sset.is_present(bag->introduced_node)) break;
+          if (sset.is_present(bag->introduced_node) && !it.singleton(bag->introduced_node)) break;
+          if (sset.is_present(bag->introduced_node)) {
+            int partition_without_node = it.remove_singleton(bag->introduced_node);
+            unsigned long long partial = get_value(vec, bag->left->id, sset.hash_without_el(bag->introduced_node), partition_without_node);
+            set_value(vec, bag->id, sset.hash(), it.hash(), partial);
           } else {
-            vec[bag->id][sset.hash()][it.hash()] = vec[bag->left->id][sset.hash_without_el(bag->introduced_node)][it.hash()];
+            unsigned long long partial = get_value(vec, bag->left->id, sset.hash_without_el(bag->introduced_node), it.hash());
+            set_value(vec, bag->id, sset.hash(), it.hash(), partial);
           }
           //printf("INTRODUCE_NODE[%d][%lld][%lld] = %lld\n", bag->id, sset.hash(), it.hash(), vec[bag->id][sset.hash()][it.hash()]);
           break;
         }
         case Bag::FORGET_NODE:
         {
-          vec[bag->id][sset.hash()][it.hash()] = vec[bag->left->id][sset.hash_with_el(bag->forgotten_node, false)][it.hash()];
+          ull partial = get_value(vec, bag->left->id, sset.hash_with_el(bag->forgotten_node, false), it.hash());
+          set_value(vec, bag->id, sset.hash(), it.hash(), partial);
           int max_part = it.max_partition();
           for(int i=1; i<=max_part; i++) {
             PartitionView<Node>::iterator partition_copy = it;
             partition_copy.add_to_partition(bag->forgotten_node, i);
             unsigned long long tymczasowy = sset.hash_with_el(bag->forgotten_node, true);
-            vec[bag->id][sset.hash()][it.hash()] = 
-              min(vec[bag->id][sset.hash()][it.hash()],
-                  vec[bag->left->id][tymczasowy][partition_copy.hash()]);
+            ull current = get_value(vec, bag->id, sset.hash(), it.hash());
+            partial = get_value(vec, bag->left->id, tymczasowy, partition_copy.hash());
+            set_value(vec, bag->id, sset.hash(), it.hash(), min(current, partial));
           }
           //printf("FORGET_NODE[%d][%lld][%lld] = %lld\n", bag->id, sset.hash(), it.hash(),
           //       vec[bag->id][sset.hash()][it.hash()]);
@@ -151,9 +166,10 @@ void recursive(dynamic_results &vec, int k, Bag* bag) {
                   }
                 }
                 if (!equal) continue;
-                vec[bag->id][sset.hash()][it.hash()] = min(vec[bag->id][sset.hash()][it.hash()],
-                  vec[bag->left->id][sset.hash()][part_it1.hash()] +
-                  vec[bag->right->id][sset.hash()][part_it2.hash()]);
+                ull current = get_value(vec, bag->id, sset.hash(), it.hash());
+                ull partial_1 = get_value(vec, bag->left->id, sset.hash(), part_it1.hash());
+                ull partial_2 = get_value(vec, bag->right->id, sset.hash(), part_it2.hash());
+                set_value(vec, bag->id, sset.hash(), it.hash(), min(current, partial_1 + partial_2));
               }
             }
           }
@@ -166,7 +182,8 @@ void recursive(dynamic_results &vec, int k, Bag* bag) {
           // If we cannot take this edge to solution because
           // one of its endpoints is not in the current subset.
           if (!sset.is_present(bag->introduced_edge.first) || !sset.is_present(bag->introduced_edge.second)) {
-            vec[bag->id][sset.hash()][it.hash()] = vec[bag->left->id][sset.hash()][it.hash()];
+            ull partial = get_value(vec, bag->left->id, sset.hash(), it.hash());
+            set_value(vec, bag->id, sset.hash(), it.hash(), partial);
             break;
           }
           int part_a = it.partition(bag->introduced_edge.first);
@@ -174,12 +191,12 @@ void recursive(dynamic_results &vec, int k, Bag* bag) {
           // If we cannot take this edge to solution because
           // its endpoints are in different partitions.
           if (part_a != part_b) {
-            vec[bag->id][sset.hash()][it.hash()] = vec[bag->left->id][sset.hash()][it.hash()];
+            ull partial = get_value(vec, bag->left->id, sset.hash(), it.hash());
+            set_value(vec, bag->id, sset.hash(), it.hash(), partial);
             break;
           }
           // When we may take the edge to the solution.
           if (!one_edge_introduced) {
-            //printf("current: %d\n", vec[bag->id][sset.hash()][it.hash()]);
             merge_child_partitions(bag->introduced_edge.first, bag->introduced_edge.second, vec, bag->left);
             one_edge_introduced = true;
           }
@@ -194,22 +211,8 @@ void recursive(dynamic_results &vec, int k, Bag* bag) {
   
 
 unsigned long long StandardDynamic::Compute() {
-  int A = this->tree->GetTreeSize() + 1;
-  int k = this->tree->GetTreeWidth();
-  int B = pow(2, k + 2) + 1;
-  int C = pow(k, k + 2) + 1;
   dynamic_results vec;
-
-  for (int i=0; i<A; i++) {
-    for(int j=0; j<B; j++) {
-      for (int k=0; k<C; k++) {
-        vec[i][j][k] = INF;
-      }
-    }
-  }
-
   recursive(vec, this->tree->GetTreeWidth(), this->tree->root);
-  unsigned long long res = vec[this->tree->root->id][1][1];
-  //printf("MAX: %d %d %d\n", A, B, C);
+  unsigned long long res = get_value(vec, this->tree->root->id, 1, 1);
   return res;
 }

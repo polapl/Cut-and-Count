@@ -106,7 +106,7 @@ class Set {
 namespace {
 typedef long long ll_t;
 // Bag id -> number of edges -> f -> weight -> how many solutions
-typedef vector<vector<vector<map<int, int>>>> dynamic_results ;
+typedef unordered_map<size_t, unordered_map<size_t, unordered_map<size_t, unordered_map<size_t, unsigned long long>>>> dynamic_results;
 }  // namespace
 
 void recursive(dynamic_results &vec, int k, int l, Bag* bag) {
@@ -228,19 +228,7 @@ void recursive(dynamic_results &vec, int k, int l, Bag* bag) {
 }
 
 unsigned long long Dynamic::Compute() {  
-  int A = this->tree->GetTreeSize() + 1;
-  int B = this->l + 1;
-  int k = this->tree->GetTreeWidth();
-  int C = pow(3, k + 1)*k + 1;
-  printf("A = %d, B = %d, C = %d\n", A, B, C);
-  dynamic_results vec = std::vector<std::vector<std::vector<std::map<int, int>>>>(A, std::vector<std::vector<std::map<int, int>>>(B, std::vector<std::map<int, int>>(C)));
-  for(int i=0; i < A; i++) {
-    for(int j=0; j < B; j++){
-      for(int f=0; f < C; f++) {
-        vec[i][j][f][0] = 0;
-      }
-    }
-  }
+  dynamic_results vec;
   recursive(vec, this->tree->GetTreeWidth(), this->l, this->tree->root);
   for(int i=0; i <= this->l; i++) {
     for (auto& weight: vec[tree->root->id][i][0]) {
