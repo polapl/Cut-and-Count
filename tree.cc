@@ -119,11 +119,9 @@ void Tree::Generate(int size, int probability) {
     // The rest of a graph is generated randomly.
     while (!Q.empty() && size >= 0) {
         Bag* front = Q.front();
-        front->print();
         Q.pop();
         if (front == nullptr) continue;
         if (front->nodes.size() == 0 && front != this->root) {
-            printf("1\n");
             front->type = Bag::BagType::LEAF;
             front->parent->introduced_node = (front->parent->nodes)[0];
             continue;

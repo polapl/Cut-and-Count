@@ -167,13 +167,13 @@ TEST(SimpleSquare, SimpleSquare) {
   int res = dyn->Compute();
   EXPECT_EQ(res,2);
 }
-
+/*
 TEST(SmallTests_HighProbability, SmallTests_HighProbability) {
-  int number_of_tests = 1;
+  int number_of_tests = 10;
   while(number_of_tests--) {
     Tree tree(3, 100);
     printf("tree width = %d\n", tree.tree_width);
-    tree.Generate(50, 50);
+    tree.Generate(50, 30);
     tree.IntroduceEdges(50);
     tree.DotTransitionGraph("example_dyn.dot");
     
@@ -196,12 +196,37 @@ TEST(SmallTests_HighProbability, SmallTests_HighProbability) {
 TEST(SmallTests_LowProbability, SmallTests_LowProbability) {
   int number_of_tests = 10;
   while(number_of_tests--) {
-    Tree tree(2, 100);
+    Tree tree(3, 100);
     tree.Generate(5, 20);
     tree.IntroduceEdges(50);
     tree.DotTransitionGraph("example_dyn.dot");
     
     Dynamic* dyn= new Dynamic(&tree, 3);
+    unsigned long long res_dyn = dyn->Compute();
+    
+    tree.AddNodeToAllBags(tree.root, tree.root->forgotten_node, true);
+    tree.root = tree.root->left;
+    delete tree.root->parent;
+    tree.root->parent = nullptr;
+    tree.DotTransitionGraph("example_standard.dot");
+    tree.tree_width++;
+    StandardDynamic* standard_dyn= new StandardDynamic(&tree);
+    unsigned long long res_standard = standard_dyn->Compute();
+    printf("RESULTS: %d vs. %d\n", res_dyn, res_standard);
+    EXPECT_EQ(res_dyn, res_standard);
+  }
+}
+*/
+TEST(BigTests_HighProbability, BigTests_HighProbability) {
+  int number_of_tests = 1;
+  while(number_of_tests--) {
+    Tree tree(4, 100);
+    printf("tree width = %d\n", tree.tree_width);
+    tree.Generate(50, 50);
+    tree.IntroduceEdges(80);
+    tree.DotTransitionGraph("example_dyn.dot");
+    
+    Dynamic* dyn= new Dynamic(&tree, 50);
     unsigned long long res_dyn = dyn->Compute();
     
     tree.AddNodeToAllBags(tree.root, tree.root->forgotten_node, true);

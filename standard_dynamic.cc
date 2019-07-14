@@ -46,7 +46,6 @@ void merge_child_partitions(const Node& first, const Node& second, dynamic_resul
       int p1 = it.partition(first);
       int p2 = it.partition(second);
       if (p1 == p2) continue;
-      //PartitionView<Node>::iterator copy = it;
       int merged = it.merge(p1, p2);
       ull current = get_value(vec, t->parent->id, sset_hash, merged);
       ull partial = get_value(vec, t->id, sset_hash, it.hash());
