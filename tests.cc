@@ -242,6 +242,28 @@ TEST(BigTests_HighProbability, BigTests_HighProbability) {
   }
 }
 
+TEST(SmallTests_HighProbability, SmallTests_HighProbability_OnlyStandard) {
+  int number_of_tests = 1;
+  while(number_of_tests--) {
+    Tree tree(3, 100);
+    printf("tree width = %d\n", tree.tree_width);
+    tree.Generate(50, 50);
+    tree.IntroduceEdges(50);
+    tree.DotTransitionGraph("example_dyn.dot");
+    
+    tree.AddNodeToAllBags(tree.root, tree.root->forgotten_node, true);
+    tree.root = tree.root->left;
+    delete tree.root->parent;
+    tree.root->parent = nullptr;
+    tree.DotTransitionGraph("example_standard.dot");
+    tree.tree_width++;
+    StandardDynamic* standard_dyn= new StandardDynamic(&tree);
+    unsigned long long res_standard = standard_dyn->Compute();
+    // printf("RESULTS: %d vs. %d\n", res_dyn, res_standard);
+    EXPECT_EQ(res_standard, res_standard);
+  }
+}
+
 int main(int argc, char **argv) {
     testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
