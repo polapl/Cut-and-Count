@@ -11,6 +11,12 @@
 using namespace std;
 const unsigned long long int INF = 1000000;
 
+struct hash_with_012 {
+  unsigned long long val_0;
+  unsigned long long val_1;
+  unsigned long long val_2;
+};
+
 // Given a set, class Set is used to iterate through all assignments
 // of its elements to 0,1 or 2.
 // In terms of cut & cout algoritm:
@@ -38,19 +44,33 @@ class Set {
       return hash();
     }
 
-    long long int hash_with_node(int id, int val) {
-      m_[id] = val;
-      auto res = hash();
+    hash_with_012 hash_with_node(int id) {
+      hash_with_012 res;
+      int hash = 0;
+      int pow3 = 1;
+      int id_pow3;
+      m_[id] = 0;
+      for(auto& it : m_) {
+        if (it.first == id) id_pow3 = pow3;
+        hash += it.second * pow3;
+        pow3 = pow3*3;
+      }
       m_.erase(id);
+      res.val_0 = hash;
+      res.val_1 = hash + id_pow3;
+      res.val_2 = hash + (2*id_pow3);
       return res;
     }
 
     long long int hash_without_node(int id) {
-      int val = m_[id];
-      m_.erase(id);
-      auto res = hash();
-      m_[id] = val;
-      return res;
+      int hash = 0;
+      int pow3 = 1;
+      for(auto& it : m_) {
+        if (it.first == id) continue;
+        hash += it.second * pow3;
+        pow3 = pow3*3;
+      }
+      return hash;
     }
 
     int get_value(int id) {
@@ -159,7 +179,6 @@ dynamic_results recursive(int k, int l, Bag* bag) {
           // Terminals have to be taken
           if (bag->introduced_node.terminal && 
               it.get_value(bag->introduced_node.value) == 0) {
-
             vec[j][it_hash].clear();
             break;
           }
@@ -178,18 +197,18 @@ dynamic_results recursive(int k, int l, Bag* bag) {
         }
         case Bag::FORGET_NODE:
         {
-          auto hash_with_node = it.hash_with_node(bag->forgotten_node.value, 0);
-          for (auto& weight: left[j][hash_with_node]) {
+          auto hash_with_node = it.hash_with_node(bag->forgotten_node.value);
+          for (auto& weight: left[j][hash_with_node.val_0]) {
             add_value(vec, j, it_hash, weight.first, weight.second);
           }
           
-          hash_with_node = it.hash_with_node(bag->forgotten_node.value, 1);
-          for (auto& weight: left[j][hash_with_node]) {
+          //hash_with_node = it.hash_with_node(bag->forgotten_node.value, 1);
+          for (auto& weight: left[j][hash_with_node.val_1]) {
             add_value(vec, j, it_hash, weight.first, weight.second);
           }
 
-          hash_with_node = it.hash_with_node(bag->forgotten_node.value, 2);
-          for (auto& weight: left[j][hash_with_node]) {
+          //hash_with_node = it.hash_with_node(bag->forgotten_node.value, 2);
+          for (auto& weight: left[j][hash_with_node.val_2]) {
             add_value(vec, j, it_hash, weight.first, weight.second);
           }   
           break;

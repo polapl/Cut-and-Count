@@ -167,7 +167,7 @@ TEST(SimpleSquare, SimpleSquare) {
   int res = dyn->Compute();
   EXPECT_EQ(res,2);
 }
-/*
+
 TEST(SmallTests_HighProbability, SmallTests_HighProbability) {
   int number_of_tests = 10;
   while(number_of_tests--) {
@@ -216,7 +216,7 @@ TEST(SmallTests_LowProbability, SmallTests_LowProbability) {
     EXPECT_EQ(res_dyn, res_standard);
   }
 }
-*/
+
 TEST(BigTests_HighProbability, BigTests_HighProbability) {
   int number_of_tests = 1;
   while(number_of_tests--) {
