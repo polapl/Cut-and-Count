@@ -34,7 +34,8 @@ Node nextNode(int probability) {
     return Node(max_node++, terminal);
 }
 
-Bag::Bag(Bag::BagType type, Bag* parent, Bag** ref, const vector<Node>& nodes) : type(type), id(get_next_id()), parent(parent), nodes(nodes), left(nullptr), right(nullptr)  {
+Bag::Bag(Bag::BagType type, Bag* parent, Bag** ref, const vector<Node>& nodes) : 
+         type(type), id(get_next_id()), parent(parent), nodes(nodes), left(nullptr), right(nullptr)  {
     if (parent == nullptr) {
         rank = 0;
     }
@@ -44,7 +45,7 @@ Bag::Bag(Bag::BagType type, Bag* parent, Bag** ref, const vector<Node>& nodes) :
     }
 }
 
-Bag::Bag(Bag::BagType type, const Node& node) : type(type), id(get_next_id()) {
+Bag::Bag(Bag::BagType type, const Node& node) : type(type), id(get_next_id()), left(nullptr), right(nullptr) {
     if (type == Bag::BagType::INTRODUCE_NODE) {
         this->introduced_node = node;
     } 
@@ -52,8 +53,9 @@ Bag::Bag(Bag::BagType type, const Node& node) : type(type), id(get_next_id()) {
         this->forgotten_node = node;
     }
 }
-Bag::Bag(Bag::BagType type, const std::pair<Node, Node>& introduced_edge, int edge_weight) : type(type), introduced_edge(introduced_edge), edge_weight(edge_weight), id(get_next_id()) {}
-Bag::Bag(Bag::BagType type) : type(type), id(get_next_id()) {}
+Bag::Bag(Bag::BagType type, const std::pair<Node, Node>& introduced_edge, int edge_weight = 0) : 
+         type(type), introduced_edge(introduced_edge), edge_weight(edge_weight), id(get_next_id()), left(nullptr), right(nullptr) {}
+Bag::Bag(Bag::BagType type) : type(type), id(get_next_id()), left(nullptr), right(nullptr) {}
 
 vector<Bag*> Bag::Generate(const vector<Bag::BagType>& types, int probability) {
     vector<Bag*> bags;
@@ -184,7 +186,8 @@ void Dfs(Bag* bag, int probability, int max_weight) {
                 new_bag->left = current_left;
                 current_left->parent = new_bag;
 
-                new_bag->introduced_edge = make_pair(x, bag_it->forgotten_node);
+                if (x.value < bag_it->forgotten_node.value) new_bag->introduced_edge = make_pair(x, bag_it->forgotten_node);
+                else new_bag->introduced_edge = make_pair(bag_it->forgotten_node, x);
                 new_bag->edge_weight = rand() % max_weight;
             }
         }
@@ -306,6 +309,7 @@ int Tree::GetTreeWidth() {
 }
 
 void Bag::print() {
+    cout << "id: " << this->id << endl;
     cout << "nodes:\n";
     for (auto& el: this->nodes) {
         cout << el.value << " ";
@@ -313,7 +317,7 @@ void Bag::print() {
     cout << "type: " << this->type << endl;
     if (this->parent) cout << "parent: " << this->parent->id << endl;
     if (this->left) cout << "left: " << this->left->id << endl;
-    if (this->right) cout << "right: " << this->right->id << endl;
+    if (this->right) cout << "right: " << endl << this->right->id << endl;
 }
 
 // This function is used only for testing.
@@ -375,7 +379,9 @@ std::pair<Bag*, std::vector<Bag*>::iterator> generate_rec(Bag* parent, std::vect
       current->nodes = current->left->nodes;
       return std::make_pair(current, rec.second);
     }
-  } 
+    default:
+    assert(false); // this case is not supported
+  }
 }
 
 Tree::Tree(std::vector<Bag*> &bags) {
@@ -402,4 +408,75 @@ void Tree::AddNodeToAllBags(Bag* b, Node n, bool front) {
     if (!already_present && front) b->nodes.insert(b->nodes.begin(), n);
     AddNodeToAllBags(b->left, n, front);
     AddNodeToAllBags(b->right, n, front);
+}
+
+void second_root(Bag* bag, int root_val, Node root_copy, Bag** parent_ref, bool front) {
+    if (bag == nullptr) return;
+
+    bool present = false;
+    for (const auto& node : bag->nodes) {
+        if (node.value == root_val) {
+            present = true;
+            break;
+        }
+    }
+
+    if (present) {
+        if (front) bag->nodes.insert(bag->nodes.begin(), root_copy);
+        else bag->nodes.push_back(root_copy);
+    }
+
+    if (bag->type == Bag::BagType::INTRODUCE_EDGE && bag->introduced_edge.first.value == root_val) {
+
+        Node edge_node(bag->introduced_edge.second.value);
+        Bag* new_edge = new Bag(Bag::BagType::INTRODUCE_EDGE, make_pair(edge_node, root_copy));
+        new_edge->nodes = bag->nodes;
+
+        *parent_ref = new_edge;
+        new_edge->parent = bag->parent;
+        bag->parent = new_edge;
+        new_edge->left = bag;
+    }
+
+    if (bag->type == Bag::BagType::INTRODUCE_EDGE && bag->introduced_edge.second.value == root_val) {
+
+        Node edge_node(bag->introduced_edge.first.value);
+        Bag* new_edge = new Bag(Bag::BagType::INTRODUCE_EDGE, make_pair(edge_node, root_copy));
+        new_edge->nodes = bag->nodes;
+
+        *parent_ref = new_edge;
+        new_edge->parent = bag->parent;
+        bag->parent = new_edge;
+        new_edge->left = bag;
+    }
+
+    if (bag->type == Bag::BagType::INTRODUCE_NODE && bag->introduced_node.value == root_val) {
+
+        Bag* new_edge = new Bag(Bag::BagType::INTRODUCE_NODE, root_copy);
+        new_edge->nodes = bag->nodes;
+
+        *parent_ref = new_edge;
+        new_edge->parent = bag->parent;
+        bag->parent = new_edge;
+        new_edge->left = bag;
+    }
+
+    if (bag->left != nullptr) second_root(bag->left, root_val, root_copy, &bag->left, front);
+    if (bag->right != nullptr) second_root(bag->right, root_val, root_copy, &bag->right, front);
+}
+
+void print_tree(Bag* bag) {
+    if (bag == nullptr) return;
+    bag->print();
+    cout << "cp jest " << endl;
+    print_tree(bag->left);
+    print_tree(bag->right);
+}
+
+void Tree::PrepareBeforeStandardHamiltonian(const Node& root_copy = nextNode(0), bool front = false) {
+    int root_val = this->root->forgotten_node.value;
+    this->root = this->root->left;
+    this->root->parent = nullptr;
+    second_root(this->root, root_val, root_copy, nullptr, front);
+    print_tree(this->root);
 }

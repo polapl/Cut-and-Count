@@ -1,5 +1,6 @@
 #include "tree.h"
 #include "standard_dynamic.h"
+#include "standard_hamiltonian.h"
 #include "dynamic.h"
 #include "subset_view.h"
 #include "disjoint_set.h"
@@ -167,7 +168,7 @@ TEST(SimpleSquare, SimpleSquare) {
   int res = dyn->Compute();
   EXPECT_EQ(res,2);
 }
-
+/*
 TEST(SmallTests_HighProbability, SmallTests_HighProbability) {
   int number_of_tests = 10;
   while(number_of_tests--) {
@@ -262,6 +263,93 @@ TEST(SmallTests_HighProbability, SmallTests_HighProbability_OnlyStandard) {
     // printf("RESULTS: %d vs. %d\n", res_dyn, res_standard);
     EXPECT_EQ(res_standard, res_standard);
   }
+}
+*/
+/*
+TEST(StandardHamiltonian_SimpleTriangle, StandardHamiltonian_SimpleTriangle) {
+  Node a(0, false);
+  Node b(1, false);
+  Node c(2, false);
+  std::vector<Bag*> bags {
+    new Bag(Bag::BagType::FORGET_NODE, a),
+    new Bag(Bag::BagType::FORGET_NODE, b),
+    new Bag(Bag::BagType::INTRODUCE_EDGE, std::make_pair(a, b), 1),
+    new Bag(Bag::BagType::FORGET_NODE, c),
+    new Bag(Bag::BagType::INTRODUCE_EDGE, std::make_pair(a, c), 1),
+    new Bag(Bag::BagType::INTRODUCE_EDGE, std::make_pair(b, c), 1),
+    new Bag(Bag::BagType::INTRODUCE_NODE, a),
+    new Bag(Bag::BagType::INTRODUCE_NODE, b),
+    new Bag(Bag::BagType::INTRODUCE_NODE, c),
+    new Bag(Bag::BagType::LEAF)
+  };
+  Tree tree(bags);
+  Node d(3, false);
+  tree.PrepareBeforeStandardHamiltonian(d, false);
+  tree.DotTransitionGraph("example.dot");
+  tree.tree_width = 3;
+  StandardHamiltonian* dyn = new StandardHamiltonian(&tree);
+  bool res = dyn->Compute();
+  EXPECT_EQ(res, true);
+}
+
+TEST(StandardHamiltonian_SimplePath, StandardHamiltonian_SimplePath) {
+  Node a(0, false);
+  Node b(1, false);
+  Node c(2, false);
+  std::vector<Bag*> bags {
+    new Bag(Bag::BagType::FORGET_NODE, c),
+    new Bag(Bag::BagType::FORGET_NODE, b),
+    new Bag(Bag::BagType::INTRODUCE_EDGE, std::make_pair(b, c), 1),
+    new Bag(Bag::BagType::INTRODUCE_NODE, c),
+    new Bag(Bag::BagType::FORGET_NODE, a),
+    new Bag(Bag::BagType::INTRODUCE_EDGE, std::make_pair(a, b), 1),
+    new Bag(Bag::BagType::INTRODUCE_NODE, b),
+    new Bag(Bag::BagType::INTRODUCE_NODE, a),
+    new Bag(Bag::BagType::LEAF)
+  };
+
+  Tree tree(bags);
+  Node d(3, false);
+  tree.PrepareBeforeStandardHamiltonian(d, false);
+  tree.DotTransitionGraph("example.dot");
+  tree.tree_width = 3;
+  StandardHamiltonian* dyn= new StandardHamiltonian(&tree);
+  bool res = dyn->Compute();
+  EXPECT_EQ(res, false);
+}
+*/
+TEST(StandardHamiltonian_SimpleSquare, StandardHamiltonian_SimpleSquare) {
+  Node a(3, true);
+  Node b(0, true);
+  Node c(2, false);
+  Node d(1, false);
+  std::vector<Bag*> bags {
+    new Bag(Bag::BagType::FORGET_NODE, a),
+    new Bag(Bag::BagType::FORGET_NODE, b),
+    new Bag(Bag::BagType::MERGE),
+    new Bag(Bag::BagType::FORGET_NODE, c),
+    new Bag(Bag::BagType::INTRODUCE_EDGE, std::make_pair(c, a), 1),
+    new Bag(Bag::BagType::INTRODUCE_EDGE, std::make_pair(b, c), 1),
+    new Bag(Bag::BagType::INTRODUCE_NODE, a),
+    new Bag(Bag::BagType::INTRODUCE_NODE, c),
+    new Bag(Bag::BagType::INTRODUCE_NODE, b),
+    new Bag(Bag::BagType::LEAF),
+    new Bag(Bag::BagType::FORGET_NODE, d),
+    new Bag(Bag::BagType::INTRODUCE_EDGE, std::make_pair(d, a), 2),
+    new Bag(Bag::BagType::INTRODUCE_EDGE, std::make_pair(b, d), 2),
+    new Bag(Bag::BagType::INTRODUCE_NODE, a),
+    new Bag(Bag::BagType::INTRODUCE_NODE, d),
+    new Bag(Bag::BagType::INTRODUCE_NODE, b),
+    new Bag(Bag::BagType::LEAF)
+  };
+  Tree tree(bags);
+  Node e(4, false);
+  tree.PrepareBeforeStandardHamiltonian(e, false);
+  tree.DotTransitionGraph("example.dot");
+  tree.tree_width = 3; // 4 ?
+  StandardHamiltonian* dyn= new StandardHamiltonian(&tree);
+  bool res = dyn->Compute();
+  EXPECT_EQ(res, true);
 }
 
 int main(int argc, char **argv) {

@@ -6,12 +6,15 @@ set(CMAKE_CXX_FLAGS "-g -O0")
 
 add_executable(magisterka main.cc)
 add_library(tree_lib tree.cc)
+
 add_library(dynamic_lib dynamic.cc)
 add_library(standard_dynamic_lib standard_dynamic.cc)
+add_library(standard_hamiltonian_lib standard_hamiltonian.cc)
 
 target_link_libraries(magisterka tree_lib)
 target_link_libraries(magisterka dynamic_lib)
 target_link_libraries(magisterka standard_dynamic_lib)
+target_link_libraries(magisterka standard_hamiltonian_lib)
 
 
 # ==== TESTING =================================================================
@@ -23,6 +26,7 @@ add_executable(example_test tests.cc)
 target_link_libraries(example_test tree_lib)
 target_link_libraries(example_test dynamic_lib)
 target_link_libraries(example_test standard_dynamic_lib)
+target_link_libraries(example_test standard_hamiltonian_lib)
 target_link_libraries(example_test gtest)
 
 # =============================================================================

@@ -138,7 +138,7 @@ dynamic_results recursive(int k, Bag* bag) {
             for (auto part_it2 = pset.begin(); part_it2 != pset.end(); ++part_it2) {
               bool cycle = false;
               DisjointSet<int> disjoint_set_copy = disjoint_set;
-              const auto& distribution2 = part_it2.distribution();
+              const auto& distribution2 = part_it2.distribution(); // set setow zamiast mapy?
               for (const auto& distr_it: distribution2) {
                 for (int s=1; s<distr_it.second.size(); s++) {
                   if (disjoint_set_copy.find(distr_it.second[0].get().value) ==

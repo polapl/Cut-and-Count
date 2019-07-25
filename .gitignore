@@ -13,3 +13,8 @@ _deps
 build
 debug
 q.log
+*.gz
+*.aux
+*.pdf
+*.toc
+*.log

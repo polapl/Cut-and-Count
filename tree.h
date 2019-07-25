@@ -23,7 +23,7 @@ struct Node {
     }
 
     Node() {}
-    Node(int value, bool terminal): value(value), terminal(terminal) {}
+    Node(int value, bool terminal = false): value(value), terminal(terminal) {}
 };
 
 // Bag corresponds to a tree node, may contain many Nodes.
@@ -93,4 +93,6 @@ public:
     // Used for standard dynamic which assumes one terminal Node
     // is present in all Bags.
     void AddNodeToAllBags(Bag* b, Node n, bool front);
+
+    void PrepareBeforeStandardHamiltonian(const Node& zero_prim, bool front);
 };
