@@ -3,7 +3,7 @@
 #include <ctime>
 
 #include "tree.h"
-#include "dynamic.h"
+#include "cnc_steiner_tree.h"
 
 using namespace std;
 
@@ -17,7 +17,7 @@ int main(int argc, char** argv) {
   tree.Generate(5, 50);
   tree.IntroduceEdges(50);
   tree.DotTransitionGraph("example.dot");
-  Dynamic* dyn= new Dynamic(&tree, 3);
+  CnCSteinerTree* dyn= new CnCSteinerTree(&tree, 3);
   int res = dyn->Compute();
   cout << res << endl;
   return 0;

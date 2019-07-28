@@ -1,4 +1,4 @@
-#include "standard_dynamic.h"
+#include "standard_steiner_tree.h"
 
 #include <cmath>
 
@@ -218,7 +218,7 @@ dynamic_results recursive(int k, Bag* bag) {
 }
   
 
-unsigned long long StandardDynamic::Compute() {
+unsigned long long StandardSteinerTree::Compute() {
   const dynamic_results& vec = recursive(this->tree->GetTreeWidth(), this->tree->root);
   unsigned long long res = get_value(vec, 1, 1);
   return res;

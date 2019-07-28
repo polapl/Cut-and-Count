@@ -2,10 +2,9 @@
 
 #include "tree.h"
 
-class Dynamic {
+class StandardSteinerTree {
  public:
-  Dynamic(Tree* tree, int l) : tree(tree), l(l) {}
+  StandardSteinerTree(Tree* tree) : tree(tree) {}
   unsigned long long Compute();
   Tree* tree;
-  int l;
 };

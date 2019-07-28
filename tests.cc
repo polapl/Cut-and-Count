@@ -1,14 +1,14 @@
 #include "tree.h"
-#include "standard_dynamic.h"
+#include "cnc_steiner_tree.h"
+#include "standard_steiner_tree.h"
 #include "standard_hamiltonian.h"
-#include "dynamic.h"
 #include "subset_view.h"
 #include "disjoint_set.h"
 
 #include <gtest/gtest.h>
 using namespace std;
 
-TEST(StandardDynamic_SimpleTriangle, StandardDynamic_SimpleTriangle) {
+TEST(StandardSteinerTree_SimpleTriangle, StandardSteinerTree_SimpleTriangle) {
   Node c(0, true);
   Node b(1, false);
   Node a(2, true);
@@ -27,12 +27,12 @@ TEST(StandardDynamic_SimpleTriangle, StandardDynamic_SimpleTriangle) {
   tree.AddNodeToAllBags(tree.root, a, false);
   tree.DotTransitionGraph("example.dot");
   tree.tree_width = 3;
-  StandardDynamic* dyn= new StandardDynamic(&tree);
+  StandardSteinerTree* dyn= new StandardSteinerTree(&tree);
   int res = dyn->Compute();
   EXPECT_EQ(res,1);
 }
 
-TEST(StandardDynamic_SimplePath, StandardDynamic_SimplePath) {
+TEST(StandardSteinerTree_SimplePath, StandardSteinerTree_SimplePath) {
   Node a(0, true);
   Node b(1, false);
   Node c(2, true);
@@ -51,13 +51,13 @@ TEST(StandardDynamic_SimplePath, StandardDynamic_SimplePath) {
   tree.AddNodeToAllBags(tree.root, a, false);
   tree.DotTransitionGraph("example.dot");
   tree.tree_width = 3;
-  StandardDynamic* dyn= new StandardDynamic(&tree);
+  StandardSteinerTree* dyn= new StandardSteinerTree(&tree);
   int res = dyn->Compute();
   printf("res = %d\n", res);
   EXPECT_EQ(res,2);
 }
 
-TEST(StandardDynamic_SimpleSquare, StandardDynamic_SimpleSquare) {
+TEST(StandardSteinerTree_SimpleSquare, StandardSteinerTree_SimpleSquare) {
   Node a(3, true);
   Node b(0, true);
   Node c(2, false);
@@ -84,7 +84,7 @@ TEST(StandardDynamic_SimpleSquare, StandardDynamic_SimpleSquare) {
   tree.AddNodeToAllBags(tree.root, a, false);
   tree.DotTransitionGraph("example.dot");
   tree.tree_width = 3;
-  StandardDynamic* dyn= new StandardDynamic(&tree);
+  StandardSteinerTree* dyn= new StandardSteinerTree(&tree);
   int res = dyn->Compute();
   printf("res = %d\n", res);
   EXPECT_EQ(res,2);
@@ -109,7 +109,7 @@ TEST(SimpleTriangle, SimpleTriangle) {
   Tree tree(bags);
   tree.DotTransitionGraph("example.dot");
   tree.tree_width = 3;
-  Dynamic* dyn= new Dynamic(&tree, 3);
+  CnCSteinerTree* dyn= new CnCSteinerTree(&tree, 3);
   int res = dyn->Compute();
   EXPECT_EQ(res,1);
 }
@@ -132,7 +132,7 @@ TEST(SimplePath, SimplePath) {
   Tree tree(bags);
   tree.DotTransitionGraph("example.dot");
   tree.tree_width = 3;
-  Dynamic* dyn= new Dynamic(&tree, 3);
+  CnCSteinerTree* dyn= new CnCSteinerTree(&tree, 3);
   int res = dyn->Compute();
   EXPECT_EQ(res,2);
 }
@@ -164,7 +164,7 @@ TEST(SimpleSquare, SimpleSquare) {
   Tree tree(bags);
   tree.DotTransitionGraph("example.dot");
   tree.tree_width = 3;
-  Dynamic* dyn= new Dynamic(&tree, 3);
+  CnCSteinerTree* dyn= new CnCSteinerTree(&tree, 3);
   int res = dyn->Compute();
   EXPECT_EQ(res,2);
 }
@@ -178,7 +178,7 @@ TEST(SmallTests_HighProbability, SmallTests_HighProbability) {
     tree.IntroduceEdges(50);
     tree.DotTransitionGraph("example_dyn.dot");
     
-    Dynamic* dyn= new Dynamic(&tree, 50);
+    CnCSteinerTree* dyn= new CnCSteinerTree(&tree, 50);
     unsigned long long res_dyn = dyn->Compute();
     
     tree.AddNodeToAllBags(tree.root, tree.root->forgotten_node, true);
@@ -187,7 +187,7 @@ TEST(SmallTests_HighProbability, SmallTests_HighProbability) {
     tree.root->parent = nullptr;
     tree.DotTransitionGraph("example_standard.dot");
     tree.tree_width++;
-    StandardDynamic* standard_dyn= new StandardDynamic(&tree);
+    StandardSteinerTree* standard_dyn= new StandardSteinerTree(&tree);
     unsigned long long res_standard = standard_dyn->Compute();
     printf("RESULTS: %d vs. %d\n", res_dyn, res_standard);
     EXPECT_EQ(res_dyn, res_standard);
@@ -202,7 +202,7 @@ TEST(SmallTests_LowProbability, SmallTests_LowProbability) {
     tree.IntroduceEdges(50);
     tree.DotTransitionGraph("example_dyn.dot");
     
-    Dynamic* dyn= new Dynamic(&tree, 3);
+    CnCSteinerTree* dyn= new CnCSteinerTree(&tree, 3);
     unsigned long long res_dyn = dyn->Compute();
     
     tree.AddNodeToAllBags(tree.root, tree.root->forgotten_node, true);
@@ -211,7 +211,7 @@ TEST(SmallTests_LowProbability, SmallTests_LowProbability) {
     tree.root->parent = nullptr;
     tree.DotTransitionGraph("example_standard.dot");
     tree.tree_width++;
-    StandardDynamic* standard_dyn= new StandardDynamic(&tree);
+    StandardSteinerTree* standard_dyn= new StandardSteinerTree(&tree);
     unsigned long long res_standard = standard_dyn->Compute();
     printf("RESULTS: %d vs. %d\n", res_dyn, res_standard);
     EXPECT_EQ(res_dyn, res_standard);
@@ -227,7 +227,7 @@ TEST(BigTests_HighProbability, BigTests_HighProbability) {
     tree.IntroduceEdges(80);
     tree.DotTransitionGraph("example_dyn.dot");
     
-    Dynamic* dyn= new Dynamic(&tree, 50);
+    CnCSteinerTree* dyn= new CnCSteinerTree(&tree, 50);
     unsigned long long res_dyn = dyn->Compute();
     
     tree.AddNodeToAllBags(tree.root, tree.root->forgotten_node, true);
@@ -236,7 +236,7 @@ TEST(BigTests_HighProbability, BigTests_HighProbability) {
     tree.root->parent = nullptr;
     tree.DotTransitionGraph("example_standard.dot");
     tree.tree_width++;
-    StandardDynamic* standard_dyn= new StandardDynamic(&tree);
+    StandardSteinerTree* standard_dyn= new StandardSteinerTree(&tree);
     unsigned long long res_standard = standard_dyn->Compute();
     printf("RESULTS: %d vs. %d\n", res_dyn, res_standard);
     EXPECT_EQ(res_dyn, res_standard);
@@ -258,7 +258,7 @@ TEST(SmallTests_HighProbability, SmallTests_HighProbability_OnlyStandard) {
     tree.root->parent = nullptr;
     tree.DotTransitionGraph("example_standard.dot");
     tree.tree_width++;
-    StandardDynamic* standard_dyn= new StandardDynamic(&tree);
+    StandardSteinerTree* standard_dyn= new StandardSteinerTree(&tree);
     unsigned long long res_standard = standard_dyn->Compute();
     // printf("RESULTS: %d vs. %d\n", res_dyn, res_standard);
     EXPECT_EQ(res_standard, res_standard);

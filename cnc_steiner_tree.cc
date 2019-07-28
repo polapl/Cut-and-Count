@@ -1,4 +1,4 @@
-#include "dynamic.h"
+#include "cnc_steiner_tree.h"
 
 #include <cmath>
 #include <utility>
@@ -244,7 +244,7 @@ dynamic_results recursive(int k, int l, Bag* bag) {
   return vec;
 }
 
-unsigned long long Dynamic::Compute() {  
+unsigned long long CnCSteinerTree::Compute() {  
   dynamic_results vec = recursive(this->tree->GetTreeWidth(), this->l, this->tree->root);
   for(int i=0; i <= this->l; i++) {
     for (auto& weight: vec[i][0]) {
