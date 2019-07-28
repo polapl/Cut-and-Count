@@ -1,5 +1,7 @@
 #include "standard_hamiltonian.h"
 
+#include "state_utils.h"
+
 #include <iostream>
 #include <set>
 #include <map>
