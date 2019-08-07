@@ -1,0 +1,14 @@
+graph G {
+ratio = fill;
+size = "16, 9";
+node [fontsize = 300, fontname="Courier-Bold"];
+edge [penwidth = 25, layer="background", arrowhead=vee, arrowsize=25.0];
+u [label= "u*"]
+v [label= "v*"]
+w [label= "w"]
+u -- w;
+w -- v;
+x [label= "x"]
+u -- x;
+x -- v;
+}

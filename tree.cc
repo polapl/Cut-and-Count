@@ -410,7 +410,7 @@ void Tree::AddNodeToAllBags(Bag* b, Node n, bool front) {
     AddNodeToAllBags(b->right, n, front);
 }
 
-void second_root(Bag* bag, int root_val, Node root_copy, Bag** parent_ref, bool front) {
+void second_root(Bag* bag, int root_val, Node root_copy, Bag** parent_ref) {
     if (bag == nullptr) return;
 
     bool present = false;
@@ -421,10 +421,7 @@ void second_root(Bag* bag, int root_val, Node root_copy, Bag** parent_ref, bool 
         }
     }
 
-    if (present) {
-        if (front) bag->nodes.insert(bag->nodes.begin(), root_copy);
-        else bag->nodes.push_back(root_copy);
-    }
+    if (present) bag->nodes.push_back(root_copy);
 
     if (bag->type == Bag::BagType::INTRODUCE_EDGE && bag->introduced_edge.first.value == root_val) {
 
@@ -461,8 +458,8 @@ void second_root(Bag* bag, int root_val, Node root_copy, Bag** parent_ref, bool 
         new_edge->left = bag;
     }
 
-    if (bag->left != nullptr) second_root(bag->left, root_val, root_copy, &bag->left, front);
-    if (bag->right != nullptr) second_root(bag->right, root_val, root_copy, &bag->right, front);
+    if (bag->left != nullptr) second_root(bag->left, root_val, root_copy, &bag->left);
+    if (bag->right != nullptr) second_root(bag->right, root_val, root_copy, &bag->right);
 }
 
 void print_tree(Bag* bag) {
@@ -473,10 +470,10 @@ void print_tree(Bag* bag) {
     print_tree(bag->right);
 }
 
-void Tree::PrepareBeforeStandardHamiltonian(const Node& root_copy = nextNode(0), bool front = false) {
+void Tree::PrepareBeforeStandardHamiltonian(const Node& root_copy = nextNode(0)) {
     int root_val = this->root->forgotten_node.value;
     this->root = this->root->left;
     this->root->parent = nullptr;
-    second_root(this->root, root_val, root_copy, nullptr, front);
-    print_tree(this->root);
+    second_root(this->root, root_val, root_copy, nullptr);
+    // print_tree(this->root);
 }

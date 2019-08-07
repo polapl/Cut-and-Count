@@ -94,5 +94,5 @@ public:
     // is present in all Bags.
     void AddNodeToAllBags(Bag* b, Node n, bool front);
 
-    void PrepareBeforeStandardHamiltonian(const Node& zero_prim, bool front);
+    void PrepareBeforeStandardHamiltonian(const Node& zero_prim);
 };

@@ -1,5 +1,6 @@
 #include "tree.h"
 #include "cnc_steiner_tree.h"
+#include "cnc_hamiltonian.h"
 #include "standard_steiner_tree.h"
 #include "standard_hamiltonian.h"
 #include "subset_view.h"
@@ -8,7 +9,7 @@
 #include <gtest/gtest.h>
 using namespace std;
 
-TEST(StandardSteinerTree_SimpleTriangle, StandardSteinerTree_SimpleTriangle) {
+TEST(StandardSteinerTree, SimpleTriangle) {
   Node c(0, true);
   Node b(1, false);
   Node a(2, true);
@@ -32,7 +33,7 @@ TEST(StandardSteinerTree_SimpleTriangle, StandardSteinerTree_SimpleTriangle) {
   EXPECT_EQ(res,1);
 }
 
-TEST(StandardSteinerTree_SimplePath, StandardSteinerTree_SimplePath) {
+TEST(StandardSteinerTree, SimplePath) {
   Node a(0, true);
   Node b(1, false);
   Node c(2, true);
@@ -57,7 +58,7 @@ TEST(StandardSteinerTree_SimplePath, StandardSteinerTree_SimplePath) {
   EXPECT_EQ(res,2);
 }
 
-TEST(StandardSteinerTree_SimpleSquare, StandardSteinerTree_SimpleSquare) {
+TEST(StandardSteinerTree, SimpleSquare) {
   Node a(3, true);
   Node b(0, true);
   Node c(2, false);
@@ -90,7 +91,7 @@ TEST(StandardSteinerTree_SimpleSquare, StandardSteinerTree_SimpleSquare) {
   EXPECT_EQ(res,2);
 }
 
-TEST(SimpleTriangle, SimpleTriangle) {
+TEST(CnCSteinerTree, SimpleTriangle) {
   Node a(0, true);
   Node b(1, false);
   Node c(2, true);
@@ -114,7 +115,7 @@ TEST(SimpleTriangle, SimpleTriangle) {
   EXPECT_EQ(res,1);
 }
 
-TEST(SimplePath, SimplePath) {
+TEST(CnCSteinerTree, SimplePath) {
   Node a(0, true);
   Node b(1, false);
   Node c(2, true);
@@ -137,7 +138,7 @@ TEST(SimplePath, SimplePath) {
   EXPECT_EQ(res,2);
 }
 
-TEST(SimpleSquare, SimpleSquare) {
+TEST(CnCSteinerTree, SimpleSquare) {
   Node a(0, true);
   Node b(1, true);
   Node c(2, false);
@@ -168,15 +169,15 @@ TEST(SimpleSquare, SimpleSquare) {
   int res = dyn->Compute();
   EXPECT_EQ(res,2);
 }
-/*
-TEST(SmallTests_HighProbability, SmallTests_HighProbability) {
+
+TEST(SteinerTree, SmallTests_HighProbability) {
   int number_of_tests = 10;
   while(number_of_tests--) {
     Tree tree(3, 100);
     printf("tree width = %d\n", tree.tree_width);
     tree.Generate(50, 30);
-    tree.IntroduceEdges(50);
-    tree.DotTransitionGraph("example_dyn.dot");
+    tree.IntroduceEdges(70);
+    tree.DotTransitionGraph("example_cnc.dot");
     
     CnCSteinerTree* dyn= new CnCSteinerTree(&tree, 50);
     unsigned long long res_dyn = dyn->Compute();
@@ -194,38 +195,39 @@ TEST(SmallTests_HighProbability, SmallTests_HighProbability) {
   }
 }
 
-TEST(SmallTests_LowProbability, SmallTests_LowProbability) {
+TEST(SteinerTree, SmallTests_LowProbability) {
   int number_of_tests = 10;
   while(number_of_tests--) {
     Tree tree(3, 100);
-    tree.Generate(5, 20);
+    tree.Generate(5, 30);
     tree.IntroduceEdges(50);
-    tree.DotTransitionGraph("example_dyn.dot");
+    tree.DotTransitionGraph("example_cnc_f.dot");
     
-    CnCSteinerTree* dyn= new CnCSteinerTree(&tree, 3);
+    CnCSteinerTree* dyn= new CnCSteinerTree(&tree, 4);
     unsigned long long res_dyn = dyn->Compute();
     
     tree.AddNodeToAllBags(tree.root, tree.root->forgotten_node, true);
     tree.root = tree.root->left;
     delete tree.root->parent;
     tree.root->parent = nullptr;
-    tree.DotTransitionGraph("example_standard.dot");
+    tree.DotTransitionGraph("example_standard_f.dot");
     tree.tree_width++;
     StandardSteinerTree* standard_dyn= new StandardSteinerTree(&tree);
     unsigned long long res_standard = standard_dyn->Compute();
     printf("RESULTS: %d vs. %d\n", res_dyn, res_standard);
+    if (res_standard != res_dyn) break;
     EXPECT_EQ(res_dyn, res_standard);
   }
 }
-
-TEST(BigTests_HighProbability, BigTests_HighProbability) {
+/*
+TEST(SteinerTree, BigTests_HighProbability) {
   int number_of_tests = 1;
   while(number_of_tests--) {
     Tree tree(4, 100);
     printf("tree width = %d\n", tree.tree_width);
     tree.Generate(50, 50);
     tree.IntroduceEdges(80);
-    tree.DotTransitionGraph("example_dyn.dot");
+    tree.DotTransitionGraph("example_cnc.dot");
     
     CnCSteinerTree* dyn= new CnCSteinerTree(&tree, 50);
     unsigned long long res_dyn = dyn->Compute();
@@ -242,15 +244,16 @@ TEST(BigTests_HighProbability, BigTests_HighProbability) {
     EXPECT_EQ(res_dyn, res_standard);
   }
 }
+*/
 
-TEST(SmallTests_HighProbability, SmallTests_HighProbability_OnlyStandard) {
+TEST(StandardSteinerTree, SmallTests_HighProbability_OnlyStandard) {
   int number_of_tests = 1;
   while(number_of_tests--) {
     Tree tree(3, 100);
     printf("tree width = %d\n", tree.tree_width);
     tree.Generate(50, 50);
     tree.IntroduceEdges(50);
-    tree.DotTransitionGraph("example_dyn.dot");
+    tree.DotTransitionGraph("example_cnc.dot");
     
     tree.AddNodeToAllBags(tree.root, tree.root->forgotten_node, true);
     tree.root = tree.root->left;
@@ -264,9 +267,8 @@ TEST(SmallTests_HighProbability, SmallTests_HighProbability_OnlyStandard) {
     EXPECT_EQ(res_standard, res_standard);
   }
 }
-*/
-/*
-TEST(StandardHamiltonian_SimpleTriangle, StandardHamiltonian_SimpleTriangle) {
+
+TEST(StandardHamiltonian, SimpleTriangle) {
   Node a(0, false);
   Node b(1, false);
   Node c(2, false);
@@ -283,8 +285,8 @@ TEST(StandardHamiltonian_SimpleTriangle, StandardHamiltonian_SimpleTriangle) {
     new Bag(Bag::BagType::LEAF)
   };
   Tree tree(bags);
-  Node d(3, false);
-  tree.PrepareBeforeStandardHamiltonian(d, false);
+  Node d(-1, false);
+  tree.PrepareBeforeStandardHamiltonian(d);
   tree.DotTransitionGraph("example.dot");
   tree.tree_width = 3;
   StandardHamiltonian* dyn = new StandardHamiltonian(&tree);
@@ -292,7 +294,7 @@ TEST(StandardHamiltonian_SimpleTriangle, StandardHamiltonian_SimpleTriangle) {
   EXPECT_EQ(res, true);
 }
 
-TEST(StandardHamiltonian_SimplePath, StandardHamiltonian_SimplePath) {
+TEST(StandardHamiltonian, SimplePath) {
   Node a(0, false);
   Node b(1, false);
   Node c(2, false);
@@ -309,18 +311,18 @@ TEST(StandardHamiltonian_SimplePath, StandardHamiltonian_SimplePath) {
   };
 
   Tree tree(bags);
-  Node d(3, false);
-  tree.PrepareBeforeStandardHamiltonian(d, false);
+  Node d(-1, false);
+  tree.PrepareBeforeStandardHamiltonian(d);
   tree.DotTransitionGraph("example.dot");
   tree.tree_width = 3;
   StandardHamiltonian* dyn= new StandardHamiltonian(&tree);
   bool res = dyn->Compute();
   EXPECT_EQ(res, false);
 }
-*/
-TEST(StandardHamiltonian_SimpleSquare, StandardHamiltonian_SimpleSquare) {
-  Node a(3, true);
-  Node b(0, true);
+
+TEST(StandardHamiltonian, SimpleSquare) {
+  Node a(3, false);
+  Node b(0, false);
   Node c(2, false);
   Node d(1, false);
   std::vector<Bag*> bags {
@@ -343,8 +345,8 @@ TEST(StandardHamiltonian_SimpleSquare, StandardHamiltonian_SimpleSquare) {
     new Bag(Bag::BagType::LEAF)
   };
   Tree tree(bags);
-  Node e(4, false);
-  tree.PrepareBeforeStandardHamiltonian(e, false);
+  Node e(-1, false);
+  tree.PrepareBeforeStandardHamiltonian(e);
   tree.DotTransitionGraph("example.dot");
   tree.tree_width = 3; // 4 ?
   StandardHamiltonian* dyn= new StandardHamiltonian(&tree);
@@ -352,6 +354,149 @@ TEST(StandardHamiltonian_SimpleSquare, StandardHamiltonian_SimpleSquare) {
   EXPECT_EQ(res, true);
 }
 
+TEST(CnCHamiltonian, SimpleTriangle) {
+  Node a(0, false);
+  Node b(1, false);
+  Node c(2, false);
+  std::vector<Bag*> bags {
+    new Bag(Bag::BagType::FORGET_NODE, a),
+    new Bag(Bag::BagType::FORGET_NODE, b),
+    new Bag(Bag::BagType::INTRODUCE_EDGE, std::make_pair(a, b), 1),
+    new Bag(Bag::BagType::FORGET_NODE, c),
+    new Bag(Bag::BagType::INTRODUCE_EDGE, std::make_pair(a, c), 1),
+    new Bag(Bag::BagType::INTRODUCE_EDGE, std::make_pair(b, c), 1),
+    new Bag(Bag::BagType::INTRODUCE_NODE, a),
+    new Bag(Bag::BagType::INTRODUCE_NODE, b),
+    new Bag(Bag::BagType::INTRODUCE_NODE, c),
+    new Bag(Bag::BagType::LEAF)
+  };
+  Tree tree(bags);
+  tree.DotTransitionGraph("example.dot");
+  //tree.tree_width = 3;
+  CnCHamiltonian* dyn= new CnCHamiltonian(&tree);
+  bool res = dyn->Compute();
+  EXPECT_EQ(res,true);
+}
+
+TEST(CnCHamiltonian, SimplePath) {
+  Node a(0, false);
+  Node b(1, false);
+  Node c(2, false);
+  std::vector<Bag*> bags {
+    new Bag(Bag::BagType::FORGET_NODE, c),
+    new Bag(Bag::BagType::FORGET_NODE, b),
+    new Bag(Bag::BagType::INTRODUCE_EDGE, std::make_pair(b, c), 1),
+    new Bag(Bag::BagType::INTRODUCE_NODE, c),
+    new Bag(Bag::BagType::FORGET_NODE, a),
+    new Bag(Bag::BagType::INTRODUCE_EDGE, std::make_pair(a, b), 1),
+    new Bag(Bag::BagType::INTRODUCE_NODE, b),
+    new Bag(Bag::BagType::INTRODUCE_NODE, a),
+    new Bag(Bag::BagType::LEAF)
+  };
+  Tree tree(bags);
+  tree.DotTransitionGraph("example.dot");
+  //tree.tree_width = 3;
+  CnCHamiltonian* dyn= new CnCHamiltonian(&tree);
+  bool res = dyn->Compute();
+  EXPECT_EQ(res,false);
+}
+
+TEST(CnCHamiltonian, SimpleSquare) {
+  Node a(0, false);
+  Node b(1, false);
+  Node c(2, false);
+  Node d(3, false);
+  std::vector<Bag*> bags {
+    new Bag(Bag::BagType::FORGET_NODE, a),
+    new Bag(Bag::BagType::FORGET_NODE, b),
+    new Bag(Bag::BagType::MERGE),
+    new Bag(Bag::BagType::FORGET_NODE, c),
+    new Bag(Bag::BagType::INTRODUCE_EDGE, std::make_pair(a, c), 1),
+    new Bag(Bag::BagType::INTRODUCE_EDGE, std::make_pair(b, c), 1),
+    new Bag(Bag::BagType::INTRODUCE_NODE, a),
+    new Bag(Bag::BagType::INTRODUCE_NODE, c),
+    new Bag(Bag::BagType::INTRODUCE_NODE, b),
+    new Bag(Bag::BagType::LEAF),
+    new Bag(Bag::BagType::FORGET_NODE, d),
+    new Bag(Bag::BagType::INTRODUCE_EDGE, std::make_pair(a, d), 2),
+    new Bag(Bag::BagType::INTRODUCE_EDGE, std::make_pair(b, d), 2),
+    new Bag(Bag::BagType::INTRODUCE_NODE, a),
+    new Bag(Bag::BagType::INTRODUCE_NODE, d),
+    new Bag(Bag::BagType::INTRODUCE_NODE, b),
+    new Bag(Bag::BagType::LEAF)
+  };
+  Tree tree(bags);
+  tree.DotTransitionGraph("example.dot");
+  //tree.tree_width = 3;
+  CnCHamiltonian* dyn= new CnCHamiltonian(&tree);
+  bool res = dyn->Compute();
+  EXPECT_EQ(res,true);
+}
+
+TEST(Hamiltonian, SmallTests_HighProbability) {
+  int number_of_tests = 10;
+  while(number_of_tests--) {
+    Tree tree(3, 100);
+    tree.Generate(5, 0);
+    tree.IntroduceEdges(90);
+    tree.DotTransitionGraph("example_cnc.dot");
+    
+    CnCHamiltonian* dyn= new CnCHamiltonian(&tree);
+    bool res_dyn = dyn->Compute();
+    Node n(-1, false);
+    tree.PrepareBeforeStandardHamiltonian(n);
+    tree.DotTransitionGraph("example_standard.dot");
+    StandardHamiltonian* standard_dyn= new StandardHamiltonian(&tree);
+    bool res_standard = standard_dyn->Compute();
+    printf("RESULTS: %d vs. %d\n", res_dyn, res_standard);
+    // if (res_dyn != res_standard) break;
+    EXPECT_EQ(res_dyn, res_standard);
+  }
+}
+
+TEST(Hamiltonian, SmallTests_LowProbability) {
+  int number_of_tests = 10;
+  while(number_of_tests--) {
+    Tree tree(3, 100);
+    tree.Generate(5, 0);
+    tree.IntroduceEdges(60);
+    tree.DotTransitionGraph("example_cnc.dot");
+    
+    CnCHamiltonian* dyn= new CnCHamiltonian(&tree);
+    bool res_dyn = dyn->Compute();
+    Node n(-1, false);
+    tree.PrepareBeforeStandardHamiltonian(n);
+    tree.DotTransitionGraph("example_standard.dot");
+    StandardHamiltonian* standard_dyn= new StandardHamiltonian(&tree);
+    bool res_standard = standard_dyn->Compute();
+    printf("RESULTS: %d vs. %d\n", res_dyn, res_standard);
+    // if (res_dyn != res_standard) break;
+    EXPECT_EQ(res_dyn, res_standard);
+  }
+}
+
+/*
+TEST(Hamiltonian, BigTests_HighProbability) {
+  int number_of_tests = 10;
+  while(number_of_tests--) {
+    Tree tree(4, 100);
+    printf("tree width = %d\n", tree.tree_width);
+    tree.Generate(50, 0);
+    tree.IntroduceEdges(90);
+    tree.DotTransitionGraph("example_cnc.dot");
+    
+    CnCHamiltonian* dyn= new CnCHamiltonian(&tree);
+    bool res_dyn = dyn->Compute();
+    Node n(-1, false);
+    tree.PrepareBeforeStandardHamiltonian(n);
+    tree.DotTransitionGraph("example_standard.dot");
+    StandardHamiltonian* standard_dyn= new StandardHamiltonian(&tree);
+    bool res_standard = standard_dyn->Compute();
+    printf("RESULTS: %d vs. %d\n", res_dyn, res_standard);
+    EXPECT_EQ(res_dyn, res_standard);
+  }
+}
+*/
 int main(int argc, char **argv) {
     testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();

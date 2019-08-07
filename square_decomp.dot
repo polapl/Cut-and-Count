@@ -1,0 +1,39 @@
+graph G {
+ratio = fill;
+size = "16, 9";
+node [fontsize = 300, fontname="Courier-Bold"];
+edge [penwidth = 25, layer="background", arrowhead=vee, arrowsize=25.0];
+0 [label= "FORGET_NODE u* [id: 0] : { }", color=cyan4, style=filled]
+1 [label= "FORGET_NODE v* [id: 1] : { u* , }", color=cyan4, style=filled]
+0 -- 1;
+2 [label= "MERGE  [id: 2] : { v* , u* , }", color=orange1, style=filled]
+1 -- 2;
+3 [label= "FORGET_NODE w [id: 3] : { v* , u* , }", color=cyan4, style=filled]
+2 -- 3;
+10 [label= "FORGET_NODE x [id: 10] : { v* , u* , }", color=cyan4, style=filled]
+2 -- 10;
+4 [label= "INTRODUCE_EDGE u*w [id: 4] : { v* , w , u* , }", color=cornflowerblue, style=filled]
+3 -- 4;
+11 [label= "INTRODUCE_EDGE u*x [id: 11] : { v* , x , u* , }", color=cornflowerblue, style=filled]
+10 -- 11;
+5 [label= "INTRODUCE_EDGE v*w [id: 5] : { v* , w , u* , }", color=cornflowerblue, style=filled]
+4 -- 5;
+12 [label= "INTRODUCE_EDGE v*x [id: 12] : { v* , x , u* , }", color=cornflowerblue, style=filled]
+11 -- 12;
+6 [label= "INTRODUCE_NODE u* [id: 6] : { v* , w , u* , }", color=aquamarine, style=filled]
+5 -- 6;
+13 [label= "INTRODUCE_NODE u* [id: 13] : { v* , x , u* , }", color=aquamarine, style=filled]
+12 -- 13;
+7 [label= "INTRODUCE_NODE w [id: 7] : { v* , w , }", color=aquamarine, style=filled]
+6 -- 7;
+14 [label= "INTRODUCE_NODE x [id: 14] : { v* , x , }", color=aquamarine, style=filled]
+13 -- 14;
+8 [label= "INTRODUCE_NODE v* [id: 8] : { v* , }", color=aquamarine, style=filled]
+7 -- 8;
+15 [label= "INTRODUCE_NODE v* [id: 15] : { v* , }", color=aquamarine, style=filled]
+14 -- 15;
+9 [label= "LEAF  [id: 9] : { }", color=darkolivegreen2, style=filled]
+8 -- 9;
+16 [label= "LEAF  [id: 16] : { }", color=darkolivegreen2, style=filled]
+15 -- 16;
+}

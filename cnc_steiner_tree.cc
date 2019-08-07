@@ -28,15 +28,15 @@ void add_value(dynamic_results& vec, int a, int b, int c, ull val) {
   vec[a][b][c] = 1;
 }
 
-dynamic_results recursive(int k, int l, Bag* bag) {
+dynamic_results recursive_cnc_steiner_tree(int l, Bag* bag) {
   dynamic_results vec(l + 2);
 
   if(bag == nullptr) return vec;
   // Firstly compute partial results for subtrees.
-  auto left = std::move(recursive(k, l, bag->left));
-  auto right = std::move(recursive(k, l, bag->right));
+  auto left = std::move(recursive_cnc_steiner_tree(l, bag->left));
+  auto right = std::move(recursive_cnc_steiner_tree(l, bag->right));
 
-  Set set(bag->nodes);
+  State state(bag->nodes, 3);
 
   for(int j=0; j<=l; j++){
     vec[j] = vector<unordered_map<size_t, unsigned long long>>(pow(3,bag->nodes.size() + 1));
@@ -45,7 +45,7 @@ dynamic_results recursive(int k, int l, Bag* bag) {
       if (j == 0) vec[j][0][0] = 1;
       continue;
     }
-    if (bag->type == Bag::FORGET_NODE && set.nodes_.size() == 0) {
+    if (bag->type == Bag::FORGET_NODE && state.nodes_.size() == 0) {
       for (auto& weight: left[j][0]) {
         add_value(vec, j, 0, weight.first, weight.second);
       }
@@ -60,7 +60,7 @@ dynamic_results recursive(int k, int l, Bag* bag) {
       continue;
     }
 
-    for(auto it = set.begin(); it != set.end(); ++it) {
+    for(auto it = state.begin(); it != state.end(); ++it) {
       unsigned long long it_hash = *it;
       switch(bag->type) {
         case Bag::INTRODUCE_NODE:
@@ -134,7 +134,7 @@ dynamic_results recursive(int k, int l, Bag* bag) {
 }
 
 unsigned long long CnCSteinerTree::Compute() {  
-  dynamic_results vec = recursive(this->tree->GetTreeWidth(), this->l, this->tree->root);
+  dynamic_results vec = recursive_cnc_steiner_tree(this->l, this->tree->root);
   for(int i=0; i <= this->l; i++) {
     for (auto& weight: vec[i][0]) {
       if (weight.second % 2 == 1)

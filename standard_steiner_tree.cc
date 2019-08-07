@@ -53,14 +53,14 @@ void merge_child_partitions(const Node& first, const Node& second, const dynamic
 }
 
 //k = max width, l = max edges in Steiner tree
-dynamic_results recursive(int k, Bag* bag) {
+dynamic_results recursive_standard_steiner_tree(int k, Bag* bag) {
   if(bag == nullptr) return dynamic_results{};
 
   ull size = pow(2, bag->nodes.size() + 1);
   dynamic_results vec(size + 2);
 
-  auto left = std::move(recursive(k, bag->left));
-  auto right = std::move(recursive(k, bag->right));
+  auto left = std::move(recursive_standard_steiner_tree(k, bag->left));
+  auto right = std::move(recursive_standard_steiner_tree(k, bag->right));
 
   bool one_edge_introduced = false;
 
@@ -219,7 +219,7 @@ dynamic_results recursive(int k, Bag* bag) {
   
 
 unsigned long long StandardSteinerTree::Compute() {
-  const dynamic_results& vec = recursive(this->tree->GetTreeWidth(), this->tree->root);
+  const dynamic_results& vec = recursive_standard_steiner_tree(this->tree->GetTreeWidth(), this->tree->root);
   unsigned long long res = get_value(vec, 1, 1);
   return res;
 }
