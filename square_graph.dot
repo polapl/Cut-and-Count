@@ -1,14 +1,14 @@
 graph G {
 ratio = fill;
-size = "16, 9";
-node [fontsize = 300, fontname="Courier-Bold"];
-edge [penwidth = 25, layer="background", arrowhead=vee, arrowsize=25.0];
-u [label= "u*"]
-v [label= "v*"]
-w [label= "w"]
+size = "5, 3";
+node [fontsize = 30, fontname="Courier-Bold", fixedsize=true];
+edge [penwidth = 2, layer="background", arrowhead=vee, arrowsize=25.0];
+u [label= "u*", color=khaki, style=filled]
+v [label= "v*", color=khaki, style=filled]
+w [label= "w", color=khaki, style=filled]
 u -- w;
 w -- v;
-x [label= "x"]
+x [label= "x", color=khaki, style=filled]
 u -- x;
 x -- v;
 }

@@ -219,7 +219,7 @@ TEST(SteinerTree, SmallTests_LowProbability) {
     EXPECT_EQ(res_dyn, res_standard);
   }
 }
-/*
+
 TEST(SteinerTree, BigTests_HighProbability) {
   int number_of_tests = 1;
   while(number_of_tests--) {
@@ -244,7 +244,6 @@ TEST(SteinerTree, BigTests_HighProbability) {
     EXPECT_EQ(res_dyn, res_standard);
   }
 }
-*/
 
 TEST(StandardSteinerTree, SmallTests_HighProbability_OnlyStandard) {
   int number_of_tests = 1;
@@ -475,7 +474,6 @@ TEST(Hamiltonian, SmallTests_LowProbability) {
   }
 }
 
-/*
 TEST(Hamiltonian, BigTests_HighProbability) {
   int number_of_tests = 10;
   while(number_of_tests--) {
@@ -496,7 +494,7 @@ TEST(Hamiltonian, BigTests_HighProbability) {
     EXPECT_EQ(res_dyn, res_standard);
   }
 }
-*/
+
 int main(int argc, char **argv) {
     testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();

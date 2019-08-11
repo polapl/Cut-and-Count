@@ -67,18 +67,18 @@ dynamic_results recursive_cnc_steiner_tree(int l, Bag* bag) {
         {          
           // Terminals have to be taken
           if (bag->introduced_node.terminal && 
-              it.get_value(bag->introduced_node.value) == 0) {
+              it.GetMapping(bag->introduced_node.value) == 0) {
             vec[j][it_hash].clear();
             break;
           }
           // v1
           if (bag->introduced_node.value == 0 &&
-              it.get_value(bag->introduced_node.value) != 1) {
+              it.GetMapping(bag->introduced_node.value) != 1) {
             vec[j][it_hash].clear();
             break;
           }
 
-          auto hash_without_node = it.hash_without_node(bag->introduced_node.value);
+          auto hash_without_node = it.GetHashWithoutNode(bag->introduced_node.value);
           for (auto& weight: left[j][hash_without_node]) {
             add_value(vec, j, it_hash, weight.first, weight.second);
           }
@@ -86,7 +86,7 @@ dynamic_results recursive_cnc_steiner_tree(int l, Bag* bag) {
         }
         case Bag::FORGET_NODE:
         {
-          auto hash_with_node = it.hash_with_node(bag->forgotten_node.value);
+          auto hash_with_node = it.GetHashWithNode(bag->forgotten_node.value);
           for (auto& weight: left[j][hash_with_node.val_0]) {
             add_value(vec, j, it_hash, weight.first, weight.second);
           }
@@ -118,8 +118,8 @@ dynamic_results recursive_cnc_steiner_tree(int l, Bag* bag) {
         case Bag::INTRODUCE_EDGE:
         {
           vec[j][it_hash] = left[j][it_hash];
-          int id_1 = it.get_value(bag->introduced_edge.first.value);
-          int id_2 = it.get_value(bag->introduced_edge.second.value);
+          int id_1 = it.GetMapping(bag->introduced_edge.first.value);
+          int id_2 = it.GetMapping(bag->introduced_edge.second.value);
           if (j>0 && id_1 == id_2 && id_1 > 0) {
             for (auto& weight: left[j-1][it_hash]) {
               add_value(vec, j, it_hash, weight.first + bag->edge_weight, weight.second);

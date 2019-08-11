@@ -92,8 +92,8 @@ dynamic_results merge(Bag* bag, dynamic_results& left, dynamic_results& right) {
 
     	for(auto it2 = state.begin(); it2 != state.end(); ++it2) {
     		unsigned long long it_hash2 = *it2;
-    		auto colors1 = std::move(it1.give_colors());
-    		auto colors2 = std::move(it2.give_colors());
+    		auto colors1 = std::move(it1.GetMapping());
+    		auto colors2 = std::move(it2.GetMapping());
     		auto map_trans = map_after_trans(colors1, colors2);
 
     		if (map_trans.empty()) continue;
@@ -157,29 +157,29 @@ dynamic_results recursive_cnc_hamiltonian(Bag* bag) {
       switch(bag->type) {
         case Bag::INTRODUCE_NODE:
         {          
-        	if (it.get_color(bag->introduced_node.value) != 0 &&
-        		it.get_color(bag->introduced_node.value) != 4) break;
+        	if (it.GetMapping(bag->introduced_node.value) != 0 &&
+        		it.GetMapping(bag->introduced_node.value) != 4) break;
 
         	if (bag->introduced_node.value == 0 &&
-                it.get_value(bag->introduced_node.value) != 0) {
+                it.GetMapping(bag->introduced_node.value) != 0) {
             	vec[it_hash].clear();
             	break;
           	}
 
-			auto hash_without_node = it.hash_without_node(bag->introduced_node.value);
+			auto hash_without_node = it.GetHashWithoutNode(bag->introduced_node.value);
 			for (auto& weight: left[hash_without_node]) {
 				add_value(vec, it_hash, weight.first, weight.second);
-				auto col = it.give_colors();
+				auto col = it.GetMapping();
 				// print_value(col, vec, it_hash, weight.first);
 			}
 			break;
         }
         case Bag::FORGET_NODE:
         {
-          	auto hash_with_node = it.hash_c_with_node(bag->forgotten_node.value, 2);
+          	auto hash_with_node = it.GetAssignmentHashWithNode(bag->forgotten_node.value, 2);
           	for (auto& weight: left[hash_with_node]) {
             	add_value(vec, it_hash, weight.first, weight.second);
-            	auto col = it.give_colors();
+            	auto col = it.GetMapping();
             	// print_value(col, vec, it_hash, weight.first);
           	}
           	break;
@@ -188,18 +188,18 @@ dynamic_results recursive_cnc_hamiltonian(Bag* bag) {
         {
           	for (auto& weight: left[it_hash]) {
               	add_value(vec, it_hash, weight.first, weight.second);
-              	auto col = it.give_colors();
+              	auto col = it.GetMapping();
               	// print_value(col, vec, it_hash, weight.first);
             }
-          	int id_1 = it.get_value(bag->introduced_edge.first.value);
-          	int id_2 = it.get_value(bag->introduced_edge.second.value);
-          	auto hash_with_edge = it.hash_with_edge(bag->introduced_edge.first.value,
-          		                                    bag->introduced_edge.second.value);
+          	int id_1 = it.GetMapping(bag->introduced_edge.first.value);
+          	int id_2 = it.GetMapping(bag->introduced_edge.second.value);
+          	auto hash_with_edge = it.GetAssignmentHashWithEdge(bag->introduced_edge.first.value,
+          		                                               bag->introduced_edge.second.value);
 
           	if (in_first(id_1, id_2) || in_second(id_1, id_2)) {
             	for (auto& weight: left[it_hash]) {
               		add_value(vec, hash_with_edge, weight.first + bag->edge_weight, weight.second);
-              		auto col = it.give_colors();
+              		auto col = it.GetMapping();
               		// print_value(col, vec, hash_with_edge, weight.first + bag->edge_weight);
             	}
           	}

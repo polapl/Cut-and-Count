@@ -7,7 +7,7 @@
 
 using namespace std;
 
-struct hash_with_012 {
+struct HashWithNodeValues {
   unsigned long long val_0;
   unsigned long long val_1;
   unsigned long long val_2;
@@ -42,15 +42,15 @@ class State {
     }
 
     bool operator==(const Iterator& it) const {
-      return **this == *it; // not nice but works
+      return **this == *it;
     }
 
     bool operator!=(const Iterator& it) const {
-      return **this != *it; // not nice but works
+      return **this != *it;
     }
 
-    hash_with_012 hash_with_node(int id) {
-      hash_with_012 res;
+    HashWithNodeValues GetHashWithNode(int id) {
+      HashWithNodeValues res;
       int hash = 0;
       int pow3 = 1;
       int id_pow3;
@@ -67,7 +67,7 @@ class State {
       return res;
     }
 
-    long long int hash_without_node(int id) {
+    long long int GetHashWithoutNode(int id) {
       int hash = 0;
       int pow3 = 1;
       for(auto& it : m_) {
@@ -78,11 +78,11 @@ class State {
       return hash;
     }
 
-    int get_value(int id) {
-      return m_[id];
+    int GetMapping(int idx) {
+      return m_[idx];
     }
 
-    set<int> give_all_ones_idx() {
+    set<int> GetAllOnesIndexes() {
       set<int> res;
       int i = 0;
       for(const auto& it : m_) {
@@ -92,15 +92,11 @@ class State {
       return res;
     }
 
-    map<int, int> give_colors() {
+    map<int, int> GetMapping() {
       return m_;
     }
 
-    int get_color(int idx) {
-      return m_[idx];
-    }
-
-    set<map<int, int>> compute_matching(set<int> ones) {
+    set<map<int, int>> GetAllMatchings(set<int> ones) {
       set<map<int, int>> res;
       
       if (ones.size() == 0) {
@@ -117,14 +113,12 @@ class State {
         const int paired_val = it;
         copy.erase(paired_val);
         
-        set<map<int, int>> partial_set = compute_matching(copy);
+        set<map<int, int>> partial_set = GetAllMatchings(copy);
 
         for(auto& matching : partial_set) {
           auto matching_copy = matching;
           matching_copy[paired_val] = first;
           matching_copy[first] = paired_val;
-          // cout << paired_val << " z " << first << endl;
-          // cout << first << " z " << paired_val << endl;
           res.insert(matching_copy);
         }
 
@@ -135,24 +129,24 @@ class State {
       return res;
     }
 
-    set<map<int, int>> compute_matching() {
-      return compute_matching(give_all_ones_idx());
+    set<map<int, int>> GetAllMatchings() {
+      return GetAllMatchings(GetAllOnesIndexes());
     }
 
-    long long int hash_c_with_node(int id, int val) {
+    long long int GetAssignmentHashWithNode(int id, int val) {
       m_[id] = val;
       auto res = hash();
       m_.erase(id);
       return res;
     }
 
-    map<int, int> c_without_node(int id) {
+    map<int, int> GetAssignmentWithoutNode(int id) {
       map<int, int> res = m_;
       res.erase(id);
       return res;
     }
 
-    long long int hash_with_edge(int id1, int id2) {
+    long long int GetAssignmentHashWithEdge(int id1, int id2) {
       int val1 = m_[id1];
       int val2 = m_[id2];
       (val1 < 2 ? m_[id1]++ : m_[id1]--);
@@ -183,7 +177,7 @@ class State {
       }
   };
 
-  static bool op (const Node& i, const Node& j) { return (i.value < j.value); }
+  static bool op(const Node& i, const Node& j) { return (i.value < j.value); }
 
   State(const vector<Node>& nodes, unsigned int assignments) : nodes_(nodes), assignments_(assignments) {
     sort(nodes_.begin(), nodes_.end(), op);
@@ -208,7 +202,7 @@ class State {
   }
 
 
-  pair<int, int> edge_idx(const Node& a, const Node& b) {
+  pair<int, int> GetEdgeIndexes(const Node& a, const Node& b) {
     pair<int, int> res;
     int i = 0;
     for (const auto& n : nodes_) {
@@ -219,7 +213,7 @@ class State {
     return res;
   }
 
-  map<int, int> m_without_node(map<int, int> m, int val) {
+  map<int, int> GetMatchingWithoutNode(map<int, int> m, int val) {
     m.erase(val);
     int idx = 0;
     for(const auto& n : nodes_) {

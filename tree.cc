@@ -207,7 +207,7 @@ void Tree::DotTransitionGraph(string file_path) {
     myfile << "graph G {" << endl;
     myfile << "ratio = fill;" << endl;
     myfile << "size = \"16, 9\";" << endl;;
-    myfile << "node [fontsize = 300, fontname=\"Courier-Bold\"];" << endl;
+    myfile << "node [fontsize = 300, fontname=\"Courier-Bold\", colorscheme=\"pastel25\"];" << endl;
     myfile << "edge [penwidth = 25, layer=\"background\", arrowhead=vee, arrowsize=25.0];" << endl;
     queue<Bag*> Q;
     Q.push(this->root);
@@ -263,28 +263,28 @@ void Tree::DotTransitionGraph(string file_path) {
         switch(this->type) {
             case Bag::BagType::INTRODUCE_NODE:
                 type = "INTRODUCE_NODE";
-                color = "aquamarine";
+                color = "1";
                 additional_info = to_string(this->introduced_node.value);
                 if(this->introduced_node.terminal) additional_info += "*";
                 break;
             case Bag::BagType::INTRODUCE_EDGE:
                 type = "INTRODUCE_EDGE";
-                color = "cornflowerblue";
+                color = "2";
                 additional_info = to_string(this->introduced_edge.first.value);
                 additional_info += to_string(this->introduced_edge.second.value);
                 break;
             case Bag::BagType::FORGET_NODE:
                 type = "FORGET_NODE";
-                color = "cyan4";
+                color = "3";
                 additional_info = to_string(this->forgotten_node.value);
                 break;
             case Bag::BagType::MERGE:
                 type = "MERGE";
-                color = "orange1";
+                color = "4";
                 break;
             case Bag::BagType::LEAF:
                 type = "LEAF";
-                color = "darkolivegreen2";
+                color = "5";
                 break;
         }
         stringstream label;

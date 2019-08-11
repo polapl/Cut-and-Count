@@ -104,7 +104,7 @@ void print_state_for_merge(map<int, int> c_left, map<int, int> c_right, map<int,
 }
 
 
-dynamic_results merge_children(Bag* bag, const dynamic_results& left, const dynamic_results& right) {
+dynamic_results MergeChildren(Bag* bag, const dynamic_results& left, const dynamic_results& right) {
 	dynamic_results vec;
 
 	State state1(bag->left->nodes, 3);
@@ -126,7 +126,7 @@ dynamic_results merge_children(Bag* bag, const dynamic_results& left, const dyna
 	for (auto it_state1 = state1.begin(); it_state1 != state1.end(); ++it_state1) {
 	  	unsigned long long it_state1_hash = *it_state1;
 
-	  	const map<int, int>& colors1 = it_state1.give_colors(); // x:0, y:0, z:0
+	  	const map<int, int>& colors1 = it_state1.GetMapping(); // x:0, y:0, z:0
 
 
 	  	//cout << "colors, first set: " << endl;
@@ -144,7 +144,7 @@ dynamic_results merge_children(Bag* bag, const dynamic_results& left, const dyna
 	  	for(auto it_state2 = state2.begin(); it_state2 != state2.end(); ++it_state2) {
 	  		unsigned long long it_state2_hash = *it_state2;
 
-	  		const map<int, int>& colors2 = it_state2.give_colors(); // x:0, y:0, z:0
+	  		const map<int, int>& colors2 = it_state2.GetMapping(); // x:0, y:0, z:0
 	  		if (colors1.size() != colors2.size()) cout << "something wrong" << endl;
 
 	  		int ones1 = 0, ones2 = 0, ones3 = 0;
@@ -210,8 +210,8 @@ dynamic_results merge_children(Bag* bag, const dynamic_results& left, const dyna
 	    		continue;
 	    	}
 
-	    	auto all_matchings1 = it_state1.compute_matching(); // x:0, y:1, z:1, q:1 -> (0:1, 2:3), (0:2, 1:3), (0:3, 1:2)
-			auto all_matchings2 = it_state2.compute_matching();
+	    	auto all_matchings1 = it_state1.GetAllMatchings(); // x:0, y:1, z:1, q:1 -> (0:1, 2:3), (0:2, 1:3), (0:3, 1:2)
+			auto all_matchings2 = it_state2.GetAllMatchings();
 			
 			for(const auto& it_m1 : all_matchings1) { // one matching : (0:1, 2:3) -> 0:1, 1:0, 2:3, 3:2	
 
@@ -302,17 +302,17 @@ void print_all_matchings(set<map<int, int>> matchings) {
 	cout << "end" << endl;
 }
 
-bool is_edge_endpoint(int x, pair<Node, Node> edge) {
+bool IsEdgeEndpoint(int x, pair<Node, Node> edge) {
 	if (x == edge.first.value) return true;
 	if (x == edge.second.value) return true;
 	return false;
 }
 
-dynamic_results add_edge(Bag* bag, const dynamic_results& left) {
+dynamic_results AddEdge(Bag* bag, const dynamic_results& left) {
 	dynamic_results vec;
 
 	State state(bag->left->nodes, 3);
-	auto edge_idx = state.edge_idx(bag->introduced_edge.first, bag->introduced_edge.second);
+	auto edge_idx = state.GetEdgeIndexes(bag->introduced_edge.first, bag->introduced_edge.second);
 	if (edge_idx.first > edge_idx.second) swap(edge_idx.first, edge_idx.second);
 	// cout << "edge indexes " << edge_idx.first << " & " << edge_idx.second << endl;
 
@@ -326,7 +326,7 @@ dynamic_results add_edge(Bag* bag, const dynamic_results& left) {
 		  	}
 		}
 
-	  	const map<int, int>& colors = it_state.give_colors(); // x:0, y:0, z:0
+	  	const map<int, int>& colors = it_state.GetMapping(); // x:0, y:0, z:0
 
 	  	map<int, int> res_color;
 
@@ -337,17 +337,17 @@ dynamic_results add_edge(Bag* bag, const dynamic_results& left) {
 
 	  		if(color.second == 1) ones++;
 
-			if (color.second > 1 && is_edge_endpoint(color.first, bag->introduced_edge)) {
+			if (color.second > 1 && IsEdgeEndpoint(color.first, bag->introduced_edge)) {
 				incorrect_colors = true;
 				break;
 			}
-			res_color[color.first] = (is_edge_endpoint(color.first, bag->introduced_edge) ? color.second + 1 : color.second);
+			res_color[color.first] = (IsEdgeEndpoint(color.first, bag->introduced_edge) ? color.second + 1 : color.second);
 		}
 
     	if (incorrect_colors) continue;
     	if (ones % 2 == 1) continue;
 
-		const auto& all_matchings = it_state.compute_matching();
+		const auto& all_matchings = it_state.GetAllMatchings();
 		// print_all_matchings(all_matchings);
 
 		for(const auto& it_m : all_matchings) {
@@ -407,16 +407,16 @@ dynamic_results add_edge(Bag* bag, const dynamic_results& left) {
 	return vec;
 }
 
-dynamic_results forget_node(Bag* bag, const dynamic_results& left) {
+dynamic_results ForgetNode(Bag* bag, const dynamic_results& left) {
 	dynamic_results vec;
 	State state(bag->left->nodes, 3);
 	for(auto it = state.begin(); it != state.end(); ++it) { // different colors: x:1, y:2, z:3
 
-		if (it.get_color(bag->forgotten_node.value) != 2) continue;
-		auto c_wo_n = it.c_without_node(bag->forgotten_node.value);
+		if (it.GetMapping(bag->forgotten_node.value) != 2) continue;
+		auto c_wo_n = it.GetAssignmentWithoutNode(bag->forgotten_node.value);
 		auto hash_c_wo_n = hash_c(c_wo_n);
 
-		set<int> ones = it.give_all_ones_idx();
+		set<int> ones = it.GetAllOnesIndexes();
 		if(ones.size() % 2 == 1) continue;
 		
 		bool current = get_value(vec, hash_c_wo_n, 0);
@@ -428,11 +428,11 @@ dynamic_results forget_node(Bag* bag, const dynamic_results& left) {
 		
 		if(ones.size() == 0) continue;
 
-		const auto& all_matchings = it.compute_matching(ones);
+		const auto& all_matchings = it.GetAllMatchings(ones);
 		// print_all_matchings(all_matchings);
 
 		for(const auto& m : all_matchings) {
-			auto m_wo_n = state.m_without_node(m, bag->forgotten_node.value);
+			auto m_wo_n = state.GetMatchingWithoutNode(m, bag->forgotten_node.value);
 
 			bool partial = get_value(left, *it, hash_m(m));
 			bool current = get_value(vec, hash_c_wo_n, hash_m(m_wo_n));
@@ -445,17 +445,16 @@ dynamic_results forget_node(Bag* bag, const dynamic_results& left) {
 	return vec;
 }
 
-dynamic_results add_node(Bag* bag, const dynamic_results& left) {
+dynamic_results AddNode(Bag* bag, const dynamic_results& left) {
 	dynamic_results vec;
 	State state(bag->nodes, 3);
 	for(auto it = state.begin(); it != state.end(); ++it) { // different colors: x:1, y:2, z:3
 
-		if (it.get_color(bag->introduced_node.value) != 0) continue;
-		//auto hash_c_wo_n = it.hash_c_without_node(bag->introduced_node.value); // opisuje rodzica
-		auto c_wo_n = it.c_without_node(bag->introduced_node.value);
+		if (it.GetMapping(bag->introduced_node.value) != 0) continue;
+		auto c_wo_n = it.GetAssignmentWithoutNode(bag->introduced_node.value);
 		auto hash_c_wo_n = hash_c(c_wo_n);
 
-		set<int> ones = it.give_all_ones_idx();
+		set<int> ones = it.GetAllOnesIndexes();
 		if(ones.size() % 2 == 1) continue;
 		
 		bool current = get_value(vec, *it, 0);
@@ -466,10 +465,10 @@ dynamic_results add_node(Bag* bag, const dynamic_results& left) {
 		// print_state(c_wo_n, it.give_colors(), map<int, int>(), map<int, int>());
 		if(ones.size() == 0) continue;
 		
-		const auto& all_matchings = it.compute_matching(ones);
+		const auto& all_matchings = it.GetAllMatchings(ones);
 		
 		for(const auto& m : all_matchings) {
-			auto m_wo_n = state.m_without_node(m, bag->introduced_node.value);
+			auto m_wo_n = state.GetMatchingWithoutNode(m, bag->introduced_node.value);
 
 			bool current = get_value(vec, *it, hash_m(m));
 			bool partial = get_value(left, hash_c_wo_n, hash_m(m_wo_n));
@@ -483,7 +482,7 @@ dynamic_results add_node(Bag* bag, const dynamic_results& left) {
 	return vec;
 }
 
-dynamic_results recursive_standard_hamiltonian(Bag* bag) {
+dynamic_results DynamicStandardHamiltonian(Bag* bag) {
 	dynamic_results vec;
 
 	if(bag == nullptr) return vec;
@@ -494,32 +493,32 @@ dynamic_results recursive_standard_hamiltonian(Bag* bag) {
 	}
 
 	// Firstly compute partial results for subtrees.
-	auto left = std::move(recursive_standard_hamiltonian(bag->left));
-	auto right = std::move(recursive_standard_hamiltonian(bag->right));
+	auto left = std::move(DynamicStandardHamiltonian(bag->left));
+	auto right = std::move(DynamicStandardHamiltonian(bag->right));
 
 	if (bag->type == Bag::MERGE) {
-		vec = merge_children(bag, left, right);
+		vec = MergeChildren(bag, left, right);
 		return vec;
 	}
 
 	if (bag->type == Bag::INTRODUCE_EDGE) {
-		vec = add_edge(bag, left);
+		vec = AddEdge(bag, left);
 		return vec;
 	}
 
 	if (bag->type == Bag::FORGET_NODE) {
-		vec = forget_node(bag, left);
+		vec = ForgetNode(bag, left);
 		return vec;
 	}
 
 	if (bag->type == Bag::INTRODUCE_NODE) {
-		vec = add_node(bag, left);
+		vec = AddNode(bag, left);
 		return vec;
 	}
 }
 
 bool StandardHamiltonian::Compute() {  
-  dynamic_results vec = recursive_standard_hamiltonian(this->tree->root);
+  dynamic_results vec = DynamicStandardHamiltonian(this->tree->root);
   if (vec[4][1]) return true;
   return false;
 }
