@@ -10,10 +10,14 @@
 \usepackage{graphicx}
 \usepackage{amsthm}
 \usepackage{enumitem}
+\usepackage{mathtools}
+\usepackage{amsfonts}
 
 \newtheorem{theorem}{Twierdzenie}
 \newtheorem{lemma}{Lemat}
+\newtheorem{definition}{Definicja}
 \newcommand\Omicron{O}
+\DeclarePairedDelimiter\floor{\lfloor}{\rfloor}
 
 \begin{document}  
 \thispagestyle{empty}
@@ -182,7 +186,7 @@ Dowód opiera się na konstrukcji przedstawionej w dowodzie lematu \ref{kloks}. 
   	\chapter{Klasyczne algorytmy dynamiczne}
     	\section{Drzewo Steinera}
 
-Niniejszy algorytm został przedstawiony przez ... Mamy dany nieskierowany graf $G$ oraz zbiór wierzchołków $K$ będący podzbiorem $V(G)$, $K \subset V(G)$. Wierzchołki te nazywane są terminalami.
+Niniejszy algorytm został przedstawiony w \cite{parametrized_algorithms}. Mamy dany nieskierowany graf $G$ oraz zbiór wierzchołków $K$ będący podzbiorem $V(G)$, $K \subset V(G)$. Wierzchołki te nazywane są terminalami.
 Naszym zadaniem jest znalezienie dla grafu $G$ takiego jego spójnego podgrafu $H$, który zawiera wszystkie terminale i jego rozmiar jest minimalny.
 Zakładamy, że mamy daną ładną dekompozycję drzewową grafu wyjściowego $G$ : $\mathcal{T} = (T, \{X_t\}_{t \in V(T)})$. Dodatkowo, dla uproszczenia samego algorytmu, przyjmujemy, że każdy \emph{kubełek} zawiera przynajmniej jeden terminal. Możemy to łatwo osiągnąć - wybieramy dowolny wierzchołek ${v*}$ będący terminalem (terminale będą dla ułatwienia dodatkowo oznaczane przez *) i dodajemy go do każdego kubełka, usuwamy $\texttt{WPROWADZAJĄCY v}$ i $\texttt{ZAPOMINAJĄCY v}$, własność ładnej dekompozycji drzewowej jest zachowana z tą małą modyfikacją, że liście i korzeń nie są puste.
 \newline
@@ -290,12 +294,12 @@ Niech $H$ będzie szukanym cyklem Hamiltona. Przecięcie $H$ i $G_t$ składa si�
 \caption{Jedno z możliwych rozwiązań częściowych problemu znajdowania ścieżki Hamiltona dla kubełka $t$.}
 \end{figure}
 
-By utrzymać powyższe niezmienniki, w każdym kubełku $t$ musimy rozważyć wszystkie możliwe podziały zbioru $X_t$ na trzy podzbiory $\mathcal{D} = (X_{t_1}$, $X_{t_2}$, $X_{t_2})$, odpowiadające stopniom wierzchołków, które się w nich znajdują. Ponadto by w kubełkach \texttt{SCALAJĄCY} oraz \texttt{UZUPEŁNIAJĄCY uw}, nie otrzymać cyklu, musimy się przeiterować po wszystkich możliwych skojarzeniach $M$ wierzchołków ze zbioru $X_{t_1}$. Rozwiązanie częściowe jest poprawne, jeśli spełnione są następujące warunki:
+By utrzymać powyższe niezmienniki, w każdym kubełku $t$ musimy rozważyć wszystkie możliwe podziały zbioru $X_t$ na trzy podzbiory $\mathcal{D} = (X_{t\_0}$, $X_{t\_1}$, $X_{t\_2})$, odpowiadające stopniom wierzchołków, które się w nich znajdują. Ponadto by w kubełkach \texttt{SCALAJĄCY} oraz \texttt{UZUPEŁNIAJĄCY uw}, nie otrzymać cyklu, musimy się przeiterować po wszystkich możliwych skojarzeniach $M$ wierzchołków ze zbioru $X_{t\_1}$. Rozwiązanie częściowe jest poprawne, jeśli spełnione są następujące warunki:
 \begin{enumerate}
 \item $V(F) = V_t$ (wszystkie wierzchołki muszą należeć do rozwiązania)
-\item $u \in X_{t_1}$ $\Leftrightarrow$ $u \in X_t$ i wierzchołek $u$ ma stopień $i$ w $F$
-\item $\abs{X_{t_1}} \equiv 0 \mod 2$
-\item $u$ jest skojarzone z $w$ (${u, w} \in M$) $\Leftrightarrow$ $u \in X_{t_1} \wedge w \in X_{t_1} \wedge \exists y: u \in C_y \wedge w \in C_y$ ($u$ i $w$ są końcami ścieżki $C_y$) 
+\item $u \in X_{t\_i}$ $\Leftrightarrow$ $u \in X_t$ i wierzchołek $u$ ma stopień $i$ w $F$
+\item $\abs{X_{t\_1}} \equiv 0 \mod 2$
+\item $u$ jest skojarzone z $w$ (${u, w} \in M$) $\Leftrightarrow$ $u \in X_{t\_1} \wedge w \in X_{t\_1} \wedge \exists y: u \in C_y \wedge w \in C_y$ ($u$ i $w$ są końcami ścieżki $C_y$) 
 \end{enumerate}  
 
 Dla każdej trójki $(t, \mathcal{D}, M)$ trzymamy w $c[t][\mathcal{D}][M]$ $0$ lub $1$ w zależności od tego, czy powyższe warunki są spełnione. Musimy na bieżąco śledzić skojarzenie $M$, ponieważ kubełki typu \texttt{SCALAJĄCY} oraz \texttt{UZUPEŁNIAJĄCY uw} mogą utworzyć cykl. Wynik końcowy odpowiada wartości $c[r][(\emptyset, \{v_1, v_2\}, \emptyset)][\{v_1, v_2\}]$, gdzie $r$ jest korzeniem. Poniżej prezentuję formuły rekurencyjne obliczania wartości $c$ ze względu na typ kubełka $t$.
@@ -306,10 +310,10 @@ $$c[t][(\emptyset, \emptyset, \emptyset)][\emptyset] = 1$$
 \texttt{WPROWADZAJĄCY u} - zauważmy, że w momencie dodawania wierzchołka do $F$ jego stopień musi wynosić $0$, ponieważ żadna z incydentnych do niego krawędzi nie została jeszcze wprowadzona:
 
 \[
-c[t][(X_{t_0}, X_{t_1}, X_{t_2})][M] =  
+c[t][(X_{t\_0}, X_{t\_1}, X_{t\_2})][M] =  
 \left \{
   \begin{tabular}{ccc}
-  $c[t^{\prime}][(X_{t_0} \setminus \{u\}, X_{t_1}, X_{t_2})][M]$ & jeśli $u \in X_{t_0}$,\\
+  $c[t^{\prime}][(X_{t\_0} \setminus \{u\}, X_{t\_1}, X_{t\_2})][M]$ & jeśli $u \in X_{t\_0}$,\\
   $0$ & wpp.
   \end{tabular}
 \right. 
@@ -317,25 +321,25 @@ c[t][(X_{t_0}, X_{t_1}, X_{t_2})][M] =
 
 \texttt{ZAPOMINAJĄCY u} - wszystkie krawędzie incydentne do zapominanego wierzchołka zostały już wprowadzone, wobec czego zapominany wierzchołek musi mieć stopień $2$ w $F$:
 
-$$c[t][(X_{t_0}, X_{t_1}, X_{t_2})][M] = c[t^{\prime}][(X_{t_0}, X_{t_1}, X_{t_2} \cup \{u\})][M]$$
+$$c[t][(X_{t\_0}, X_{t\_1}, X_{t\_2})][M] = c[t^{\prime}][(X_{t\_0}, X_{t\_1}, X_{t\_2} \cup \{u\})][M]$$
 
-\texttt{UZUPEŁNIAJĄCY uw} - dodawanie krawędzi incydentnej do wierzchołka zwiększa jego stopień o $1$, wobec czego możemy dodawać krawędź, jeśli $u \in X_{t_0} \vee u \in X_{t_1}$ oraz $w \in X_{t_0} \vee w \in X_{t_1}$. Nie jest to jednak warunek wystarczający, ponieważ nie gwarantuje nam, że nie dostaniemy cyklu. Jeśli $u \in X_{t_1} \wedge w \in X_{t_1}$ oraz $\exists m : m \in M \wedge u \in m \wedge w \in m$, nie możemy wziąć krawędzi $uw$. Niezależnie od tego, czy krawędź może zostać dodana do rozwiązania, czy nie, dla każdej trójki $(t, \mathcal{D}, M)$ możemy jej nie brać, dlatego bierzemy alternatywę $c[t^{\prime}][(X_{t_0}, X_{t_1}, X_{t_2})][M]$ i poniższych wartości:
+\texttt{UZUPEŁNIAJĄCY uw} - dodawanie krawędzi incydentnej do wierzchołka zwiększa jego stopień o $1$, wobec czego możemy dodawać krawędź, jeśli $u \in X_{t\_0} \vee u \in X_{t\_1}$ oraz $w \in X_{t_0} \vee w \in X_{t\_1}$. Nie jest to jednak warunek wystarczający, ponieważ nie gwarantuje nam, że nie dostaniemy cyklu. Jeśli $u \in X_{t\_1} \wedge w \in X_{t\_1}$ oraz $\exists m : m \in M \wedge u \in m \wedge w \in m$, nie możemy wziąć krawędzi $uw$. Niezależnie od tego, czy krawędź może zostać dodana do rozwiązania, czy nie, dla każdej trójki $(t, \mathcal{D}, M)$ możemy jej nie brać, dlatego bierzemy alternatywę $c[t^{\prime}][(X_{t\_0}, X_{t\_1}, X_{t\_2})][M]$ i poniższych wartości:
 
 \[
-c[t][(X_{t_0}, X_{t_1}, X_{t_2})][M] =  
+c[t][(X_{t\_0}, X_{t\_1}, X_{t\_2})][M] =  
 \left \{
   \begin{tabular}{ccc}
-  jeśli $u \in X_{t_1} \wedge w \in X_{t_1}$:\\
-  $c[t^{\prime}][(X_{t_0} \cup \{u, w\}, X_{t_1} \setminus \{u, w\}, X_{t_2})][M \cup \{u, w\}]$\\
+  jeśli $u \in X_{t\_1} \wedge w \in X_{t\_1}$:\\
+  $c[t^{\prime}][(X_{t\_0} \cup \{u, w\}, X_{t\_1} \setminus \{u, w\}, X_{t\_2})][M \cup \{u, w\}]$\\
   \\
-  jeśli $u \in X_{t_1} \wedge w \in X_{t_2}$:\\
-  $c[t^{\prime}][(X_{t_0} \cup \{u\}, X_{t_1} \setminus \{u\} \cup \{w\}, X_{t_2} \setminus \{w\})][M \cup \{u, w\}]$\\
+  jeśli $u \in X_{t\_1} \wedge w \in X_{t\_2}$:\\
+  $c[t^{\prime}][(X_{t\_0} \cup \{u\}, X_{t\_1} \setminus \{u\} \cup \{w\}, X_{t\_2} \setminus \{w\})][M \cup \{u, w\}]$\\
   \\
-  jeśli $u \in X_{t_2} \wedge w \in X_{t_1}$:\\
-  $c[t^{\prime}][(X_{t_0} \cup \{w\}, X_{t_1} \setminus \{w\} \cup \{u\}, X_{t_2} \setminus \{u\})][M \cup \{u, w\}]$\\
+  jeśli $u \in X_{t\_2} \wedge w \in X_{t\_1}$:\\
+  $c[t^{\prime}][(X_{t\_0} \cup \{w\}, X_{t\_1} \setminus \{w\} \cup \{u\}, X_{t\_2} \setminus \{u\})][M \cup \{u, w\}]$\\
   \\
-  jeśli $u \in X_{t_2} \wedge w \in X_{t_2}$:\\
-  $c[t^{\prime}][(X_{t_0}, X_{t_1} \cup \{u, w\}, X_{t_2} \setminus \{u, w\})][M \cup \{u, w\}]$\\
+  jeśli $u \in X_{t\_2} \wedge w \in X_{t\_2}$:\\
+  $c[t^{\prime}][(X_{t\_0}, X_{t_1} \cup \{u, w\}, X_{t\_2} \setminus \{u, w\})][M \cup \{u, w\}]$\\
   \\  
   $0$ wpp.\\
   \end{tabular}
@@ -366,11 +370,251 @@ Dla każdego kubełka mamy nie więcej niż $3^k \cdot k^k$ stanów. Zatem zło�
 \newpage
   	\chapter{Algorytmy dynamiczne z zastosowaniem techniki Cut \& Count}
 
-W poprzednim rozdziale zostały przedstawione klasyczne algorytmy dynamiczne po dekompozycji drzewowej dla dwóch problemów decyzyjnych: drzewa Steinera oraz cyklu Hamiltona. Złożoność czasowa obu tych algorytmów jest niesatysfakcjonująca, gdyż zależy od $k^{\Omicron{(k)}}$ (gdzie $k$ jest szerokością drzewową). Czynnik ten jest następtwem trzymania odpowiednio: wszystkich możliwych podziałów cząstkowego drzewa Steinera na spójne poddrzewa oraz wszystkich możliwych skojarzeń wierzchołków wiszących w pary reprezentujące ścieżki będące częścią szukanego cyklu Hamiltona. W tym rodziale przedstawię dynamiczne algorytmy randomizowane (po dekompozycji drzewowej), bazujące na technice Cut \& Count opublikowanej przez ..., która znosi konieczność śledzenia podziału na partycje czy skojarzenia, tym samym znacznie poprawiając złożoność czasową w stosunku do klasycznych algorytmów dynamicznych. Technika Cut \& Count redukuje problemy decyzyjne do problemów zliczania wszystkich możliwych rozwiązań modulo $2$, jednocześnie dopuszczając rozwiązania niespójne (las w przypadku drzewa Steinera, zbiór cykli w przypadku cyklu Hamiltona). Technika Cut \& Count bazuje na tymczasowym poluzowywaniu ograniczeń dotyczących spójności szukanych rozwiązań, z tego względu znajduje ona uniwersalne zastosowanie tylko do problemów o spójnych rozwiązaniach.
+W poprzednim rozdziale zostały przedstawione klasyczne algorytmy dynamiczne po dekompozycji drzewowej dla dwóch problemów decyzyjnych: drzewa Steinera oraz cyklu Hamiltona. Złożoność czasowa obu tych algorytmów jest niesatysfakcjonująca, gdyż zależy od $k^{\Omicron{(k)}}$ (gdzie $k$ jest szerokością drzewową). Czynnik ten jest następstwem trzymania odpowiednio: wszystkich możliwych podziałów cząstkowego drzewa Steinera na spójne poddrzewa oraz wszystkich możliwych skojarzeń wierzchołków wiszących w pary reprezentujące ścieżki będące częścią szukanego cyklu Hamiltona. W tym rodziale przedstawię dynamiczne algorytmy randomizowane (po dekompozycji drzewowej), bazujące na technice Cut \& Count opublikowanej w \cite{parametrized_algorithms}, która znosi konieczność śledzenia podziału na partycje czy skojarzenia, tym samym znacznie poprawiając złożoność czasową w stosunku do klasycznych algorytmów dynamicznych. Technika Cut \& Count redukuje problemy decyzyjne do problemów zliczania wszystkich możliwych rozwiązań modulo $2$, jednocześnie dopuszczając rozwiązania niespójne (las w przypadku drzewa Steinera, zbiór cykli w przypadku cyklu Hamiltona). Technika Cut \& Count bazuje na tymczasowym poluzowywaniu ograniczeń dotyczących spójności szukanych rozwiązań, z tego względu znajduje ona uniwersalne zastosowanie tylko do problemów o spójnych rozwiązaniach. Niech $\mathcal{S} \subset 2^U$ będzie zbiorem szukanych rozwiązań, a $U$ naszym uniwersum (zazwyczaj jest to zbiór wierzchołków lub krawędzi grafu danego na wejściu). Pytamy, czy $\mathcal{S}$ jest pusty. Na technikę Cut \& Count składają się dwa kroki:
+
+\begin{enumerate}
+
+\item[Cut] - poluzuj wymagania dotyczące spójności szukanego rozwiązania, tj. na tym etapie dopuszczamy rozwiązania niespójne należące do zbioru $\mathcal{R} \supseteq \mathcal{S}$. Ponadto rozważamy zbiór $\mathcal{C}$ składający się z par $(X, C)$, gdzie $X \in \mathcal{R}$ a $C$ jest partycją podzbioru wierzchołków grafu wejściowego $(V_1, V_2)$, z którą $X$ jest kompatybilny (żadna spójna składowa nie ma niepustego przecięcia zarówno z $V_1$, jak i $V_2$).  
+
+\item[Count] - wyizoluj jedno z możliwych rozwiązań (o ile takie istnieje) poprzez przypisanie loswych wag elementom z uniwersum $U$. Rozbij zbiór $\mathcal{C}$ ze względu na wagi $w = w(X)$, a następnie oblicz parzystości zbiorów $\abs{\mathcal{C}_w}$ używając formuł rekurencyjnych. To pozwoli odrzucić wszystkie niepoprawne rozwiązania (niespójne), tj. $X \in \mathcal{R} \setminus \mathcal{S}$, ponieważ każde niespójne rozwiązanie jest kompatybilne z parzystą ilością partycji. Istnienie spójnego, wyizolowanego rozwiązania sprawi, że jedna z wartości $\abs{\mathcal{C}_w}$ będzie równa $1$.
+
+\end{enumerate}
 
     	\section{Drzewo Steinera}
-Podobnie jak w poprzednim rozdziale, mamy dany graf $G$ wraz ze zbiorem terminali $K \subseteq V(G)$ oraz jego dekompozycję drzewową $\mathcal{T} = (T, \{X_t\}_{t \in V(T)})$. Dodatkowo dostajemy liczbę naturalną $\ell$. Pytamy, czy istnieje drzewo Steinera o rozmiarze co najwyżej $\ell$, innymi słowy: czy istnieje spójny graf acykliczny łączący wszystkie terminale, o co najwyżej $\ell$ krawędziach.
+Podobnie jak w poprzednim rozdziale, mamy dany graf $G$ wraz ze zbiorem terminali $K \subseteq V(G)$ oraz jego dekompozycję drzewową $\mathcal{T} = (T, \{X_t\}_{t \in V(T)})$. Dodatkowo dostajemy liczbę naturalną $\ell$. Pytamy, czy istnieje drzewo Steinera o rozmiarze co najwyżej $\ell$, innymi słowy: czy istnieje spójny graf acykliczny łączący wszystkie terminale, o co najwyżej $\ell$ krawędziach. Dążymy do udowodnienia następującego twierdzenia:
 
+\begin{theorem}
+\label{monte_carlo}
+Istnieje algorytm Monte Carlo z jednostronnym błędem (odpowiedź fałszywie negatywna), który rozwiązuje problem drzewa Steinera w czasie $3^k \cdot n^{\Omicron(1)}$ mając na wejściu daną dekompozycję drzewową grafu o szerokości drzewowej $k$.
+\end{theorem}
+
+\begin{proof}
+Jak już zostało wspomniane, sprowadzamy problem decyzyjny do problemu parzystości ilości poprawnych, spójnych rozwiązań. Jednakże nie liczymy jej bezpośrednio, a uwzględniając rozwiązania niespójne - jak zostanie to pokazane, każde z nich wliczamy do końcowego wyniku parzystą liczbę razy, dzięki czemu wynik końcowy jest poprawny.
+
+Powołując się na \cite{parametrized_algorithms}, zdefiniujmy dwa zbiory - $\mathcal{R}$ niech będzie zbiorem ,,lasów Steinera'', tj. zbiorem acyklicznych podgrafów $G$, które sumarycznie składają się z co najwyżej $\ell$ krawędzi i zawierają $K$, $\mathcal{S}$ niech zawiera te podgrafy z $\mathcal{R}$, które są dodatkowo spójne, innymi słowy $\mathcal{S}$ składa się z drzew Steinera:
+
+$$\mathcal{R} = \{H \subseteq G: \abs{E(H)} \leq \ell, K \subseteq V(H)\}$$
+$$\mathcal{S} = \{H \in \mathcal{R}: H\ jest\ sp\mbox{ó}jny\}$$
+
+Chcemy, by każdy element z $\mathcal{R} \setminus \mathcal{S}$ został zliczony parzystą liczbę razy, natomiast każdy element ze zbioru $\mathcal{S}$ nieparzystą liczbę razy. W tym celu definiujemy rodzinę przecięć, które są podziałami $V(H)$ na dwa podzbiory $V^1$ i $V^2$. Mówimy, że podgraf $H$ grafu $G$ jest kompatybilny z przecięciem $(V^1, V^2)$, jeśli żadna z krawędzi $H$ nie ma końców po obu stronach przecięcia, tj. wtedy gdy $E(H) \subseteq {V^1 \choose 2} \cup {V^2 \choose 2}$, gdzie ${X \choose 2}$ oznacza wszystkie dwuelementowe podzbiory zbioru $X$.  
+
+Zastanówmy się, jak wiele przecięć jest komptybilnych z danym grafem $H$. Skoro żadna z krawędzi nie może być rozpięta pomiędzy $V^1$ i $V^2$, każdy spójny komponent $H$ musi być w całości w $V^1$ lub w $V^2$. Z powyższego dostajemy, że dla danego $H$ mamy $2^c$ kompatybilnych przecięć, gdzie $c$ jest liczbą spójnych składowych $H$. Prawie mamy już to, co chcieliśmy - każde niespójne $H$ (z więcej niż jedną spójną składową) jest kompatybilne z parzystą liczbą przecięć. Niestety spójne rozwiązania są również kompatybilne z parzystą liczbą przecięć, a precyzując - każde z dokładnie dwoma. Możemy to naprawić, wybierając dowolny wierzchołek $v_1 \in K$ i przypisać go na stałe tylko do $V^1$. Zapiszmy formalnie definicję przecięć kompatybilnych z $H$:
+
+$$\texttt{cuts} (V(H), v_1) \coloneqq \{(V^1, V^2): V^1 \cup V^2 = V(H) \wedge V^1 \cap V^2 = \emptyset \wedge v_1 \in V^1\}$$
+
+Pokażmy teraz, że zamiast liczyć parzystość $\abs{\mathcal{S}}$, możemy policzyć parzystość zbioru składającego się z podzbiorów należących do $\mathcal{R}$ wraz z wszystkimi kompatybilnymi do nich przecięciami:
+
+$$\mathcal{C} = \{(H, (V^1, V^2)) \in \mathcal{R} \times \texttt{cuts}(V(H), v_1) : H\ jest\ kompatybilny\ z\ (V^1, V^2)\}$$
+
+\begin{lemma}
+Parzystość $\abs{\mathcal{C}}$ jest równa parzytości $\abs{\mathcal{S}}$.
+\end{lemma}
+
+\begin{proof}
+Rozważmy graf $H$ należący do $\mathcal{R}$, który ma $c$ spójnych składowych. Każda spójna składowa musi się znaleźć w całości w $V^1$ albo w $V^2$, wpp. mielibyśmy krawędź przechodzącą przez przecięcie. Jednakże spójna składowa zawierająca $v_1$ może się znaleźć tylko po stronie $V^1$. Z tego powodu $H$ jest kompatybilny z $2^{c-1}$ przecięciami. Dla $H \in \mathcal{S}$ liczba ta jest nieparzysta, natomiast dla $H \in \mathcal{R} \setminus \mathcal{S}$ parzysta. 
+\end{proof}
+
+Wobec powyższego lematu, pozostaje pokazać algorytm obliczania parzystości $\mathcal{C}$. Okazuje się, że możemy to zrobić bez spamiętywania wszystkich dotychczasowo poprawnych stanów rozwiązań cząstkowych, tj. bez ich podziałów na partycje. Dzięki temu dostaniemy algorytm o złożoności $2^{\Omicron(k)}$.
+
+Dla każdego kubełka $t \in V(T)$, liczby naturalnej $i \leq l$ i funkcji $f: X_t \to \{0,1,2\}$ obliczamy $c[t][f][i]$ będące liczbą par $(H, (V^1, V^2))$, takich że:
+
+\begin{enumerate}
+\item $H$ jest podgrafem $(V_t, E_t)$ o dokładnie $i$ krawędziach oraz $H$ zawiera wszystkie terminale dotychczasowo wprowadzone w bieżącym poddrzewie, tj. $K \cap V_t$
+\item $(V^1, V^2)$ jest przecięciem kompatybilnym z $H$, tj. $V^1 \cup V^2 = V(H)$, $V^1 \cap V^2 = \emptyset$, $v_1 \notin V^2$
+\item przecięcie $H$ z wierzchołkami należącymi do kubełka $t$ jest równe $V(H) \cap X_t = f^{-1}(1) \cup f^{-1}(2)$
+\item funkcja $f$ opisuje przynależność wierzchołków ze zbioru $X_t \setminus f^{-1}(0)$ do $V^1$ i $V^2$, tj. $V^j \cap V(H) \cap X_t = f^{-1}(j)$ gdzie $j \in \{1,2\}$
+\end{enumerate} 
+
+Zanim przejdę do rekurencyjnych formuł obliczania wartości $c[t][f][i]$, pokażę w jaki sposób problem parzystości $\mathcal{C}$ redukuje się do problemu istnienia drzewa Steinera. Oczywistym jest, że mogą istnieć dwa różne (parzyście wiele różnych) drzewa Steinera o tej samej liczbie krawędzi. Problem ten rozwiążemy poprzez wprowadzenie wag na krawędziach grafu $G$, które pozwolą nam rozróżniać poszczególne rozwiązania. 
+Dla odpowiednio dużego $N$, losowo (niezależnie i z równym prawdopodobieństwem) wybieramy wagi ze zbioru $\{1,2,\dots,N\}$ i przyporządkowywujemy je krawędziom należącym do $E(G): \mathbf{w}(e) \in \{1,2,\dots,N\}$. Zdefiniujmy wagę podgrafu $H$ następująco $\mathbf{w}(H) = \sum_{e \in E(H)} \mathbf{w}(e)$. Dla liczby naturalnej $w$, niech $\mathcal{R}_w = \{H \in \mathcal{R} : \mathbf{w}(H) = w\}$. Podobnie definiujemy $\mathcal{S}_w$ i $\mathcal{C}_w$. Z oczywistych względów $\abs{\mathcal{S}_w} \mod 2 = \abs{\mathcal{C}_w} \mod 2$. Intuicyjnie, wystarczająco duże $N$ powinno porozrzucać poprawne rozwiązania do różnych $\mathcal{S}_w$, dzięki czemu implikacja $\exists_{w} :\abs{\mathcal{S}_w} \mod 2 = 1 \implies$ $istnieje$ $drzewo$ $Steinera$ $o$ $i \leq l$ $kraw\mbox{ę}dziach$ z wysokim prawdopodobieństwem zachodzi w obie strony. Autorzy udowadniają za pomocą tzw. lematu izolującego coś znacznie silniejszego - mianowicie wystarczy wziąć $N = \Omega(\abs{E(G)})$, żeby ze stałym prawdopodobieństwem otrzymać co najmniej jeden zbiór $\mathcal{S}_w$ rozmiaru dokładnie $1$.
+
+\begin{definition}
+Funkcja $\mathbf{w}: U \to \mathbb{Z}$ izoluje rodzinę zbiorów $\mathcal{F} \subseteq 2^U$ jeśli istnieje unikalne $S' \in \mathcal{F}$, takie że $\mathbf{w}(S') = min_{S \in \mathcal{F}} \mathbf{w}(S)$. W naszym przypadku $\mathbf{w}(X) = \sum_{u \in X} \mathbf{w}(u)$.
+\end{definition}
+
+\begin{lemma}[Lemat izolujący]
+Niech $\mathcal{F} \subseteq 2^U$będzie rodziną zbiorów w uniwersum $U$, gdzie $\abs{\mathcal{F} > 0}$. Dla każdego $u \in U$, wybieramy $\mathbf{w}(u) \in \{1, 2, \ldots, N\}$ z jednakowym prawdopodobieństwem, niezależnie. Wtedy
+$$Pr(\mathbf{w} \ izoluje \ \mathcal{F}) \geq 1 - \frac{\abs{U}}{N}$$
+\end{lemma}
+
+\begin{proof}
+Niech $u \in U$ będzie dowolnym elementem z uniwersum $U$, który znajduje się w co najmniej jednym zbiorze z $\mathcal{F}$ i w co najmniej jednym z nich się nie pojawia - taki element nie musi istnieć. Definiujemy:
+$$\alpha(u) = min_{S \in \mathcal{F}, u \notin S} \mathbf{w}(S) - min_{S \in \mathcal{F}, u \in S} \mathbf{w}(S \setminus \{u\})$$
+
+Zauważmy, że $\alpha(u)$ jest niezależne od $\textbf{w}(u)$. Dostajemy, że
+\begin{equation}
+\label{pr}
+Pr(\alpha(u) = \mathbf{w}(u)) \leq \frac{1}{N},
+\end{equation}
+ponieważ wagę $\mathbf{w}(u)$ możemy wylosować na sam koniec, kiedy wszystkie inne wagi są już ustalone.
+Załóżmy, że mamy dwa zbiory $A, B \in \mathcal{F}$ o minimalnej wadze. Musi je rozróżniać co najmniej jeden element, tzn. istnieje $x \in A \setminus B$. Dostajemy
+$$\alpha(x) = min_{S \in \mathcal{F}, x \notin S} \mathbf{w}(S) - min_{S \in \mathcal{F}, x \in S} \mathbf{w}(S \setminus \{x\})$$
+$$= \mathbf{w}(B) - (\mathbf{w}(A) - \mathbf{w}(x))$$
+$$= \mathbf{w}(x)$$
+Jesli $W$ nie izoluje $\mathcal{F}$, wtedy istnieje element $x$ i zbiory $A, B \in \mathcal{F}$ takie że $x \in A \setminus B$ i $\alpha(x) = \mathbf{w}(x)$. Jednakże na podstawie \ref{pr}, to się zdarza z prawdopodobieństwem nie większym niż $\frac{\abs{U}}{N}$.
+\end{proof}
+
+Naszym uniwersum są krawędzie grafu wejściowego $G$ ($U = E(G)$), natomiast $\mathcal{F} = \{E(H) : H \in S\}$. Wagi na krawędziach losujemy ze zbioru $\{1,2, \ldots, 2 \abs{U}\}$, a następnie liczymy parzystość ilości rozwiązań dla poszczególnych $\mathcal{C}_w$. Musimy nieznacznie zmodyfikować, dla jakich parametrów liczymy rozwiązania cząstkowe $c[t][f][i]$ wspomniane powyżej. tj. dorzucamy jeszcze jeden parametr $w$ i liczymy, ile jest podgrafów $H$ o wadze $w$, $i$ krawędziach, kompatybilnych z podziałem $(V_1, V_2)$. Poniżej przedstawiam rekurencyjne formuły zależne od typu kubełka $t$. Rozwiązanie końcowe zależy od tego, czy istnieje $i \leq l$ oraz $w  \leq 2\abs{E}l$, dla których  $c[r][0][i][w] \mod 2 = 1$. Jeśli tak, to istnieje drzewo Steinera o $i$ krawędziach. Jeśli nie, to z prawdopodobieństwem co najmniej $\frac{1}{2}$ nie istnieje drzewo Steinera o co najwyżej $l$ krawędziach. 
+\newline\newline
+\texttt{LIŚĆ u} - dla wszystkich liści $c[t][\emptyset][0][0] = 1$, ponieważ $H$ nie ma jeszcze wprowadzonych żadnych wierzchołków ani krawędzi.
+\newline\newline
+\texttt{WPROWADZAJĄCY u} - zauważmy, że $u \in K \implies f(u) \neq 0$ oraz $u = v_1 \implies f(u) = 1$. Jeśli któryś z wymienionych warunków nie jest spełniony $c[t][f][i][w] = 0$, wpp.
+
+$$c[t][f][i][w] = c[t^{\prime}][f_{\big|X_{t^{\prime}}}][i][w]$$
+\newline\newline
+\texttt{ZAPOMINAJĄCY u} - dla kubełka zapominającego dodajemy wyniki cząstkowe przyjmując, że w dziecku wierzchołek $u$ mógł mieć odpowiednio przypisane wartości funkcji $f(u)$: $0$, $1$, $2$.
+\[
+c[t][f][i][w] =  
+  \begin{tabular}{ccc}
+  $\ \ c[t^{\prime}][f \cup \{u\} \to \{0\}][i][w]$\\
+  $+ c[t^{\prime}][f \cup \{u\} \to \{1\}][i][w]$\\
+  $+ c[t^{\prime}][f \cup \{u\} \to \{2\}][i][w]$
+  \end{tabular}
+\]
+\newline\newline
+\texttt{UZUPEŁNIAJĄCY uv} - zauważmy, że dla kubełka uzupełniającego $uv$ musi zachodzić $f(u) = f(v) \neq 0$, ponieważ żadna krawędź nie może przechodzić przez przecięcie oraz wierzchołki izolowane ($f(u) = 0$) nie mogą być incydentne z jakąkolwiek krawędzią. Jeśli powyższe warunki nie są spełnione $c[t][f][i][w] = c[t^{\prime}][f][i][w]$, innymi słowy nie włączamy krawędzi $uv$ do bieżącego rozwiązania, wpp.
+
+$$c[t][f][i][w] = c[t^{\prime}][f][i-1][w-w_{uv}]$$
+\newline\newline
+\texttt{SCALAJĄCY} - dla kubełka scalającego sumujemy po wszystkich parach rozwiązań cząstkowych, gdzie $w(H_1) + w(H_2) = w(H)$ oraz $\abs{E(H_1)} + \abs{E(H_2)} = \abs{E(H)}$
+
+$$c[t][f][i][w] = \sum_{i_1 + i_2 = i, w_1 + w_2 = w} c[t_1][f][i_1][w_1] + c[t_2][f][i_2][w_2]$$
+
+Złożoność powyższego algorytmu wynosi $3^k \cdot n^{\Omicron(1)}$, czyli zależność złożoności czasowej od szerokości drzewowej jest rzędu $2^{\Omicron(k)}$, a nie jak w przypadku standardowego algorytmu dynamicznego $k^{\Omicron(k)}$, co kończy dowód twierdzenia \ref{monte_carlo}.
+\end{proof}
+
+    	\section{Cykl Hamiltona}
+
+Zastanówmy się, jak można zastosować technikę Cut \& Count w celu rozwiązania problemu istnienia cyklu Hamiltona (przedstawionego w poprzednim rozdziale) oraz jak bardzo pozwoli nam ona zbić złożoność czasową w stosunku do standardowego algorytmu po dekompozycji drzewowej. Ponieważ apekty techniczne w większości pokrywają się z tym, co zostało przedstawione w poprzednim paragrafie w kontekście drzewa Steinera, skupię się wyłącznie na różnicach, niuansach charakterystycznych dla cyklu Hamiltona.
+
+Po pierwsze skupmy się na dopuszczalnych rozwiązaniach. Pominięcie wymogu spójności redukuje problem cyklu Hamiltona do problemu pokrycia wierzchołkowego grafu $k$ cyklami, gdzie w naszym przypadku $k \in \{1, \ldots, \floor*{\frac{|V|}{2}}\}$. Zbiór $\mathcal{R}$ zawiera wszystkie takie pokrycia $H$, które składają się z cykli zawierających co najmniej dwa wierzchołki oraz które sumarycznie pokrywają wszystkie wierzchołki grafu wejściowego $G$:
+
+$$\mathcal{R} = \{H \subseteq G: V(H) = V(G), \forall u \in V(H): deg(u) = 2\}$$
+$$\mathcal{S} = \{H \in \mathcal{R}: H\ jest\ sp\mbox{ó}jny\}$$
+
+Po drugie zauważmy, że o ile w przypadku liczenia cząstkowych rozwiązań dla drzewa Steinera, mamy zachowany niezmiennik, że cząstkowe rozwiązanie składa się z drzew, o tyle w przypadku cyklu Hamiltona podobny niezmiennik nie zachodzi. Rozwiązanie dla bieżącego podgrafu $G_t$ niekoniecznie składa się z cykli, ponieważ może zawierać także ścieżki. Zliczamy takie rozwiązania, dopóki istnieje możliwość domknięcia wszystkich ścieżek (tzn. w wierzchołku \texttt{ZAPOMINAJĄCY u} wymagamy, by $deg(u) = 2$).
+
+Zbiór $\mathcal{C}$ definiujemy podobnie jak dla drzewa Steinera, z dwiema drobnymi modyfikacjami. Jedna z nich dotyczy $v_1$, który dla cyklu Hamiltona jest dowolnym, ale ustalonym wierzchołkiem ze zbioru $V(G)$. Druga natomiast dotyczy podziału $(V^1, V^2)$, który definiujemy tylko na wierzchołkach o stopniu $1$.
+$$\texttt{cuts} (V_{deg_1}(H), v_1) \coloneqq \{(V^1, V^2): V^1 \cup V^2 = V_{deg_1}(H) \wedge V^1 \cap V^2 = \emptyset \wedge v_1 \in V^1\}$$
+$$\mathcal{C} = \{(H, (V^1, V^2)) \in \mathcal{R} \times \texttt{cuts}(V_{deg_1}(H), v_1) : H\ jest\ kompatybilny\ z\ (V^1, V^2)\}$$
+\newline
+Losowanie wag na krawędziach i definiowanie $\mathcal{R}_w$, $\mathcal{S}_w$ oraz $\mathcal{C}_w$ nie ulega zmianie. Jedyne nad czym musimy się pochylić, to jak trzymamy bieżący stan (tj. dla jakich parametrów wyliczamy wartości $c$) oraz jak definiujemy funkcje rekurencyjne.
+
+\begin{figure}
+\centering
+\label{cnc_hamiltonian}
+\includegraphics[width=16cm]{cnc_hamiltonian2.png}
+\caption{Wizualizacja czterech stanów, w jakich mogą się znajdować wierzchołki z $X_t$.}
+\end{figure}
+
+Dla każdego kubełka $t \in V(T)$, funkcji $f: X_t \to \{0,1,2,3\}$ oraz wagi $w$ obliczamy $c[t][f][w]$ będące liczbą par $(H, (V^1, V^2))$, takich że:
+
+\begin{enumerate}
+\item $H$ jest podgrafem $(V_t, E_t)$ oraz $H$ zawiera wszystkie wierzchołki dotychczasowo wprowadzone w bieżącym poddrzewie, tj. $V(H) = V_t$
+\item $(V^1, V^2)$ jest przecięciem kompatybilnym z $H$, tj. $V^1 \cup V^2 = V_{deg_1}(H)$, $V^1 \cap V^2 = \emptyset$, $v_1 \notin V^2$
+\item przecięcie $H$ z wierzchołkami należącymi do kubełka $t$ jest równe $V(H) \cap X_t = X_t = f^{-1}(0) \cup f^{-1}(1) \cup f^{-1}(2) \cup f^{-1}(3)$
+\item funkcja $f$ opisuje przynależność wierzchołków ze zbioru $X_t$ do podzbiorów $X_{t\_0}, X_{t\_1}, X_{t\_2}, X_{t\_3}$, tj. $X_{t\_j} \cap V(H) = f^{-1}(j)$, gdzie $j \in \{0,1,2,3\}$
+\item $V^1 \cup V^2$ nie ma wierzchołków poza $X_t$, innymi słowy $V_{deg_1}(H) \cap X_t = V_{deg_1}(H)$, inaczej nieodwołalnie zostawilibyśmy niedomknięty cykl
+\item $X_{t\_1} = V^1$ oraz $X_{t\_3} = V^2$
+\item $u \in X_{t\_i} \implies deg(u) = i$ dla $i \in \{0,1,2\}$
+\item $u \in X_{t\_3} \implies deg(u) = 1$
+\item $\sum_{e \in E(H)} \mathbf{w}(e) = w$
+\end{enumerate}
+$$$$
+Podsumowując, mamy cztery stany, które reprezentują wierzchołki $u \in X_t$, zostały one zobrazowane na rys. \ref{cnc_hamiltonian}: 
+\begin{itemize}
+\item[$X_{t\_0}$:] stan reprezentujący wierzchołki o stopniu $0$
+\item[$X_{t\_1}$:] stan reprezentujący wierzchołki o stopniu $1$, które znalazły się po stronie $V^1$ przecięcia
+\item[$X_{t\_3}$:] stan reprezentujący wierzchołki o stopniu $1$, które znalazły się po stronie $V^2$ przecięcia
+\item[$X_{t\_2}$:] stan reprezentujący wierzchołki o stopniu $2$
+\end{itemize}
+
+Zauważmy, że każdy wierzchołek musi przechodzić przez następujące stany $0 \to \{1 \ lub \ 3\} \to 2$ (wyjątkiem jest $v_1$, które nigdy nie będzie należało do $X_{t\_3}$). Poniżej przedstawiam definicje rekurencyjne obliczania wartości $c[t][f][w]$. Algorytm zwraca, że istnieje cykl Hamiltona, jeśli $\exists_{w \leq nN}: c[r][0][w] \mod 2 = 1$, gdzie $r$ jest korzeniem dekompozycji drzewowej, a $n = \abs{V(G)}$.
+\newline\newline
+\texttt{LIŚĆ u} - dla wszystkich liści $c[t][\emptyset][0] = 1$
+\newline\newline
+\texttt{WPROWADZAJĄCY u} - wierzchołek $u$ w momencia wprowadzania nie jest incydentny z żadną krawędzią, zatem jeśli $f(u) \neq 0$, to $c[t][f][w] = 0$, wpp.
+$$c[t][f][w] = c[t^{\prime}][f_{\big|X_{t^{\prime}}}][i][w]$$
+\newline
+\texttt{ZAPOMINAJĄCY u} - wierzchołek może zostać zapomniany wtw. gdy znajduje się w $X_{t_2}$, czyli ma dwie incydentne krawędzie, jeśli $f(u) \neq 2$, to $c[t][f][w] = 0$, wpp.
+$$c[t][f][w] = c[t^{\prime}][f \cup \{u\} \to \{2\}][w]$$
+\newline
+
+\begin{table}
+\centering
+\label{add_edge_table}
+\begin{tabular}{c|c|c|c|c}
+ & $X_{t^{\prime}\_0}$ & $X_{t^{\prime}\_1}$ & $X_{t^{\prime}\_2}$ & $X_{t^{\prime}\_3}$ \\
+\hline
+$X_{t^{\prime}\_0}$ & $(1,1) \vee (3,3)$ & $(1,2)$ & $\emptyset$ & $(3,2)$ \\
+\hline
+$X_{t^{\prime}\_1}$ & $(2,1)$ & $(2,2)$ & $\emptyset$ & $\emptyset$ \\
+\hline
+$X_{t^{\prime}\_2}$ & $\emptyset$ & $\emptyset$ & $\emptyset$ & $\emptyset$ \\
+\hline
+$X_{t^{\prime}\_3}$ & $(2,3)$ & $\emptyset$ & $\emptyset$ & $(2,2)$ \\
+\end{tabular}
+\caption{Możliwe zmiany stanu w przypadku dodawania krawędzi. Tabelę należy rozumieć w następujący sposób: $tab[f^{\prime}(u)][f^{\prime}(v)] = (f(u), f(v))$, $i$ jest tożsame z $X_{t\_i}$.}
+\end{table}
+$$$$
+\texttt{UZUPEŁNIAJĄCY uv} - po pierwsze możemy nie dodwać krawędzi $uv$ do rozwiązania, wtedy $c[t][f][w] = c[t^{\prime}][f][w]$. Zastanówmy się, jakie warunki muszą być spełnione, żeby można było wstawić krawędź $uv$:
+\begin{itemize}
+\item $deg(u) < 2$ oraz $deg(v) < 2$
+\item oba wierzchołki były/są po tej samej stronie przecięcia $(V^1, V^2)$.
+\item tabela \ref{add_edge_table} pokazuje jakie są możliwe zmiany stanu w przypadku dodawania krawędzi. Tabelę należy rozumieć w następujący sposób: $tab[f^{\prime}(u)][f^{\prime}(v)] = (f(u), f(v))$, $i$ jest tożsame z $X_{t\_i}$.
+\end{itemize}
+
+\[
+c[t][f][w] =  
+\left \{
+  \begin{tabular}{ccc}
+  jeśli spełnione są powyższe warunki \\
+  oraz \\
+  $f(u)$, $f(v)$, $f^{\prime}(u)$ i  $f^{\prime}(v)$ są w relacji opisanej za pomocą tabeli \ref{add_edge_table} \\  
+  $c[t^{\prime}][f^{\prime}][w - w_{uv}]$,\\
+  wpp. $0$
+  \end{tabular}
+\right. 
+\]
+
+\begin{table}
+\centering
+\label{merge_table}
+\begin{tabular}{c|c|c|c|c}
+ & $X_{t_2\_0}$ & $X_{t_2\_1}$ & $X_{t_2\_2}$ & $X_{t_2\_3}$ \\
+\hline
+$X_{t_1\_0}$ & $0$ & $1$ & $2$ & $3$ \\
+\hline
+$X_{t_1\_1}$ & $1$ & $2$ & $-$ & $-$ \\
+\hline
+$X_{t_1\_2}$ & $2$ & $-$ & $-$ & $-$ \\
+\hline
+$X_{t_1\_3}$ & $3$ & $-$ & $-$ & $2$ \\
+\end{tabular}
+\caption{Zmiana stanu wierzchołka po scaleniu dwóch cząstkowych rozwiązań. Tabelę należy interpretować następująco: $tab[f_1(u)][f_2(u)] = f(u)$, $i$ jest tożsame z $X_{t\_i}$.}
+\end{table}
+$$$$
+\texttt{SCALAJĄCY} - podobnie jak w przypadku dodawania krawędzi, aby scalanie dwóch cząstkowych rozwiązań było możliwe, muszą być spełnione następujące wymagania:
+\begin{itemize}
+\item $deg_{t_1}(u) + deg_{t_2}(u) \leq 2$, dla każdego $u \in X_t$
+\item jeśli $u \in X_{t_1\_1}$, to $u \notin X_{t_2\_3}$, dla każdego $u \in X_t$ ($u$ nie może być po dwóch różnych stronach przecięcia)
+\item tabela \ref{merge_table} pokazuje, jak zmienia się stan $u$ po scaleniu dwóch cząstkowych rozwiązań. Tabelę należy interpretować następująco: $tab[f_1(u)][f_2(u)] = f(u)$, $i$ jest tożsame z $X_{t\_i}$.
+\end{itemize}
+
+\[
+c[t][f][w] =  
+\left \{
+  \begin{tabular}{ccc}
+  jeśli spełnione są powyższe warunki \\
+  oraz $\forall u \in X_t$\\
+  $f(u)$, $f_1(u)$ i $f_2(u)$ są w relacji opisanej za pomocą tabeli \ref{merge_table} \\  
+  $\sum_{w_1 + w_2 = w} c[t_1][f_1][w_1] + c[t_2][f_2][w_2]$,\\
+  wpp. $0$
+  \end{tabular}
+\right. 
+\]
+
+Złożoność powyższego algorytmu wynosi $4^k \cdot n^{\Omicron(1)}$, czyli zależność złożoności czasowej od szerokości drzewowej jest rzędu $2^{\Omicron(k)}$, a nie jak w przypadku standardowego algorytmu dynamicznego $k^{\Omicron(k)}$.
 
 \newpage
 	\begin{thebibliography}{9}
@@ -379,7 +623,7 @@ Podobnie jak w poprzednim rozdziale, mamy dany graf $G$ wraz ze zbiorem terminal
 			\textit{Treewidth. Computations and approximations}. 
 			Lecture Notes in Computer Science, 842, 1994.
  
-		\bibitem{bodlaender} 
+		\bibitem{bodlaender}  
 			H. L. Bodlaender. 
 			\textit{A linear-time algorithm for finding tree-decompositions of small treewidth}. 
 			SIAM J. Comput. 25:6 (1996) 1305-1317
@@ -388,7 +632,11 @@ Podobnie jak w poprzednim rozdziale, mamy dany graf $G$ wraz ze zbiorem terminal
 			N. Robertson and P. D. Seymour. 
 			\textit{Graph Minors II. Algorithmic aspects of treewidth}. 
 			J. Algorithms 7 (1986) 309-322
- 
+			
+		\bibitem{parametrized_algorithms}
+			M. Cygan, F. V. Fomin, Ł. Kowalik, D. Lokshtanov, D. Marx, M. Pilipczuk, M. Pilipczuk, S. Saurabh
+ 			\textit{Parameterized Algorithms}.
+ 			
 		\bibitem{knuthwebsite} 
 			Knuth: Computers and Typesetting,
 			\\\texttt{http://www-cs-faculty.stanford.edu/\~{}uno/abcde.html}

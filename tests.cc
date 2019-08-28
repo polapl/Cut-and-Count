@@ -196,7 +196,7 @@ TEST(SteinerTree, SmallTests_HighProbability) {
 }
 
 TEST(SteinerTree, SmallTests_LowProbability) {
-  int number_of_tests = 10;
+  int number_of_tests = 30;
   while(number_of_tests--) {
     Tree tree(3, 100);
     tree.Generate(5, 30);
@@ -433,10 +433,10 @@ TEST(CnCHamiltonian, SimpleSquare) {
 }
 
 TEST(Hamiltonian, SmallTests_HighProbability) {
-  int number_of_tests = 10;
-  while(number_of_tests--) {
+  int number_of_tests = 100;
+  while(number_of_tests--) { 
     Tree tree(3, 100);
-    tree.Generate(5, 0);
+    tree.Generate(7, 0);
     tree.IntroduceEdges(90);
     tree.DotTransitionGraph("example_cnc.dot");
     
@@ -448,13 +448,12 @@ TEST(Hamiltonian, SmallTests_HighProbability) {
     StandardHamiltonian* standard_dyn= new StandardHamiltonian(&tree);
     bool res_standard = standard_dyn->Compute();
     printf("RESULTS: %d vs. %d\n", res_dyn, res_standard);
-    // if (res_dyn != res_standard) break;
     EXPECT_EQ(res_dyn, res_standard);
   }
 }
 
 TEST(Hamiltonian, SmallTests_LowProbability) {
-  int number_of_tests = 10;
+  int number_of_tests = 30;
   while(number_of_tests--) {
     Tree tree(3, 100);
     tree.Generate(5, 0);
@@ -475,7 +474,7 @@ TEST(Hamiltonian, SmallTests_LowProbability) {
 }
 
 TEST(Hamiltonian, BigTests_HighProbability) {
-  int number_of_tests = 10;
+  int number_of_tests = 1;
   while(number_of_tests--) {
     Tree tree(4, 100);
     printf("tree width = %d\n", tree.tree_width);
@@ -494,6 +493,96 @@ TEST(Hamiltonian, BigTests_HighProbability) {
     EXPECT_EQ(res_dyn, res_standard);
   }
 }
+
+TEST(Hamiltonian, SmallTests_HighProbability_OnlyStandard) {
+  int number_of_tests = 2;
+  while(number_of_tests--) {
+    Tree tree(3, 100);
+    tree.Generate(5, 0);
+    tree.IntroduceEdges(90);
+    tree.DotTransitionGraph("example_cnc.dot");
+    
+    Node n(-1, false);
+    tree.PrepareBeforeStandardHamiltonian(n);
+    tree.DotTransitionGraph("example_standard.dot");
+    StandardHamiltonian* standard_dyn= new StandardHamiltonian(&tree);
+    bool res_standard = standard_dyn->Compute();
+    printf("RESULT: %d\n", res_standard);
+  }
+}
+
+TEST(Hamiltonian, SmallTests_HighProbability_OnlyCnC) {
+  int number_of_tests = 2;
+  while(number_of_tests--) {
+    Tree tree(3, 100);
+    tree.Generate(5, 0);
+    tree.IntroduceEdges(90);
+    tree.DotTransitionGraph("example_cnc.dot");
+    
+    CnCHamiltonian* dyn= new CnCHamiltonian(&tree);
+    bool res_dyn = dyn->Compute();
+    printf("RESULT: %d\n", res_dyn);
+  }
+}
+
+/*
+template <int seed, int tree_width, int max_weight, int bags_gen_type, int terminal_prob, int edge_count, bool result>
+class HamiltonianTestsTemplate : public ::testing::Test {
+  protected:
+    static void SetUpTestSuite() {
+
+      srand(seed);
+      tree_ = std::make_unique<Tree>(tree_width, max_weight);
+      tree_->Generate(bags_gen_type, terminal_prob);
+      tree_->IntroduceEdges(edge_count);
+    }
+
+    static void TearDownTestSuite() {
+      tree_.reset(nullptr);
+    }
+
+    static bool result_;
+    static std::unique_ptr<Tree> tree_;
+};
+
+template <int seed, int tree_width, int max_weight, int bags_gen_type, int terminal_prob, int edge_count, bool result>
+bool HamiltonianTestsTemplate<seed, tree_width, max_weight, bags_gen_type, terminal_prob, edge_count, result>::result_ = result;
+
+template <int seed, int tree_width, int max_weight, int bags_gen_type, int terminal_prob, int edge_count, bool result>
+std::unique_ptr<Tree> HamiltonianTestsTemplate<seed, tree_width, max_weight, bags_gen_type, terminal_prob, edge_count, result>::tree_ = nullptr;
+
+typedef HamiltonianTestsTemplate<0x51234, 4, 100, 10, 0 , 60, true> HamiltonianTest_4_100_10_0_60;
+
+TEST_F(HamiltonianTest_4_100_10_0_60, CncHamiltonianTest) {
+  CnCHamiltonian* dyn = new CnCHamiltonian(tree_.get());
+
+  EXPECT_EQ(dyn->Compute(), result_);
+}
+
+TEST_F(HamiltonianTest_4_100_10_0_60, StandardHamiltonianTest) {
+  Node n(-1, false);
+  tree_->PrepareBeforeStandardHamiltonian(n);
+  StandardHamiltonian* dyn = new StandardHamiltonian(tree_.get());
+
+  EXPECT_EQ(dyn->Compute(), result_);
+}
+
+typedef HamiltonianTestsTemplate<0x91234, 5, 100, 10, 0 , 60, true> HamiltonianTest_5_100_10_0_60;
+
+TEST_F(HamiltonianTest_5_100_10_0_60, CncHamiltonianTest) {
+  CnCHamiltonian* dyn = new CnCHamiltonian(tree_.get());
+
+  EXPECT_EQ(dyn->Compute(), result_);
+}
+
+TEST_F(HamiltonianTest_5_100_10_0_60, StandardHamiltonianTest) {
+  Node n(-1, false);
+  tree_->PrepareBeforeStandardHamiltonian(n);
+  StandardHamiltonian* dyn = new StandardHamiltonian(tree_.get());
+
+  EXPECT_EQ(dyn->Compute(), result_);
+}
+*/
 
 int main(int argc, char **argv) {
     testing::InitGoogleTest(&argc, argv);

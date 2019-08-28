@@ -1,21 +1,25 @@
 graph G {
 ratio = fill;
 size = "16, 9";
-node [fontsize = 300, fontname="Courier-Bold"];
+node [fontsize = 300, fontname="Courier-Bold", colorscheme="pastel25"];
 edge [penwidth = 25, layer="background", arrowhead=vee, arrowsize=25.0];
-0 [label= "FORGET_NODE 1 [id: 0] : { 2 , }", color=cyan4, style=filled]
-1 [label= "INTRODUCE_EDGE 21 [id: 1] : { 1 , 2 , }", color=cornflowerblue, style=filled]
-0 -- 1;
-2 [label= "FORGET_NODE 0 [id: 2] : { 1 , 2 , }", color=cyan4, style=filled]
-1 -- 2;
-3 [label= "INTRODUCE_EDGE 20 [id: 3] : { 0 , 1 , 2 , }", color=cornflowerblue, style=filled]
-2 -- 3;
-4 [label= "INTRODUCE_EDGE 10 [id: 4] : { 0 , 1 , 2 , }", color=cornflowerblue, style=filled]
-3 -- 4;
-6 [label= "INTRODUCE_NODE 1 [id: 6] : { 0 , 1 , 2 , }", color=aquamarine, style=filled]
-4 -- 6;
-7 [label= "INTRODUCE_NODE 0* [id: 7] : { 0 , 2 , }", color=aquamarine, style=filled]
-6 -- 7;
-8 [label= "LEAF  [id: 8] : { 2 , }", color=darkolivegreen2, style=filled]
-7 -- 8;
+33 [label= "FORGET_NODE 0 [id: 33] : { }", color=3, style=filled]
+34 [label= "FORGET_NODE 1 [id: 34] : { 0 , }", color=3, style=filled]
+33 -- 34;
+35 [label= "INTRODUCE_EDGE 01 [id: 35] : { 1 , 0 , }", color=2, style=filled]
+34 -- 35;
+36 [label= "FORGET_NODE 2 [id: 36] : { 1 , 0 , }", color=3, style=filled]
+35 -- 36;
+37 [label= "INTRODUCE_EDGE 02 [id: 37] : { 2 , 1 , 0 , }", color=2, style=filled]
+36 -- 37;
+38 [label= "INTRODUCE_EDGE 12 [id: 38] : { 2 , 1 , 0 , }", color=2, style=filled]
+37 -- 38;
+39 [label= "INTRODUCE_NODE 0* [id: 39] : { 2 , 1 , 0 , }", color=1, style=filled]
+38 -- 39;
+40 [label= "INTRODUCE_NODE 1 [id: 40] : { 2 , 1 , }", color=1, style=filled]
+39 -- 40;
+41 [label= "INTRODUCE_NODE 2* [id: 41] : { 2 , }", color=1, style=filled]
+40 -- 41;
+42 [label= "LEAF  [id: 42] : { }", color=5, style=filled]
+41 -- 42;
 }

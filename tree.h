@@ -61,9 +61,6 @@ public:
     std::vector<Bag*> Generate(const std::vector<Bag::BagType>& types, int probability);
 
     std::string Label() const;
-    std::string ToString() const;
-    void Print() const;
-    void print();
 
     int rank;
     int id;
@@ -90,9 +87,10 @@ public:
     int GetGraphSize();
     int GetTreeSize();
     int GetTreeWidth();
-    // Used for standard dynamic which assumes one terminal Node
-    // is present in all Bags.
+    // Used for Steiner tree standard dynamic which assumes 
+    // one terminal Node is present in all Bags.
     void AddNodeToAllBags(Bag* b, Node n, bool front);
-
+    // Splits root into two Bags, copies all edges that are incident to root,
+    // i.e. for every edge(root_1, x), function adds edge(root_2, x). 
     void PrepareBeforeStandardHamiltonian(const Node& zero_prim);
 };

@@ -80,7 +80,6 @@ dynamic_results recursive_standard_steiner_tree(int k, Bag* bag) {
         case Bag::LEAF:
         {
           set_value(vec, sset_hash, it_hash, 0);
-          //printf("LEAF[%d][%lld][%lld] = %lld\n", bag->id, sset.hash(), it_hash, vec[bag->id][sset.hash()][it.hash()]);
           break;
         }
         case Bag::INTRODUCE_NODE:
@@ -95,7 +94,6 @@ dynamic_results recursive_standard_steiner_tree(int k, Bag* bag) {
             unsigned long long partial = get_value(left, sset.hash_without_el(bag->introduced_node), it_hash);
             set_value(vec, sset_hash, it_hash, partial);
           }
-          //printf("INTRODUCE_NODE[%d][%lld][%lld] = %lld\n", bag->id, sset.hash(), it.hash(), vec[bag->id][sset.hash()][it.hash()]);
           break;
         }
         case Bag::FORGET_NODE:
@@ -105,15 +103,12 @@ dynamic_results recursive_standard_steiner_tree(int k, Bag* bag) {
           int max_part = it.max_partition();
 
           for(int i=1; i<=max_part; i++) {
-            //PartitionView<Node>::iterator partition_copy = it;
             ull partition_with_node_hash = it.add_to_partition_hash(bag->forgotten_node, i);
             ull set_with_node_hash = sset.hash_with_el(bag->forgotten_node, true);
             ull current = get_value(vec, sset_hash, it_hash);
             partial = get_value(left, set_with_node_hash, partition_with_node_hash);
             set_value(vec, sset_hash, it_hash, min(current, partial));
           }
-          //printf("FORGET_NODE[%d][%lld][%lld] = %lld\n", bag->id, sset.hash(), it.hash(),
-          //       vec[bag->id][sset.hash()][it.hash()]);
           break;
         }
         case Bag::MERGE:
@@ -180,8 +175,6 @@ dynamic_results recursive_standard_steiner_tree(int k, Bag* bag) {
               }
             }
           }
-          //printf("MERGE_NODE[%d][%lld][%lld] = %lld\n", bag->id, sset.hash(), it.hash(),
-          //       vec[bag->id][sset.hash()][it.hash()]);
           break;
         }
         case Bag::INTRODUCE_EDGE:
@@ -207,8 +200,6 @@ dynamic_results recursive_standard_steiner_tree(int k, Bag* bag) {
             merge_child_partitions(bag->introduced_edge.first, bag->introduced_edge.second, left, vec, bag->left);
             one_edge_introduced = true;
           }
-          //printf("INTRODUCE_EDGE_NODE[%d][%lld][%lld] = %lld\n", bag->id, sset.hash(), it.hash(),
-          //       vec[bag->id][sset.hash()][it.hash()]);
           break;
         }
       } 

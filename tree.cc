@@ -232,69 +232,43 @@ void Tree::DotTransitionGraph(string file_path) {
     myfile.close();
 }
 
-
-    string Bag::ToString() const {
-        stringstream sstr;
-        #define HEX(num) std::hex << setfill('0') << setw(5) <<  (0xfffff & num) << std::dec
-        #define ADR(ptr) HEX(reinterpret_cast<unsigned long long>(ptr))
-        sstr << "[" << ADR(this) << "] - ";
-        sstr << "id: " << setw(5) << id << " | ";
-        sstr << "rank: " << setw(5) << rank << " | ";
-        sstr << "left: " << "[" << ADR(left) << "] | ";
-        sstr << "right: " << "[" << ADR(right) << "] | ";
-        sstr << "parent: " << "[" << ADR(parent) << "]";
-        sstr << endl;
-
-        return sstr.str();
+string Bag::Label() const {
+    string type, color, additional_info = "";
+    switch(this->type) {
+        case Bag::BagType::INTRODUCE_NODE:
+            type = "INTRODUCE_NODE";
+            color = "1";
+            additional_info = to_string(this->introduced_node.value);
+            if(this->introduced_node.terminal) additional_info += "*";
+            break;
+        case Bag::BagType::INTRODUCE_EDGE:
+            type = "INTRODUCE_EDGE";
+            color = "2";
+            additional_info = to_string(this->introduced_edge.first.value);
+            additional_info += to_string(this->introduced_edge.second.value);
+            break;
+        case Bag::BagType::FORGET_NODE:
+            type = "FORGET_NODE";
+            color = "3";
+            additional_info = to_string(this->forgotten_node.value);
+            break;
+        case Bag::BagType::MERGE:
+            type = "MERGE";
+            color = "4";
+            break;
+        case Bag::BagType::LEAF:
+            type = "LEAF";
+            color = "5";
+            break;
     }
-
-    void Bag::Print() const {
-        cout << this->ToString() << endl;
-        if (this->left) {
-            this->left->Print();
-        } 
-        if (this->right) {
-            this->right->Print();
-        } 
+    stringstream label;
+    label << type << " " << additional_info << " [id: " << this->id << "] : { ";
+    for (const auto& x : this->nodes) {
+        label << x.value << " , ";
     }
-
-    string Bag::Label() const {
-        string type, color, additional_info = "";
-        switch(this->type) {
-            case Bag::BagType::INTRODUCE_NODE:
-                type = "INTRODUCE_NODE";
-                color = "1";
-                additional_info = to_string(this->introduced_node.value);
-                if(this->introduced_node.terminal) additional_info += "*";
-                break;
-            case Bag::BagType::INTRODUCE_EDGE:
-                type = "INTRODUCE_EDGE";
-                color = "2";
-                additional_info = to_string(this->introduced_edge.first.value);
-                additional_info += to_string(this->introduced_edge.second.value);
-                break;
-            case Bag::BagType::FORGET_NODE:
-                type = "FORGET_NODE";
-                color = "3";
-                additional_info = to_string(this->forgotten_node.value);
-                break;
-            case Bag::BagType::MERGE:
-                type = "MERGE";
-                color = "4";
-                break;
-            case Bag::BagType::LEAF:
-                type = "LEAF";
-                color = "5";
-                break;
-        }
-        stringstream label;
-        label << type << " " << additional_info << " [id: " << this->id << "] : { ";
-        for (const auto& x : this->nodes) {
-            label << x.value << " , ";
-        }
-        label << "}\", color=" << color << ", style=filled";
-        return label.str();
-    }
+    label << "}\", color=" << color << ", style=filled";
+    return label.str();
+}
 
 int Tree::GetGraphSize() {
     return max_node;
@@ -306,18 +280,6 @@ int Tree::GetTreeSize() {
 
 int Tree::GetTreeWidth() {
     return this->tree_width;
-}
-
-void Bag::print() {
-    cout << "id: " << this->id << endl;
-    cout << "nodes:\n";
-    for (auto& el: this->nodes) {
-        cout << el.value << " ";
-    }
-    cout << "type: " << this->type << endl;
-    if (this->parent) cout << "parent: " << this->parent->id << endl;
-    if (this->left) cout << "left: " << this->left->id << endl;
-    if (this->right) cout << "right: " << endl << this->right->id << endl;
 }
 
 // This function is used only for testing.
@@ -421,7 +383,9 @@ void second_root(Bag* bag, int root_val, Node root_copy, Bag** parent_ref) {
         }
     }
 
-    if (present) bag->nodes.push_back(root_copy);
+    bool bag_introducing_root = (bag->type == Bag::BagType::INTRODUCE_NODE && bag->introduced_node.value == root_val);
+
+    if (present && !bag_introducing_root) bag->nodes.push_back(root_copy);
 
     if (bag->type == Bag::BagType::INTRODUCE_EDGE && bag->introduced_edge.first.value == root_val) {
 
@@ -449,25 +413,19 @@ void second_root(Bag* bag, int root_val, Node root_copy, Bag** parent_ref) {
 
     if (bag->type == Bag::BagType::INTRODUCE_NODE && bag->introduced_node.value == root_val) {
 
-        Bag* new_edge = new Bag(Bag::BagType::INTRODUCE_NODE, root_copy);
-        new_edge->nodes = bag->nodes;
+        Bag* new_root = new Bag(Bag::BagType::INTRODUCE_NODE, root_copy);
+        new_root->nodes = bag->nodes;
 
-        *parent_ref = new_edge;
-        new_edge->parent = bag->parent;
-        bag->parent = new_edge;
-        new_edge->left = bag;
+        *parent_ref = new_root;
+        new_root->parent = bag->parent;
+        bag->parent = new_root;
+        new_root->left = bag;
+
+        new_root->nodes.push_back(root_copy);
     }
 
     if (bag->left != nullptr) second_root(bag->left, root_val, root_copy, &bag->left);
     if (bag->right != nullptr) second_root(bag->right, root_val, root_copy, &bag->right);
-}
-
-void print_tree(Bag* bag) {
-    if (bag == nullptr) return;
-    bag->print();
-    cout << "cp jest " << endl;
-    print_tree(bag->left);
-    print_tree(bag->right);
 }
 
 void Tree::PrepareBeforeStandardHamiltonian(const Node& root_copy = nextNode(0)) {
@@ -475,5 +433,4 @@ void Tree::PrepareBeforeStandardHamiltonian(const Node& root_copy = nextNode(0))
     this->root = this->root->left;
     this->root->parent = nullptr;
     second_root(this->root, root_val, root_copy, nullptr);
-    // print_tree(this->root);
 }

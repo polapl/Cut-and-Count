@@ -7,17 +7,23 @@ set(CMAKE_CXX_FLAGS "-g -O0")
 add_executable(magisterka main.cc)
 add_library(tree_lib tree.cc)
 
-add_library(cnc_steiner_tree_lib cnc_steiner_tree.cc)
-add_library(standard_steiner_tree_lib standard_steiner_tree.cc)
-add_library(standard_hamiltonian_lib standard_hamiltonian.cc)
-add_library(cnc_hamiltonian_lib cnc_hamiltonian.cc)
+add_library(state_utils_lib SHARED state_utils.cc)
+add_library(cnc_steiner_tree_lib SHARED cnc_steiner_tree.cc)
+add_library(standard_steiner_tree_lib SHARED standard_steiner_tree.cc)
+add_library(standard_hamiltonian_lib SHARED standard_hamiltonian.cc)
+add_library(cnc_hamiltonian_lib SHARED cnc_hamiltonian.cc)
 
+
+target_link_libraries(cnc_steiner_tree_lib state_utils_lib)
+target_link_libraries(standard_hamiltonian_lib state_utils_lib)
 
 target_link_libraries(magisterka tree_lib)
+target_link_libraries(magisterka state_utils_lib)
 target_link_libraries(magisterka cnc_steiner_tree_lib)
 target_link_libraries(magisterka standard_steiner_tree_lib)
 target_link_libraries(magisterka standard_hamiltonian_lib)
 target_link_libraries(magisterka cnc_hamiltonian_lib)
+
 
 
 # ==== TESTING =================================================================
@@ -27,6 +33,7 @@ add_subdirectory(googletest
 
 add_executable(example_test tests.cc)
 target_link_libraries(example_test tree_lib)
+target_link_libraries(example_test state_utils_lib)
 target_link_libraries(example_test cnc_steiner_tree_lib)
 target_link_libraries(example_test standard_steiner_tree_lib)
 target_link_libraries(example_test standard_hamiltonian_lib)

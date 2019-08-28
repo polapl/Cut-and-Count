@@ -1,11 +1,39 @@
 #pragma once
 
+#include "tree.h"
+
 #include <iostream>
 #include <map>
+#include <set>
 #include <vector>
 #include <algorithm>
+#include <cassert>
 
 using namespace std;
+
+#define SM_HASH(a,b) (((a)<<3) | b)
+#define INSERT_BLK(h,n) (((h)<<6) | n)
+#define GET_K(h, n) (((h) >> ((n) * 6 + 3)) & 7)
+#define GET_V(h, n) (((h) >> ((n * 6))) & 7)
+#define NOT_FOUND (static_cast<size_t>(-1))
+
+typedef unsigned long long hash_t;
+
+hash_t h_make_window(hash_t hsh, int indx);
+ 
+hash_t h_close_window(hash_t hsh, int indx);
+ 
+hash_t h_insert_at(hash_t hsh, size_t index, int a, int b);
+ 
+size_t h_len(hash_t hsh);
+ 
+size_t h_find_key(hash_t hsh, int key);
+ 
+void h_insert(hash_t* hsh, int a, int b);
+
+void h_remove(hash_t* hsh, int a);
+ 
+void h_print(hash_t h);
 
 struct HashWithNodeValues {
   unsigned long long val_0;
@@ -13,220 +41,71 @@ struct HashWithNodeValues {
   unsigned long long val_2;
 };
 
-
 // Given a set, class State is used to iterate through all assignments
 // of its elements to 0, 1, .., s.
-// In terms of cut & cout algoritm:
-// 0 ~= isolated Node
-// 1 ~= partial solution in V1
-// 2 ~= partial solution in V2 
-
+// In terms of Steiner Tree Cut & Cout algoritm:
+//  0 ~= isolated Node
+//  1 ~= partial solution in V1
+//  2 ~= partial solution in V2 
+// In terms of Hamiltonian Cycle Cut & Cout algorithm:
+//  0 ~= isolated Node
+//  1 ~= partial solution in V1
+//  2 ~= partial solution in V2
+//  3 ~=    
 class State {
   public:
   class Iterator {
     public:
-    void operator++() {
-      for(auto& it : m_) {
-        last_ = true;
-        if (it.second < (s_ - 1)) {
-          it.second++;
-          last_ = false;
-          break;
-        }
-        it.second = 0;
-      }
-    }
+    void operator++();
 
-    long long int operator*() const {
-      return hash();
-    }
+    long long int operator*() const;
 
-    bool operator==(const Iterator& it) const {
-      return **this == *it;
-    }
+    bool operator==(const Iterator& it) const;
 
-    bool operator!=(const Iterator& it) const {
-      return **this != *it;
-    }
+    bool operator!=(const Iterator& it) const;
 
-    HashWithNodeValues GetHashWithNode(int id) {
-      HashWithNodeValues res;
-      int hash = 0;
-      int pow3 = 1;
-      int id_pow3;
-      m_[id] = 0;
-      for(auto& it : m_) {
-        if (it.first == id) id_pow3 = pow3;
-        hash += it.second * pow3;
-        pow3 = pow3*3;
-      }
-      m_.erase(id);
-      res.val_0 = hash;
-      res.val_1 = hash + id_pow3;
-      res.val_2 = hash + (2*id_pow3);
-      return res;
-    }
+    int GetMapping(int idx);
 
-    long long int GetHashWithoutNode(int id) {
-      int hash = 0;
-      int pow3 = 1;
-      for(auto& it : m_) {
-        if (it.first == id) continue;
-        hash += it.second * pow3;
-        pow3 = pow3 * s_;
-      }
-      return hash;
-    }
+    set<int> GetAllOnesIndexes();
 
-    int GetMapping(int idx) {
-      return m_[idx];
-    }
+    const map<int, int>& GetMapping();
 
-    set<int> GetAllOnesIndexes() {
-      set<int> res;
-      int i = 0;
-      for(const auto& it : m_) {
-        if (it.second == 1) res.insert(i);
-        i++;
-      }
-      return res;
-    }
+    set<unsigned long long> GetAllMatchingsHashes(set<int> ones);
 
-    map<int, int> GetMapping() {
-      return m_;
-    }
+    set<unsigned long long> GetAllMatchingsHashes();
 
-    set<map<int, int>> GetAllMatchings(set<int> ones) {
-      set<map<int, int>> res;
-      
-      if (ones.size() == 0) {
-        res.insert(map<int, int> {});
-        return res;
-      }
+    HashWithNodeValues GetHashWithNode(int id);
 
-      auto first = *ones.begin();
-      ones.erase(first);
+    unsigned long long GetAssignmentHashWithNode(int id, int val);
 
-      set<int> copy = ones;
-      
-      for(auto it : ones) {
-        const int paired_val = it;
-        copy.erase(paired_val);
-        
-        set<map<int, int>> partial_set = GetAllMatchings(copy);
+    unsigned long long GetAssignmentHashWithoutNode(int id);
 
-        for(auto& matching : partial_set) {
-          auto matching_copy = matching;
-          matching_copy[paired_val] = first;
-          matching_copy[first] = paired_val;
-          res.insert(matching_copy);
-        }
-
-        copy.insert(paired_val);
-      }
-      
-      ones.insert(first);
-      return res;
-    }
-
-    set<map<int, int>> GetAllMatchings() {
-      return GetAllMatchings(GetAllOnesIndexes());
-    }
-
-    long long int GetAssignmentHashWithNode(int id, int val) {
-      m_[id] = val;
-      auto res = hash();
-      m_.erase(id);
-      return res;
-    }
-
-    map<int, int> GetAssignmentWithoutNode(int id) {
-      map<int, int> res = m_;
-      res.erase(id);
-      return res;
-    }
-
-    long long int GetAssignmentHashWithEdge(int id1, int id2) {
-      int val1 = m_[id1];
-      int val2 = m_[id2];
-      (val1 < 2 ? m_[id1]++ : m_[id1]--);
-      (val2 < 2 ? m_[id2]++ : m_[id2]--);
-
-      auto res = hash();
-      m_[id1] = val1;
-      m_[id2] = val2;
-      return res;
-    }
+    vector<unsigned long long> GetAssignmentHashWithEdge(int id1, int id2);
 
     private:
-      Iterator(bool last, unsigned int s) : m_(), last_(last), s_(s) {}
+      Iterator(bool last, unsigned int s);
+
       map<int, int> m_;
       bool last_;
       unsigned int s_;
       friend class State;
 
-      long long int hash() const {
-        if (last_) return -1;
-        int hash = 0;
-        int pow3 = 1;
-        for(auto& it : m_) {
-          hash += it.second * pow3;
-          pow3 = pow3 * s_;
-        }
-        return hash;
-      }
+      long long int hash() const;
   };
 
   static bool op(const Node& i, const Node& j) { return (i.value < j.value); }
 
-  State(const vector<Node>& nodes, unsigned int assignments) : nodes_(nodes), assignments_(assignments) {
-    sort(nodes_.begin(), nodes_.end(), op);
-  }
+  State(const vector<Node>& nodes, unsigned int assignments);
 
   vector<Node> nodes_;
   unsigned int assignments_;
   
-  Iterator begin() {
-    if (nodes_.empty()) {
-      return Iterator(true, assignments_);
-    }
+  Iterator begin();
 
-    Iterator iterator(false, assignments_);
-    for (const auto& it : nodes_) {
-      iterator.m_[it.value] = 0;
-    }
-    return iterator;
-  }
-  Iterator end() {
-    return Iterator(true, assignments_);
-  }
+  Iterator end();
 
+  pair<int, int> GetEdgeIndexes(const Node& a, const Node& b);
 
-  pair<int, int> GetEdgeIndexes(const Node& a, const Node& b) {
-    pair<int, int> res;
-    int i = 0;
-    for (const auto& n : nodes_) {
-      if (n.value == a.value) res.first = i;
-      if (n.value == b.value) res.second = i;
-      i++;
-    }
-    return res;
-  }
+  hash_t h_without_node(hash_t hsh, int val);
 
-  map<int, int> GetMatchingWithoutNode(map<int, int> m, int val) {
-    m.erase(val);
-    int idx = 0;
-    for(const auto& n : nodes_) {
-      if (n.value > val) break;
-      idx++;
-    }
-    map<int, int> res;
-    for(const auto& p : m) {
-      int a = p.first >= idx ? p.first - 1 : p.first;
-      int b = p.second >= idx ? p.second - 1 : p.second;
-      res[a] = b;
-      res[b] = a;
-    }
-    return res;
-  }
 };

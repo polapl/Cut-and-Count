@@ -20,91 +20,59 @@ void add_value(dynamic_results& vec, int a, int b, ull val) {
   vec[a][b] = 1;
 }
 
-void print_value(map<int, int>& col, dynamic_results& vec, int a, int b) {
-	if (vec.find(a) == vec.end()) return;
-	if (vec[a].find(b) == vec[a].end()) return;
-
-    for (const auto& m: col) {
-      	cout << m.first << " : " << m.second << endl;
-    }
-
-	cout << "vec[" << a << "][" << b << "] = " << vec[a][b] << endl;
-}
-
 bool in_first(int a, int b) {
-	set<int> first = {0, 1};
-	auto find_a = first.find(a);
-	auto find_b = first.find(b);
-	if (find_a == first.end()) return false;
-	if (find_b == first.end()) return false;
-	return true;
+	return (a == 0 || a == 1) && (b == 0 || b == 1);
 }
 
 bool in_second(int a, int b) {
-	set<int> second = {3, 4};
-	auto find_a = second.find(a);
-	auto find_b = second.find(b);
-	if (find_a == second.end()) return false;
-	if (find_b == second.end()) return false;
-	return true;
+	return (a == 0 || a == 3) && (b == 0 || b == 3);
 }
 
-const int merge_trans[5][5] = {
-	{0,1,2,-1,-1},
-	{1,2,-1,-1,-1},
-	{2,-1,-1,-1,2},
-	{-1,-1,-1,2,3},
-	{-1,-1,2,3,4},
+const int merge_trans[4][4] = {
+	{0,1,2,3},
+	{1,2,-1,-1},
+	{2,-1,-1,-1},
+	{3,-1,-1,2},
 };
 
-map<int, int> map_after_trans(map<int, int>& m1, map<int, int>& m2) {
-	map<int, int> res;
-	for(const auto& map_it : m1) {
-		int a = map_it.second;
-		int b = m2[map_it.first];
-		if (merge_trans[a][b] < 0) {
-			res.clear();
-			return res;
-		}
-		res[map_it.first] = merge_trans[a][b];
+unsigned long long hash_after_trans(unsigned long long h1, unsigned long long h2, bool v1) {
+	if (v1) {
+		if (h1 % 4 == 0 && h2 % 4 == 3) return -1;
+		if (h1 % 4 == 3 && h2 % 4 == 0) return -1;
+	}
+
+	unsigned long long res = 0;
+	int pow4 = 1;
+	while (h1 > 0 || h2 > 0) {
+		int a = h1 % 4;
+		int b = h2 % 4;
+		if (merge_trans[a][b] < 0) return -1;
+		res += pow4 * merge_trans[a][b];
+		h1 /= 4;
+		h2 /= 4;
+		pow4 *= 4;
 	}
 	return res;
 }
 
-ull hash_func(const map<int, int>& m) {
-	int hash = 0;
-	int pow5 = 1;
-	for(auto& it : m) {
-  		hash += it.second * pow5;
-  		pow5 = pow5 * 5;
-	}
-	return hash;
-}
-
 dynamic_results merge(Bag* bag, dynamic_results& left, dynamic_results& right) {
-	// cout << "MERGE " << "----------------------------------------" << endl;
-
 	dynamic_results vec;
+	bool v1 = (bag->nodes[0] == 0);
 
-	State state(bag->nodes, 5);
+	State state(bag->nodes, 4);
 	for(auto it1 = state.begin(); it1 != state.end(); ++it1) {
     	unsigned long long it_hash1 = *it1;
 
     	for(auto it2 = state.begin(); it2 != state.end(); ++it2) {
     		unsigned long long it_hash2 = *it2;
-    		auto colors1 = std::move(it1.GetMapping());
-    		auto colors2 = std::move(it2.GetMapping());
-    		auto map_trans = map_after_trans(colors1, colors2);
+    		auto hash_trans = hash_after_trans(it_hash1, it_hash2, v1);
 
-    		if (map_trans.empty()) continue;
-
-    		ull hash_trans = hash_func(map_trans);
+    		if (hash_trans == -1) continue;
 
 		    for(const auto& weight1: left[it_hash1]) {
 				if (weight1.second % 2 == 0) continue;
 				for(const auto& weight2: right[it_hash2]) {
 					add_value(vec, hash_trans, weight1.first + weight2.first, weight1.second * weight2.second);
-					// print_value(map_trans, vec, hash_trans, weight1.first + weight2.first);
 				}
 			}
 		}
@@ -123,27 +91,13 @@ dynamic_results recursive_cnc_hamiltonian(Bag* bag) {
 
 	if(bag->type == Bag::MERGE) return merge(bag, left, right);
 
-	/*
-	switch(bag->type) {
-		case Bag::INTRODUCE_NODE:
-			cout << "INTRODUCE_NODE " << bag->introduced_node.value << " ----------------------------------------" << endl;
-			break;
-		case Bag::FORGET_NODE:
-			cout << "FORGET_NODE " << bag->forgotten_node.value << " ----------------------------------------" << endl;
-			break;
-		case Bag::INTRODUCE_EDGE:
-			cout << "INTRODUCE_EDGE " << bag->introduced_edge.first.value << " <-> " << bag->introduced_edge.second.value << " ----------------------------------------" << endl;
-			break;
-	}
-	*/
-
 	if (bag->type == Bag::LEAF) {
 	  vec[0][0] = 1;
 	  return vec;
 	}
 
-	State state(bag->nodes, 5);
-	// 0,4 / 1,3 / 2 
+	State state(bag->nodes, 4);
+	// 0 / 1,3 / 2 
 	if (bag->type == Bag::FORGET_NODE && state.nodes_.size() == 0) {
 		for (auto& weight: left[2]) {
 			add_value(vec, 0, weight.first, weight.second);
@@ -157,20 +111,14 @@ dynamic_results recursive_cnc_hamiltonian(Bag* bag) {
       switch(bag->type) {
         case Bag::INTRODUCE_NODE:
         {          
-        	if (it.GetMapping(bag->introduced_node.value) != 0 &&
-        		it.GetMapping(bag->introduced_node.value) != 4) break;
+        	if (it.GetMapping(bag->introduced_node.value) != 0) {
+        		vec[it_hash].clear();
+        		break;
+        	}
 
-        	if (bag->introduced_node.value == 0 &&
-                it.GetMapping(bag->introduced_node.value) != 0) {
-            	vec[it_hash].clear();
-            	break;
-          	}
-
-			auto hash_without_node = it.GetHashWithoutNode(bag->introduced_node.value);
+			auto hash_without_node = it.GetAssignmentHashWithoutNode(bag->introduced_node.value);
 			for (auto& weight: left[hash_without_node]) {
 				add_value(vec, it_hash, weight.first, weight.second);
-				auto col = it.GetMapping();
-				// print_value(col, vec, it_hash, weight.first);
 			}
 			break;
         }
@@ -179,8 +127,6 @@ dynamic_results recursive_cnc_hamiltonian(Bag* bag) {
           	auto hash_with_node = it.GetAssignmentHashWithNode(bag->forgotten_node.value, 2);
           	for (auto& weight: left[hash_with_node]) {
             	add_value(vec, it_hash, weight.first, weight.second);
-            	auto col = it.GetMapping();
-            	// print_value(col, vec, it_hash, weight.first);
           	}
           	break;
         }
@@ -188,20 +134,18 @@ dynamic_results recursive_cnc_hamiltonian(Bag* bag) {
         {
           	for (auto& weight: left[it_hash]) {
               	add_value(vec, it_hash, weight.first, weight.second);
-              	auto col = it.GetMapping();
-              	// print_value(col, vec, it_hash, weight.first);
             }
           	int id_1 = it.GetMapping(bag->introduced_edge.first.value);
           	int id_2 = it.GetMapping(bag->introduced_edge.second.value);
-          	auto hash_with_edge = it.GetAssignmentHashWithEdge(bag->introduced_edge.first.value,
-          		                                               bag->introduced_edge.second.value);
 
           	if (in_first(id_1, id_2) || in_second(id_1, id_2)) {
-            	for (auto& weight: left[it_hash]) {
-              		add_value(vec, hash_with_edge, weight.first + bag->edge_weight, weight.second);
-              		auto col = it.GetMapping();
-              		// print_value(col, vec, hash_with_edge, weight.first + bag->edge_weight);
-            	}
+	          	auto hash_with_edge = it.GetAssignmentHashWithEdge(bag->introduced_edge.first.value,
+	          		                                               bag->introduced_edge.second.value);
+	          	for (const auto& hash_with_edge_it : hash_with_edge) {
+	            	for (auto& weight: left[it_hash]) {
+	              		add_value(vec, hash_with_edge_it, weight.first + bag->edge_weight, weight.second);
+	            	}
+	            }
           	}
           	break;
         }

@@ -99,7 +99,6 @@
             }
         }
     
-    
         std::unordered_map<T, internal_repr_mem> data_;
     };
     

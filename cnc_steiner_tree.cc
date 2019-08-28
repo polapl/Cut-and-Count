@@ -78,7 +78,7 @@ dynamic_results recursive_cnc_steiner_tree(int l, Bag* bag) {
             break;
           }
 
-          auto hash_without_node = it.GetHashWithoutNode(bag->introduced_node.value);
+          auto hash_without_node = it.GetAssignmentHashWithoutNode(bag->introduced_node.value);
           for (auto& weight: left[j][hash_without_node]) {
             add_value(vec, j, it_hash, weight.first, weight.second);
           }
