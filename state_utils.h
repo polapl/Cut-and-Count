@@ -49,9 +49,9 @@ struct HashWithNodeValues {
 //  2 ~= partial solution in V2 
 // In terms of Hamiltonian Cycle Cut & Cout algorithm:
 //  0 ~= isolated Node
-//  1 ~= partial solution in V1
-//  2 ~= partial solution in V2
-//  3 ~=    
+//  1 ~= Node with one incident edge, in V1
+//  2 ~= Node with two incidents edges
+//  3 ~= Node with one incident edge, in V2   
 class State {
   public:
   class Iterator {
@@ -64,11 +64,11 @@ class State {
 
     bool operator!=(const Iterator& it) const;
 
-    int GetMapping(int idx);
+    int GetMapping(int id);
+
+    int GetIdUsingIdx(int idx);
 
     set<int> GetAllOnesIndexes();
-
-    const map<int, int>& GetMapping();
 
     set<unsigned long long> GetAllMatchingsHashes(set<int> ones);
 

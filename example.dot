@@ -3,23 +3,23 @@ ratio = fill;
 size = "16, 9";
 node [fontsize = 300, fontname="Courier-Bold", colorscheme="pastel25"];
 edge [penwidth = 25, layer="background", arrowhead=vee, arrowsize=25.0];
-33 [label= "FORGET_NODE 0 [id: 33] : { }", color=3, style=filled]
-34 [label= "FORGET_NODE 1 [id: 34] : { 0 , }", color=3, style=filled]
-33 -- 34;
-35 [label= "INTRODUCE_EDGE 01 [id: 35] : { 1 , 0 , }", color=2, style=filled]
-34 -- 35;
-36 [label= "FORGET_NODE 2 [id: 36] : { 1 , 0 , }", color=3, style=filled]
-35 -- 36;
-37 [label= "INTRODUCE_EDGE 02 [id: 37] : { 2 , 1 , 0 , }", color=2, style=filled]
-36 -- 37;
-38 [label= "INTRODUCE_EDGE 12 [id: 38] : { 2 , 1 , 0 , }", color=2, style=filled]
-37 -- 38;
-39 [label= "INTRODUCE_NODE 0* [id: 39] : { 2 , 1 , 0 , }", color=1, style=filled]
-38 -- 39;
-40 [label= "INTRODUCE_NODE 1 [id: 40] : { 2 , 1 , }", color=1, style=filled]
-39 -- 40;
-41 [label= "INTRODUCE_NODE 2* [id: 41] : { 2 , }", color=1, style=filled]
-40 -- 41;
-42 [label= "LEAF  [id: 42] : { }", color=5, style=filled]
-41 -- 42;
+185 [label= "FORGET_NODE 0 [id: 185] : { }", color=3, style=filled]
+186 [label= "FORGET_NODE 1 [id: 186] : { 0 , }", color=3, style=filled]
+185 -- 186;
+187 [label= "INTRODUCE_EDGE 01 [id: 187] : { 1 , 0 , }", color=2, style=filled]
+186 -- 187;
+188 [label= "FORGET_NODE 2 [id: 188] : { 1 , 0 , }", color=3, style=filled]
+187 -- 188;
+189 [label= "INTRODUCE_EDGE 02 [id: 189] : { 2 , 1 , 0 , }", color=2, style=filled]
+188 -- 189;
+190 [label= "INTRODUCE_EDGE 12 [id: 190] : { 2 , 1 , 0 , }", color=2, style=filled]
+189 -- 190;
+191 [label= "INTRODUCE_NODE 0* [id: 191] : { 2 , 1 , 0 , }", color=1, style=filled]
+190 -- 191;
+192 [label= "INTRODUCE_NODE 1 [id: 192] : { 2 , 1 , }", color=1, style=filled]
+191 -- 192;
+193 [label= "INTRODUCE_NODE 2* [id: 193] : { 2 , }", color=1, style=filled]
+192 -- 193;
+194 [label= "LEAF  [id: 194] : { }", color=5, style=filled]
+193 -- 194;
 }

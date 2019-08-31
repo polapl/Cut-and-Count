@@ -11,28 +11,6 @@
 typedef unsigned long long ull;
 typedef unordered_map<size_t, map<size_t, bool>> dynamic_results;
 
-ull hash_c(const map<int,int>& m) {
-	int hash = 0;
-    int pow3 = 1;
-    for(auto& it : m) {
-    	hash += it.second * pow3;
-    	pow3 = pow3*3;
-    }
-    return hash;
-}
-
-map<int, int> unhash_c(ull h) {
-	map<int, int> res;
-	int idx = 0;
-	while(h > 0) {
-		int col = h % 3;
-		res[idx] = col;
-		idx++;
-		h /= 3;
-	}
-	return res;
-}
-
 bool get_value(const dynamic_results& vec, int idx1, int idx2) {
 	auto find_res1 = vec.find(idx1);
 	if (find_res1 == vec.end()) return 0;
@@ -55,33 +33,31 @@ dynamic_results MergeChildren(Bag* bag, const dynamic_results& left, const dynam
 	for (auto it_state1 = state1.begin(); it_state1 != state1.end(); ++it_state1) {
 	  	unsigned long long it_state1_hash = *it_state1;
 
-	  	const map<int, int>& colors1 = it_state1.GetMapping(); // x:0, y:0, z:0
-
 	  	for(auto it_state2 = state2.begin(); it_state2 != state2.end(); ++it_state2) {
 	  		unsigned long long it_state2_hash = *it_state2;
 
-	  		const map<int, int>& colors2 = it_state2.GetMapping(); // x:0, y:0, z:0
-	  		assert (colors1.size() == colors2.size());
-
 	  		int ones1 = 0, ones2 = 0, ones3 = 0;
 
-	  		map<int, int> res_color;
-	  		auto it_color1 = colors1.begin();
-	  		auto it_color2 = colors2.begin();
+	  		unsigned long long res_color = 0;
 
 	  		bool incorrect_colors = false;
 
-	  		for (; it_color1 != colors1.end(); it_color1++, it_color2++) {
+	  		for (int i = 0, pow = 1, it_color1 = it_state1_hash, it_color2 = it_state2_hash; 
+	  			 i < bag->nodes.size();
+	  			 i++, it_color1 /= 3, it_color2 /= 3, pow *= 3) {
 
-		  		if(it_color1->second == 1) ones1++;
-		  		if(it_color2->second == 1) ones2++;
+	  			int cur_val1 = it_color1 % 3;
+	  			int cur_val2 = it_color2 % 3;
 
-				if ((it_color1->second + it_color2->second) > 2) {
+		  		if(cur_val1 == 1) ones1++;
+		  		if(cur_val2 == 1) ones2++;
+
+				if ((cur_val1 + cur_val2) > 2) {
 					incorrect_colors = true;
 					break;
 				}
-				if (it_color1->second + it_color2->second == 1) ones3++;
-				res_color[it_color1->first] = it_color1->second + it_color2->second;
+				if (cur_val1 + cur_val2 == 1) ones3++;
+				res_color += (cur_val1 + cur_val2) * pow;
 			}
 
 	    	if (incorrect_colors) continue;
@@ -91,23 +67,23 @@ dynamic_results MergeChildren(Bag* bag, const dynamic_results& left, const dynam
 
 	    	if (ones1 == 0 && ones2 == 0) {
 	    		bool partial = get_value(left, it_state1_hash, 0) && get_value(right, it_state2_hash, 0);
-	    		bool current = get_value(vec, hash_c(res_color), 0);
-	    		set_value(vec, hash_c(res_color), 0, partial || current);
+	    		bool current = get_value(vec, res_color, 0);
+	    		set_value(vec, res_color, 0, partial || current);
 	    		continue;
 	    	}
 	    	if (ones1 == 0 && right.find(it_state2_hash) != right.end()) {
 	    		for(const auto& it_m2 : right.at(it_state2_hash)) {
-	    			bool partial = it_m2.second && get_value(left, hash_c(colors1), 0);
-	    			bool current = get_value(vec, hash_c(res_color), it_m2.first);
-	    			set_value(vec, hash_c(res_color), it_m2.first, partial || current);
+	    			bool partial = it_m2.second && get_value(left, it_state1_hash, 0);
+	    			bool current = get_value(vec, res_color, it_m2.first);
+	    			set_value(vec, res_color, it_m2.first, partial || current);
 	    		}
 	    		continue;
 	    	}
 	    	if (ones2 == 0 && left.find(it_state1_hash) != left.end()) {
 	    		for(const auto& it_m1 : left.at(it_state1_hash)) {
-	    			bool partial = it_m1.second && get_value(right, hash_c(colors2), 0);
-	    			bool current = get_value(vec, hash_c(res_color), it_m1.first);
-	    			set_value(vec, hash_c(res_color), it_m1.first, partial || current);
+	    			bool partial = it_m1.second && get_value(right, it_state2_hash, 0);
+	    			bool current = get_value(vec, res_color, it_m1.first);
+	    			set_value(vec, res_color, it_m1.first, partial || current);
 	    		}
 	    		continue;
 	    	}
@@ -172,8 +148,8 @@ dynamic_results MergeChildren(Bag* bag, const dynamic_results& left, const dynam
 					if (cycle) continue;
 
 					bool partial = get_value(left, it_state1_hash, it_m1) && get_value(right, it_state2_hash, it_m2);
-					bool current = get_value(vec, hash_c(res_color), res_matching);
-					set_value(vec, hash_c(res_color), res_matching, partial || current);
+					bool current = get_value(vec, res_color, res_matching);
+					set_value(vec, res_color, res_matching, partial || current);
 
 			  	}
 			  	
@@ -205,22 +181,23 @@ dynamic_results AddEdge(Bag* bag, const dynamic_results& left) {
 		  	}
 		}
 
-	  	const map<int, int>& colors = it_state.GetMapping(); // x:0, y:0, z:0
-
-	  	map<int, int> res_color;
+	  	unsigned long long res_color = 0;
 
   		bool incorrect_colors = false;
   		int ones = 0;
+  		for (int i = 0, pow = 1, it_color = it_state_hash;
+  			 i < bag->nodes.size();
+  			 i++, pow *= 3, it_color /= 3) {
 
-  		for (const auto& color : colors) {
+  			int cur_val = it_color % 3;
 
-	  		if(color.second == 1) ones++;
+	  		if(cur_val == 1) ones++;
 
-			if (color.second > 1 && IsEdgeEndpoint(color.first, bag->introduced_edge)) {
+			if (cur_val > 1 && IsEdgeEndpoint(it_state.GetIdUsingIdx(i), bag->introduced_edge)) {
 				incorrect_colors = true;
 				break;
 			}
-			res_color[color.first] = (IsEdgeEndpoint(color.first, bag->introduced_edge) ? color.second + 1 : color.second);
+			res_color += (IsEdgeEndpoint(it_state.GetIdUsingIdx(i), bag->introduced_edge) ? cur_val + 1 : cur_val) * pow;
 		}
 
     	if (incorrect_colors) continue;
@@ -285,8 +262,8 @@ dynamic_results AddEdge(Bag* bag, const dynamic_results& left) {
 			if (cycle) continue;
 
 			bool partial = get_value(left, it_state_hash, it_m);
-			bool current = get_value(vec, hash_c(res_color), res_matching);
-			set_value(vec, hash_c(res_color), res_matching, partial || current);
+			bool current = get_value(vec, res_color, res_matching);
+			set_value(vec, res_color, res_matching, partial || current);
 	  	}
 	}
 	return vec;
@@ -299,7 +276,6 @@ dynamic_results ForgetNode(Bag* bag, const dynamic_results& left) {
 
 		if (it.GetMapping(bag->forgotten_node.value) != 2) continue;
 		auto hash_c_wo_n = it.GetAssignmentHashWithoutNode(bag->forgotten_node.value);
-		//auto hash_c_wo_n = hash_c(c_wo_n);
 
 		set<int> ones = it.GetAllOnesIndexes();
 		if(ones.size() % 2 == 1) continue;
@@ -312,7 +288,6 @@ dynamic_results ForgetNode(Bag* bag, const dynamic_results& left) {
 		if(ones.size() == 0) continue;
 
 		const auto& all_matchings = it.GetAllMatchingsHashes(ones);
-		// print_all_matchings(all_matchings);
 
 		for(const auto& m : all_matchings) {
 			auto m_wo_n = state.h_without_node(m, bag->forgotten_node.value);
@@ -332,7 +307,6 @@ dynamic_results AddNode(Bag* bag, const dynamic_results& left) {
 
 		if (it.GetMapping(bag->introduced_node.value) != 0) continue;
 		auto hash_c_wo_n = it.GetAssignmentHashWithoutNode(bag->introduced_node.value);
-		//auto hash_c_wo_n = hash_c(c_wo_n);
 
 		set<int> ones = it.GetAllOnesIndexes();
 		if(ones.size() % 2 == 1) continue;

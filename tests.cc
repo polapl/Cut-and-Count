@@ -476,10 +476,10 @@ TEST(Hamiltonian, SmallTests_LowProbability) {
 TEST(Hamiltonian, BigTests_HighProbability) {
   int number_of_tests = 1;
   while(number_of_tests--) {
-    Tree tree(4, 100);
+    Tree tree(5, 100);
     printf("tree width = %d\n", tree.tree_width);
     tree.Generate(50, 0);
-    tree.IntroduceEdges(90);
+    tree.IntroduceEdges(100);
     tree.DotTransitionGraph("example_cnc.dot");
     
     CnCHamiltonian* dyn= new CnCHamiltonian(&tree);
@@ -525,7 +525,7 @@ TEST(Hamiltonian, SmallTests_HighProbability_OnlyCnC) {
   }
 }
 
-/*
+
 template <int seed, int tree_width, int max_weight, int bags_gen_type, int terminal_prob, int edge_count, bool result>
 class HamiltonianTestsTemplate : public ::testing::Test {
   protected:
@@ -551,15 +551,16 @@ bool HamiltonianTestsTemplate<seed, tree_width, max_weight, bags_gen_type, termi
 template <int seed, int tree_width, int max_weight, int bags_gen_type, int terminal_prob, int edge_count, bool result>
 std::unique_ptr<Tree> HamiltonianTestsTemplate<seed, tree_width, max_weight, bags_gen_type, terminal_prob, edge_count, result>::tree_ = nullptr;
 
-typedef HamiltonianTestsTemplate<0x51234, 4, 100, 10, 0 , 60, true> HamiltonianTest_4_100_10_0_60;
+/* 
+typedef HamiltonianTestsTemplate<0x51234, 4, 1000, 10, 0 , 60, true> HamiltonianTest_4_1000_10_0_60;
 
-TEST_F(HamiltonianTest_4_100_10_0_60, CncHamiltonianTest) {
+TEST_F(HamiltonianTest_4_1000_10_0_60, CncHamiltonianTest) {
   CnCHamiltonian* dyn = new CnCHamiltonian(tree_.get());
 
   EXPECT_EQ(dyn->Compute(), result_);
 }
 
-TEST_F(HamiltonianTest_4_100_10_0_60, StandardHamiltonianTest) {
+TEST_F(HamiltonianTest_4_1000_10_0_60, StandardHamiltonianTest) {
   Node n(-1, false);
   tree_->PrepareBeforeStandardHamiltonian(n);
   StandardHamiltonian* dyn = new StandardHamiltonian(tree_.get());
@@ -583,6 +584,23 @@ TEST_F(HamiltonianTest_5_100_10_0_60, StandardHamiltonianTest) {
   EXPECT_EQ(dyn->Compute(), result_);
 }
 */
+
+#define GENERATE_HAMILTONIAN_TESTS(SEED, TREEWIDTH, MAXWEIGHT, BAGSGENTYPE, TERMINALPROB, EDGECOUNT, RESULT) typedef HamiltonianTestsTemplate<SEED, TREEWIDTH, MAXWEIGHT, BAGSGENTYPE, TERMINALPROB , EDGECOUNT, RESULT> HamiltonianTest_##TREEWIDTH##_##MAXWEIGHT##_##BAGSGENTYPE##_##TERMINALPROB##_##EDGECOUNT; \
+  TEST_F(HamiltonianTest_##TREEWIDTH##_##MAXWEIGHT##_##BAGSGENTYPE##_##TERMINALPROB##_##EDGECOUNT, Cnc) { \
+    CnCHamiltonian* dyn = new CnCHamiltonian(tree_.get()); \
+    EXPECT_EQ(dyn->Compute(), result_); \
+  } \
+  TEST_F(HamiltonianTest_##TREEWIDTH##_##MAXWEIGHT##_##BAGSGENTYPE##_##TERMINALPROB##_##EDGECOUNT, Standard) { \
+    Node n(-1, false); \
+    tree_->PrepareBeforeStandardHamiltonian(n); \
+    StandardHamiltonian* dyn = new StandardHamiltonian(tree_.get()); \
+    EXPECT_EQ(dyn->Compute(), result_); \
+  }
+
+GENERATE_HAMILTONIAN_TESTS(0x11234, 4, 100, 10, 0 , 100, true);
+GENERATE_HAMILTONIAN_TESTS(0x11234, 5, 100, 10, 0 , 100, true);
+GENERATE_HAMILTONIAN_TESTS(0x11234, 6, 100, 10, 0 , 100, true);
+
 
 int main(int argc, char **argv) {
     testing::InitGoogleTest(&argc, argv);

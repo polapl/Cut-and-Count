@@ -122,8 +122,16 @@ HashWithNodeValues State::Iterator::GetHashWithNode(int id) {
   return res;
 }
 
-int State::Iterator::GetMapping(int idx) {
-  return m_[idx];
+int State::Iterator::GetMapping(int id) {
+  return m_[id];
+}
+
+int State::Iterator::GetIdUsingIdx(int idx) {
+  int i = 0;
+  for (const auto& it : m_) {
+    if (i == idx) return it.first;
+    i++;
+  }
 }
 
 set<int> State::Iterator::GetAllOnesIndexes() {
@@ -134,10 +142,6 @@ set<int> State::Iterator::GetAllOnesIndexes() {
     i++;
   }
   return res;
-}
-
-const map<int, int>& State::Iterator::GetMapping() {
-  return m_;
 }
 
 set<unsigned long long> State::Iterator::GetAllMatchingsHashes(set<int> ones) {

@@ -1,9 +1,14 @@
 #pragma once
 
+#include <algorithm>
+#include <iostream>
+
 #include <set>
 #include <string>
 #include <vector>
 #include <utility>
+
+using namespace std;
 
 // Node corresponds to a graph node.
 struct Node {

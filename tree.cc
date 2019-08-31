@@ -189,6 +189,8 @@ void Dfs(Bag* bag, int probability, int max_weight) {
                 if (x.value < bag_it->forgotten_node.value) new_bag->introduced_edge = make_pair(x, bag_it->forgotten_node);
                 else new_bag->introduced_edge = make_pair(bag_it->forgotten_node, x);
                 new_bag->edge_weight = rand() % max_weight;
+            } else {
+                assert(true);
             }
         }
     }
