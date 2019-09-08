@@ -1,7 +1,7 @@
 #pragma once
 
-#include "tree.h"
 #include "state_utils.h"
+#include "tree.h"
 
 class CnCHamiltonian {
  public:

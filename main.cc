@@ -1,9 +1,9 @@
-#include <iostream>
 #include <cstdlib>
 #include <ctime>
+#include <iostream>
 
-#include "tree.h"
 #include "cnc_steiner_tree.h"
+#include "tree.h"
 
 using namespace std;
 
@@ -17,7 +17,7 @@ int main(int argc, char** argv) {
   tree.Generate(5, 50);
   tree.IntroduceEdges(50);
   tree.DotTransitionGraph("example.dot");
-  CnCSteinerTree* dyn= new CnCSteinerTree(&tree, 3);
+  CnCSteinerTree* dyn = new CnCSteinerTree(&tree, 3);
   int res = dyn->Compute();
   cout << res << endl;
   return 0;

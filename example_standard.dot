@@ -1,0 +1,321 @@
+graph G {
+ratio = fill;
+size = "16, 9";
+node [fontsize = 300, fontname="Courier-Bold", colorscheme="pastel25"];
+edge [penwidth = 25, layer="background", arrowhead=vee, arrowsize=25.0];
+1 [label= "FORGET_NODE 1 [id: 1] : { 0 , }", color=3, style=filled]
+2 [label= "FORGET_NODE 2 [id: 2] : { 0 , 1 , }", color=3, style=filled]
+1 -- 2;
+167 [label= "INTRODUCE_EDGE 12 [id: 167] : { 0 , 1 , 2 , }", color=2, style=filled]
+2 -- 167;
+3 [label= "FORGET_NODE 3 [id: 3] : { 0 , 1 , 2 , }", color=3, style=filled]
+167 -- 3;
+168 [label= "INTRODUCE_EDGE 13 [id: 168] : { 0 , 1 , 2 , 3 , }", color=2, style=filled]
+3 -- 168;
+4 [label= "MERGE  [id: 4] : { 0 , 1 , 2 , 3 , }", color=4, style=filled]
+168 -- 4;
+5 [label= "MERGE  [id: 5] : { 0 , 1 , 2 , 3 , }", color=4, style=filled]
+4 -- 5;
+6 [label= "INTRODUCE_NODE 2 [id: 6] : { 0 , 1 , 2 , 3 , }", color=1, style=filled]
+4 -- 6;
+7 [label= "INTRODUCE_NODE 2 [id: 7] : { 0 , 1 , 2 , 3 , }", color=1, style=filled]
+5 -- 7;
+8 [label= "MERGE  [id: 8] : { 0 , 1 , 2 , 3 , }", color=4, style=filled]
+5 -- 8;
+9 [label= "MERGE  [id: 9] : { 0 , 1 , 3 , }", color=4, style=filled]
+6 -- 9;
+10 [label= "MERGE  [id: 10] : { 0 , 1 , 3 , }", color=4, style=filled]
+7 -- 10;
+11 [label= "MERGE  [id: 11] : { 0 , 1 , 2 , 3 , }", color=4, style=filled]
+8 -- 11;
+12 [label= "MERGE  [id: 12] : { 0 , 1 , 2 , 3 , }", color=4, style=filled]
+8 -- 12;
+13 [label= "MERGE  [id: 13] : { 0 , 1 , 3 , }", color=4, style=filled]
+9 -- 13;
+14 [label= "INTRODUCE_NODE 3 [id: 14] : { 0 , 1 , 3 , }", color=1, style=filled]
+9 -- 14;
+15 [label= "INTRODUCE_NODE 1 [id: 15] : { 0 , 1 , 3 , }", color=1, style=filled]
+10 -- 15;
+16 [label= "MERGE  [id: 16] : { 0 , 1 , 3 , }", color=4, style=filled]
+10 -- 16;
+17 [label= "INTRODUCE_NODE 2 [id: 17] : { 0 , 1 , 2 , 3 , }", color=1, style=filled]
+11 -- 17;
+18 [label= "MERGE  [id: 18] : { 0 , 1 , 2 , 3 , }", color=4, style=filled]
+11 -- 18;
+19 [label= "INTRODUCE_NODE 1 [id: 19] : { 0 , 1 , 2 , 3 , }", color=1, style=filled]
+12 -- 19;
+20 [label= "MERGE  [id: 20] : { 0 , 1 , 2 , 3 , }", color=4, style=filled]
+12 -- 20;
+33 [label= "MERGE  [id: 33] : { 0 , 1 , 3 , }", color=4, style=filled]
+13 -- 33;
+22 [label= "FORGET_NODE 4 [id: 22] : { 0 , 1 , 3 , }", color=3, style=filled]
+13 -- 22;
+23 [label= "FORGET_NODE 5 [id: 23] : { 0 , 1 , }", color=3, style=filled]
+14 -- 23;
+24 [label= "MERGE  [id: 24] : { 0 , 3 , }", color=4, style=filled]
+15 -- 24;
+25 [label= "MERGE  [id: 25] : { 0 , 1 , 3 , }", color=4, style=filled]
+16 -- 25;
+26 [label= "FORGET_NODE 6 [id: 26] : { 0 , 1 , 3 , }", color=3, style=filled]
+16 -- 26;
+27 [label= "INTRODUCE_NODE 1 [id: 27] : { 0 , 1 , 3 , }", color=1, style=filled]
+17 -- 27;
+42 [label= "INTRODUCE_NODE 1 [id: 42] : { 0 , 1 , 2 , 3 , }", color=1, style=filled]
+18 -- 42;
+29 [label= "MERGE  [id: 29] : { 0 , 1 , 2 , 3 , }", color=4, style=filled]
+18 -- 29;
+30 [label= "MERGE  [id: 30] : { 0 , 2 , 3 , }", color=4, style=filled]
+19 -- 30;
+31 [label= "INTRODUCE_NODE 1 [id: 31] : { 0 , 1 , 2 , 3 , }", color=1, style=filled]
+20 -- 31;
+32 [label= "MERGE  [id: 32] : { 0 , 1 , 2 , 3 , }", color=4, style=filled]
+20 -- 32;
+50 [label= "INTRODUCE_NODE 1 [id: 50] : { 0 , 1 , 3 , }", color=1, style=filled]
+33 -- 50;
+51 [label= "FORGET_NODE 12 [id: 51] : { 0 , 1 , 3 , }", color=3, style=filled]
+33 -- 51;
+180 [label= "INTRODUCE_EDGE 14 [id: 180] : { 0 , 1 , 3 , 4 , }", color=2, style=filled]
+22 -- 180;
+182 [label= "INTRODUCE_EDGE 15 [id: 182] : { 0 , 1 , 5 , }", color=2, style=filled]
+23 -- 182;
+36 [label= "MERGE  [id: 36] : { 0 , 3 , }", color=4, style=filled]
+24 -- 36;
+37 [label= "FORGET_NODE 8 [id: 37] : { 0 , 3 , }", color=3, style=filled]
+24 -- 37;
+38 [label= "FORGET_NODE 9 [id: 38] : { 0 , 1 , 3 , }", color=3, style=filled]
+25 -- 38;
+39 [label= "FORGET_NODE 10 [id: 39] : { 0 , 1 , 3 , }", color=3, style=filled]
+25 -- 39;
+174 [label= "INTRODUCE_EDGE 16 [id: 174] : { 0 , 1 , 3 , 6 , }", color=2, style=filled]
+26 -- 174;
+41 [label= "MERGE  [id: 41] : { 0 , 3 , }", color=4, style=filled]
+27 -- 41;
+63 [label= "INTRODUCE_NODE 2 [id: 63] : { 0 , 2 , 3 , }", color=1, style=filled]
+42 -- 63;
+43 [label= "MERGE  [id: 43] : { 0 , 1 , 2 , 3 , }", color=4, style=filled]
+29 -- 43;
+44 [label= "INTRODUCE_NODE 2 [id: 44] : { 0 , 1 , 2 , 3 , }", color=1, style=filled]
+29 -- 44;
+45 [label= "FORGET_NODE 11 [id: 45] : { 0 , 2 , 3 , }", color=3, style=filled]
+30 -- 45;
+46 [label= "MERGE  [id: 46] : { 0 , 2 , 3 , }", color=4, style=filled]
+30 -- 46;
+47 [label= "MERGE  [id: 47] : { 0 , 2 , 3 , }", color=4, style=filled]
+31 -- 47;
+48 [label= "MERGE  [id: 48] : { 0 , 1 , 2 , 3 , }", color=4, style=filled]
+32 -- 48;
+49 [label= "INTRODUCE_NODE 2 [id: 49] : { 0 , 1 , 2 , 3 , }", color=1, style=filled]
+32 -- 49;
+75 [label= "INTRODUCE_NODE 3 [id: 75] : { 0 , 3 , }", color=1, style=filled]
+50 -- 75;
+179 [label= "INTRODUCE_EDGE 312 [id: 179] : { 0 , 1 , 3 , 12 , }", color=2, style=filled]
+51 -- 179;
+34 [label= "MERGE  [id: 34] : { 0 , 1 , 3 , 4 , }", color=4, style=filled]
+180 -- 34;
+181 [label= "INTRODUCE_EDGE 05 [id: 181] : { 0 , 1 , 5 , }", color=2, style=filled]
+182 -- 181;
+55 [label= "INTRODUCE_NODE 3 [id: 55] : { 0 , 3 , }", color=1, style=filled]
+36 -- 55;
+83 [label= "INTRODUCE_NODE 3 [id: 83] : { 0 , 3 , }", color=1, style=filled]
+36 -- 83;
+169 [label= "INTRODUCE_EDGE 38 [id: 169] : { 0 , 3 , 8 , }", color=2, style=filled]
+37 -- 169;
+171 [label= "INTRODUCE_EDGE 39 [id: 171] : { 0 , 1 , 3 , 9 , }", color=2, style=filled]
+38 -- 171;
+172 [label= "INTRODUCE_EDGE 110 [id: 172] : { 0 , 1 , 3 , 10 , }", color=2, style=filled]
+39 -- 172;
+173 [label= "INTRODUCE_EDGE 06 [id: 173] : { 0 , 1 , 3 , 6 , }", color=2, style=filled]
+174 -- 173;
+61 [label= "INTRODUCE_NODE 3 [id: 61] : { 0 , 3 , }", color=1, style=filled]
+41 -- 61;
+62 [label= "INTRODUCE_NODE 3 [id: 62] : { 0 , 3 , }", color=1, style=filled]
+41 -- 62;
+90 [label= "INTRODUCE_NODE 3 [id: 90] : { 0 , 3 , }", color=1, style=filled]
+63 -- 90;
+64 [label= "INTRODUCE_NODE 3 [id: 64] : { 0 , 1 , 2 , 3 , }", color=1, style=filled]
+43 -- 64;
+92 [label= "INTRODUCE_NODE 3 [id: 92] : { 0 , 1 , 2 , 3 , }", color=1, style=filled]
+43 -- 92;
+93 [label= "INTRODUCE_NODE 1 [id: 93] : { 0 , 1 , 3 , }", color=1, style=filled]
+44 -- 93;
+177 [label= "INTRODUCE_EDGE 311 [id: 177] : { 0 , 2 , 3 , 11 , }", color=2, style=filled]
+45 -- 177;
+95 [label= "INTRODUCE_NODE 2 [id: 95] : { 0 , 2 , 3 , }", color=1, style=filled]
+46 -- 95;
+69 [label= "INTRODUCE_NODE 2 [id: 69] : { 0 , 2 , 3 , }", color=1, style=filled]
+46 -- 69;
+70 [label= "INTRODUCE_NODE 2 [id: 70] : { 0 , 2 , 3 , }", color=1, style=filled]
+47 -- 70;
+71 [label= "INTRODUCE_NODE 2 [id: 71] : { 0 , 2 , 3 , }", color=1, style=filled]
+47 -- 71;
+72 [label= "INTRODUCE_NODE 2 [id: 72] : { 0 , 1 , 2 , 3 , }", color=1, style=filled]
+48 -- 72;
+73 [label= "INTRODUCE_NODE 2 [id: 73] : { 0 , 1 , 2 , 3 , }", color=1, style=filled]
+48 -- 73;
+74 [label= "INTRODUCE_NODE 3 [id: 74] : { 0 , 1 , 3 , }", color=1, style=filled]
+49 -- 74;
+102 [label= "LEAF  [id: 102] : { 0 , }", color=5, style=filled]
+75 -- 102;
+178 [label= "INTRODUCE_EDGE 112 [id: 178] : { 0 , 1 , 3 , 12 , }", color=2, style=filled]
+179 -- 178;
+52 [label= "MERGE  [id: 52] : { 0 , 1 , 3 , 4 , }", color=4, style=filled]
+34 -- 52;
+53 [label= "INTRODUCE_NODE 3 [id: 53] : { 0 , 1 , 3 , 4 , }", color=1, style=filled]
+34 -- 53;
+35 [label= "FORGET_NODE 7 [id: 35] : { 0 , 1 , 5 , }", color=3, style=filled]
+181 -- 35;
+109 [label= "LEAF  [id: 109] : { 0 , }", color=5, style=filled]
+55 -- 109;
+110 [label= "LEAF  [id: 110] : { 0 , }", color=5, style=filled]
+83 -- 110;
+84 [label= "INTRODUCE_NODE 3 [id: 84] : { 0 , 3 , 8 , }", color=1, style=filled]
+169 -- 84;
+170 [label= "INTRODUCE_EDGE 09 [id: 170] : { 0 , 1 , 3 , 9 , }", color=2, style=filled]
+171 -- 170;
+86 [label= "INTRODUCE_NODE 10 [id: 86] : { 0 , 1 , 3 , 10 , }", color=1, style=filled]
+172 -- 86;
+40 [label= "INTRODUCE_NODE 3 [id: 40] : { 0 , 1 , 3 , 6 , }", color=1, style=filled]
+173 -- 40;
+115 [label= "LEAF  [id: 115] : { 0 , }", color=5, style=filled]
+61 -- 115;
+116 [label= "LEAF  [id: 116] : { 0 , }", color=5, style=filled]
+62 -- 116;
+117 [label= "LEAF  [id: 117] : { 0 , }", color=5, style=filled]
+90 -- 117;
+118 [label= "INTRODUCE_NODE 2 [id: 118] : { 0 , 1 , 2 , }", color=1, style=filled]
+64 -- 118;
+119 [label= "INTRODUCE_NODE 2 [id: 119] : { 0 , 1 , 2 , }", color=1, style=filled]
+92 -- 119;
+120 [label= "INTRODUCE_NODE 3 [id: 120] : { 0 , 3 , }", color=1, style=filled]
+93 -- 120;
+176 [label= "INTRODUCE_EDGE 211 [id: 176] : { 0 , 2 , 3 , 11 , }", color=2, style=filled]
+177 -- 176;
+122 [label= "INTRODUCE_NODE 3 [id: 122] : { 0 , 3 , }", color=1, style=filled]
+95 -- 122;
+96 [label= "INTRODUCE_NODE 3 [id: 96] : { 0 , 3 , }", color=1, style=filled]
+69 -- 96;
+97 [label= "INTRODUCE_NODE 3 [id: 97] : { 0 , 3 , }", color=1, style=filled]
+70 -- 97;
+98 [label= "INTRODUCE_NODE 3 [id: 98] : { 0 , 3 , }", color=1, style=filled]
+71 -- 98;
+126 [label= "INTRODUCE_NODE 3 [id: 126] : { 0 , 1 , 3 , }", color=1, style=filled]
+72 -- 126;
+100 [label= "INTRODUCE_NODE 3 [id: 100] : { 0 , 1 , 3 , }", color=1, style=filled]
+73 -- 100;
+101 [label= "INTRODUCE_NODE 1 [id: 101] : { 0 , 1 , }", color=1, style=filled]
+74 -- 101;
+76 [label= "INTRODUCE_NODE 3 [id: 76] : { 0 , 1 , 3 , 12 , }", color=1, style=filled]
+178 -- 76;
+77 [label= "INTRODUCE_NODE 3 [id: 77] : { 0 , 1 , 3 , 4 , }", color=1, style=filled]
+52 -- 77;
+78 [label= "INTRODUCE_NODE 3 [id: 78] : { 0 , 1 , 3 , 4 , }", color=1, style=filled]
+52 -- 78;
+79 [label= "INTRODUCE_NODE 4* [id: 79] : { 0 , 1 , 4 , }", color=1, style=filled]
+53 -- 79;
+184 [label= "INTRODUCE_EDGE 17 [id: 184] : { 0 , 1 , 5 , 7 , }", color=2, style=filled]
+35 -- 184;
+111 [label= "INTRODUCE_NODE 8 [id: 111] : { 0 , 8 , }", color=1, style=filled]
+84 -- 111;
+58 [label= "INTRODUCE_NODE 3 [id: 58] : { 0 , 1 , 3 , 9 , }", color=1, style=filled]
+170 -- 58;
+113 [label= "INTRODUCE_NODE 3 [id: 113] : { 0 , 1 , 3 , }", color=1, style=filled]
+86 -- 113;
+87 [label= "INTRODUCE_NODE 6* [id: 87] : { 0 , 1 , 6 , }", color=1, style=filled]
+40 -- 87;
+139 [label= "INTRODUCE_NODE 1 [id: 139] : { 0 , 1 , }", color=1, style=filled]
+118 -- 139;
+140 [label= "INTRODUCE_NODE 1 [id: 140] : { 0 , 1 , }", color=1, style=filled]
+119 -- 140;
+141 [label= "LEAF  [id: 141] : { 0 , }", color=5, style=filled]
+120 -- 141;
+175 [label= "INTRODUCE_EDGE 011 [id: 175] : { 0 , 2 , 3 , 11 , }", color=2, style=filled]
+176 -- 175;
+143 [label= "LEAF  [id: 143] : { 0 , }", color=5, style=filled]
+122 -- 143;
+144 [label= "LEAF  [id: 144] : { 0 , }", color=5, style=filled]
+96 -- 144;
+145 [label= "LEAF  [id: 145] : { 0 , }", color=5, style=filled]
+97 -- 145;
+146 [label= "LEAF  [id: 146] : { 0 , }", color=5, style=filled]
+98 -- 146;
+147 [label= "INTRODUCE_NODE 1 [id: 147] : { 0 , 1 , }", color=1, style=filled]
+126 -- 147;
+148 [label= "INTRODUCE_NODE 1 [id: 148] : { 0 , 1 , }", color=1, style=filled]
+100 -- 148;
+149 [label= "LEAF  [id: 149] : { 0 , }", color=5, style=filled]
+101 -- 149;
+103 [label= "INTRODUCE_NODE 12* [id: 103] : { 0 , 1 , 12 , }", color=1, style=filled]
+76 -- 103;
+130 [label= "INTRODUCE_NODE 4* [id: 130] : { 0 , 1 , 4 , }", color=1, style=filled]
+77 -- 130;
+105 [label= "INTRODUCE_NODE 1 [id: 105] : { 0 , 1 , 4 , }", color=1, style=filled]
+78 -- 105;
+106 [label= "INTRODUCE_NODE 1 [id: 106] : { 0 , 1 , }", color=1, style=filled]
+79 -- 106;
+183 [label= "INTRODUCE_EDGE 07 [id: 183] : { 0 , 1 , 5 , 7 , }", color=2, style=filled]
+184 -- 183;
+135 [label= "LEAF  [id: 135] : { 0 , }", color=5, style=filled]
+111 -- 135;
+85 [label= "INTRODUCE_NODE 1 [id: 85] : { 0 , 1 , 9 , }", color=1, style=filled]
+58 -- 85;
+137 [label= "INTRODUCE_NODE 1 [id: 137] : { 0 , 1 , }", color=1, style=filled]
+113 -- 137;
+114 [label= "INTRODUCE_NODE 1 [id: 114] : { 0 , 1 , }", color=1, style=filled]
+87 -- 114;
+158 [label= "LEAF  [id: 158] : { 0 , }", color=5, style=filled]
+139 -- 158;
+159 [label= "LEAF  [id: 159] : { 0 , }", color=5, style=filled]
+140 -- 159;
+94 [label= "INTRODUCE_NODE 11 [id: 94] : { 0 , 2 , 3 , 11 , }", color=1, style=filled]
+175 -- 94;
+161 [label= "LEAF  [id: 161] : { 0 , }", color=5, style=filled]
+147 -- 161;
+162 [label= "LEAF  [id: 162] : { 0 , }", color=5, style=filled]
+148 -- 162;
+129 [label= "INTRODUCE_NODE 1 [id: 129] : { 0 , 1 , }", color=1, style=filled]
+103 -- 129;
+151 [label= "INTRODUCE_NODE 1 [id: 151] : { 0 , 1 , }", color=1, style=filled]
+130 -- 151;
+152 [label= "INTRODUCE_NODE 4* [id: 152] : { 0 , 4 , }", color=1, style=filled]
+105 -- 152;
+153 [label= "LEAF  [id: 153] : { 0 , }", color=5, style=filled]
+106 -- 153;
+54 [label= "MERGE  [id: 54] : { 0 , 1 , 5 , 7 , }", color=4, style=filled]
+183 -- 54;
+136 [label= "INTRODUCE_NODE 9* [id: 136] : { 0 , 9 , }", color=1, style=filled]
+85 -- 136;
+157 [label= "LEAF  [id: 157] : { 0 , }", color=5, style=filled]
+137 -- 157;
+138 [label= "LEAF  [id: 138] : { 0 , }", color=5, style=filled]
+114 -- 138;
+121 [label= "INTRODUCE_NODE 2 [id: 121] : { 0 , 2 , 3 , }", color=1, style=filled]
+94 -- 121;
+150 [label= "LEAF  [id: 150] : { 0 , }", color=5, style=filled]
+129 -- 150;
+163 [label= "LEAF  [id: 163] : { 0 , }", color=5, style=filled]
+151 -- 163;
+164 [label= "LEAF  [id: 164] : { 0 , }", color=5, style=filled]
+152 -- 164;
+80 [label= "INTRODUCE_NODE 1 [id: 80] : { 0 , 1 , 5 , 7 , }", color=1, style=filled]
+54 -- 80;
+81 [label= "INTRODUCE_NODE 1 [id: 81] : { 0 , 1 , 5 , 7 , }", color=1, style=filled]
+54 -- 81;
+156 [label= "LEAF  [id: 156] : { 0 , }", color=5, style=filled]
+136 -- 156;
+142 [label= "INTRODUCE_NODE 3 [id: 142] : { 0 , 3 , }", color=1, style=filled]
+121 -- 142;
+107 [label= "INTRODUCE_NODE 5 [id: 107] : { 0 , 5 , 7 , }", color=1, style=filled]
+80 -- 107;
+108 [label= "INTRODUCE_NODE 7* [id: 108] : { 0 , 5 , 7 , }", color=1, style=filled]
+81 -- 108;
+160 [label= "LEAF  [id: 160] : { 0 , }", color=5, style=filled]
+142 -- 160;
+154 [label= "INTRODUCE_NODE 7* [id: 154] : { 0 , 7 , }", color=1, style=filled]
+107 -- 154;
+134 [label= "INTRODUCE_NODE 5 [id: 134] : { 0 , 5 , }", color=1, style=filled]
+108 -- 134;
+165 [label= "LEAF  [id: 165] : { 0 , }", color=5, style=filled]
+154 -- 165;
+166 [label= "LEAF  [id: 166] : { 0 , }", color=5, style=filled]
+134 -- 166;
+}

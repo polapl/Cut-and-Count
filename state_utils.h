@@ -2,37 +2,37 @@
 
 #include "tree.h"
 
+#include <algorithm>
+#include <cassert>
 #include <iostream>
 #include <map>
 #include <set>
 #include <vector>
-#include <algorithm>
-#include <cassert>
 
 using namespace std;
 
-#define SM_HASH(a,b) (((a)<<3) | b)
-#define INSERT_BLK(h,n) (((h)<<6) | n)
-#define GET_K(h, n) (((h) >> ((n) * 6 + 3)) & 7)
+#define SM_HASH(a, b) (((a) << 3) | b)
+#define INSERT_BLK(h, n) (((h) << 6) | n)
+#define GET_K(h, n) (((h) >> ((n)*6 + 3)) & 7)
 #define GET_V(h, n) (((h) >> ((n * 6))) & 7)
 #define NOT_FOUND (static_cast<size_t>(-1))
 
 typedef unsigned long long hash_t;
 
 hash_t h_make_window(hash_t hsh, int indx);
- 
+
 hash_t h_close_window(hash_t hsh, int indx);
- 
+
 hash_t h_insert_at(hash_t hsh, size_t index, int a, int b);
- 
+
 size_t h_len(hash_t hsh);
- 
+
 size_t h_find_key(hash_t hsh, int key);
- 
+
 void h_insert(hash_t* hsh, int a, int b);
 
 void h_remove(hash_t* hsh, int a);
- 
+
 void h_print(hash_t h);
 
 struct HashWithNodeValues {
@@ -46,16 +46,16 @@ struct HashWithNodeValues {
 // In terms of Steiner Tree Cut & Cout algoritm:
 //  0 ~= isolated Node
 //  1 ~= partial solution in V1
-//  2 ~= partial solution in V2 
+//  2 ~= partial solution in V2
 // In terms of Hamiltonian Cycle Cut & Cout algorithm:
 //  0 ~= isolated Node
 //  1 ~= Node with one incident edge, in V1
 //  2 ~= Node with two incidents edges
-//  3 ~= Node with one incident edge, in V2   
+//  3 ~= Node with one incident edge, in V2
 class State {
-  public:
+ public:
   class Iterator {
-    public:
+   public:
     void operator++();
 
     long long int operator*() const;
@@ -82,15 +82,15 @@ class State {
 
     vector<unsigned long long> GetAssignmentHashWithEdge(int id1, int id2);
 
-    private:
-      Iterator(bool last, unsigned int s);
+   private:
+    Iterator(bool last, unsigned int s);
 
-      map<int, int> m_;
-      bool last_;
-      unsigned int s_;
-      friend class State;
+    map<int, int> m_;
+    bool last_;
+    unsigned int s_;
+    friend class State;
 
-      long long int hash() const;
+    long long int hash() const;
   };
 
   static bool op(const Node& i, const Node& j) { return (i.value < j.value); }
@@ -99,7 +99,7 @@ class State {
 
   vector<Node> nodes_;
   unsigned int assignments_;
-  
+
   Iterator begin();
 
   Iterator end();
@@ -107,5 +107,4 @@ class State {
   pair<int, int> GetEdgeIndexes(const Node& a, const Node& b);
 
   hash_t h_without_node(hash_t hsh, int val);
-
 };

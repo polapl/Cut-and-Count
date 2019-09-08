@@ -96,60 +96,55 @@ Instytut Informatyki Analitycznej
 \tableofcontents
 
 \newpage
-  	\chapter{Wprowadzenie}
-  		
-\newpage
-  	\chapter{Podstawowe definicje}
-	
-\begin{definition}
-\em \emph{Dekompozycją drzewową grafu} $G$ nazywamy parę $\mathcal{T} = (T, \{X_t : t \in V(T)\})$, gdzie $T$ jest drzewem, a $\{X_t : t \in V(T)\}$ rodziną zbiorów wierzchołków grafu $G$ spełniającą następujące warunki:
+  	\chapter{Dekompozycja drzewowa}
+  		\section{Definicja dekompozycji i szerokości drzewowej}
+
+Dekompozycją drzewową grafu $G$ nazywamy parę $\mathcal{T} = (T, \{X_t : t \in V(T)\})$, gdzie $T$ jest drzewem, a $\{X_t : t \in V(T)\}$
+zawiera zbiory wierzchołków grafu $G$ i spełnia następujące warunki:
 \begin{itemize}
-	\item{Dla każdej krawędzi $\{u, v\} \in E(G)$ istnieje węzeł $t \in V(T)$, taki że $u \in X_t$ i $v \in X_t$.}
-	\item{Dla każdego wierzchołka $v \in V(G)$ zbiór $\{t \in V(T): v \in X_t \}$ jest poddrzewem drzewa $T$.}
+	\item{Dla każdej krawędzi $\{u, v\} \in E(G)$, istnieje węzeł $t \in V(T)$, taki że $u \in X_t$ i $v \in X_t$.}
+	\item{Dla każdego wierzchołka $v \in V(G)$, zbiór $\{t \in V(T): v \in X_t \}$ jest poddrzewem drzewa $T$.}
 \end{itemize}
-\end{definition}
-
-Od tej pory wierzchołki grafu $G$ będą nazywane po prostu \emph{wierzchołkami}, natomiast wierzchołki drzewa $T$ będą nazywane \emph{węzłami}.
-
-\begin{definition}
-\em \emph{Szerokość drzewowa dekompozycji drzewowej $\mathcal{T}$}: $$sd_\mathcal{T} = max_{t \in V(T)} \abs{X_t - 1}$$ 
-\end{definition}
-
-\begin{definition}
-\em \emph{Szerokość drzewowa grafu $G$}, standardowo oznaczana przez $sd_G$ lub $k$, jest minimalną szerokością drzewową wziętą po wszystkich możliwych dekompozycjach drzewowych $G$: $$sd_G = min \{sd_\mathcal{T}: \mathcal{T} \text{ jest dekompozycją drzewową }G\}$$
-\end{definition}
-
-Przy konstruowaniu algorytmów dynamicznych działających po dekompozycji drzewowej grafu, łatwiej jest posługiwać się tzw. \emph{ładną dekompozycją drzewową}.
-
-\emph{Ładna dekompozycja drzewowa} $\mathcal{T} = (T, \{X_t\}_{t \in V(T)})$ to dekompozycja drzewowa o następujących własnościach:
+Od tej pory wierzchołki grafu wyjściowego $G$ będą nazywane po prostu \emph{wierzchołkami}, natomiast węzły drzewa $T$ będą nazywane \emph{kubełkami}.
+\newline\newline
+Szerokość drzewowa dekompozycji drzewowej $\mathcal{T}$ jest zdefiniowana następująco: \newline $sd_\mathcal{T} = max_{t \in V(T)} \abs{X_t - 1}$. Natomiast szerokość drzewowa grafu $G$ jest minimalną szerokością drzewową wziętą po wszystkich możliwych dekompozycjach drzewowych $G$: \newline $sd_G = min \{sd_\mathcal{T}: \mathcal{T} \text{ jest dekompozycją drzewową }G\}$.
+  		
+  		\section{Ładna dekompozycja drzewowa}
+Dla uproszczenia posługiwania się dekompozycją drzewową przy definiowaniu algorytmów dynamicznych, będziemy używać tzw. \emph{ładnej dekompozycji drzewowej}, która została po raz pierwszy wprowadzona przez Kloks \cite{kloks}.
+\newline\newline
+\emph{Ładna dekompozycja drzewowa} $\mathcal{T} = (T, \{X_t\}_{t \in V(T)})$ musi spełniać następujące warunki:
 \begin{itemize}
-	\item{$T$ jest drzewem ukorzenionym.}
-	\item{Każdy węzeł $t \in T$ ma co najwyżej dwoje dzieci.}
-	\item{Każdy węzeł $t \in T$ ma jeden z następujących pięciu typów:}
-	\begin{enumerate}
-		\item{$t$ jest \texttt{LIŚCIEM} - $X_t = \emptyset$.}
-		\item{$t$ jest węzłem \texttt{WPROWADZAJĄCYM v} - $t$ ma o jeden wierzchołek więcej niż jego jedyne dziecko: $X_t = X_{t'} \cup \{v\}$. Każdy wierzchołek $v \in V(G)$, ma co najmniej jeden węzeł wprowadzający.}
-		\item{$t$ jest węzłem \texttt{ZAPOMINAJĄCYM v} - $t$ ma o jeden wierzchołek mniej niż jego jedyne dziecko: $X_t = X_{t'} \setminus \{v\}$. Jego specjalnym reprezentantem jest korzeń. Dla każdego wierzchołka $v \in V(G)$, istnieje dokładnie jeden węzeł zapominający.}
-		\item{$t$ jest węzłem \texttt{SCALAJĄCYM} - $t$ posiada dwoje dzieci: $X_t = X_{t'} = X_{t''}$, scala dwa podgrafy o przecięciu $X_t$.}
-		\item{$t$ jest węzłem \texttt{WPROWADZAJĄCYM KRAWĘDŹ uv} - ten typ węzła nie pojawił się w pierwotnej definicji ładnej dekompozycji drzewowej, ale znacząco ułatwia definiowanie algorytmów, które na nich operują. Węzeł wprowadzający uzupełnia reprezentację grafu $G$ w drzewie $T$ o krawędź $uv \in E(G)$, $u \in X_t$ i $v \in X_t$. Dla każdego $uv$ istnieje dokładnie jeden węzeł wprowadzający i - przyjmując bez straty ogólności, $t(u)$ jest przodkiem $t(v)$ (gdzie $t(v)$ to najwyższy węzeł, taki że $v \in X_{t(v)}$) - znajduje się on pomiędzy $t(v)$ a węzłem zapominającym v.}
-\end{enumerate}
+	\item{$T$ jest ukorzenione.}
+	\item{Każdy \emph{kubełek} $T$ ma co najwyżej dwoje dzieci.}
+	\item{Jeśli \emph{kubełek} $t$ ma dwoje dzieci $p$ i $q$, wtedy $X_t = X_p = X_q$.}
+	\item{Jeśli \emph{kubełek} $t$ ma jedno dziecko $p$, to $\abs{X_t} = \abs{X_p} + 1$ \emph{oraz} $X_p \subset X_t$ albo $\abs{X_t} = \abs{X_p} - 1$ \emph{oraz} $X_t \subset X_p$.}
+\end{itemize}
+Ponieważ w ładnej dekompozycji drzewowej, \emph{kubełki} różnią się od siebie o co najwyżej jeden \emph{wierzchołek}, każde przejście między jednym a drugim \emph{kubełkiem} odpowiada dokładnie jednej operacji na grafie wyjściowym $G$. Każdy \emph{kubełek} ma jeden z następujących pięciu typów:
+\begin{itemize}
+	\item{\texttt{WPROWADZAJĄCY v} - \emph{kubełek} ten ma o jeden \emph{wierzchołek} więcej niż jego jedyne dziecko: $X_p \cup \{v\} = X_t$. Każdy wierzchołek $v \in V(G)$, ma co najmniej jeden kubełek wprowadzający.}
+	\item{\texttt{ZAPOMINAJĄCY v} - \emph{kubełek} o jednym wierzchołku mniej niż jedgo jedyne dziecko: $X_t \cup \{v\} = X_p$. Jego specjalnym reprezentantem jest korzeń. Dla każdego wierzchołka $v \in V(G)$, istnieje dokładnie jeden kubełek zapominający.}
+	\item{\texttt{SCALAJĄCY} - jedyny \emph{kubełek} posiadający dwoje dzieci: $X_t = X_p = X_q$, scala dwa podgrafy o przecięciu $X_t$.}
+	\item{\texttt{LIŚĆ} - dla $t$ będącego liściem: $X_t = \emptyset$.}
+	\item{\texttt{UZUPEŁNIAJĄCY uv} - \emph{kubełek}, który nie pojawił się w pierwotnej definicji ładnej dekompozycji drzewowej, ale ułatwia definiowanie algorytmów operujących na dekompozycjach drzewowych. \emph{Kubełek} uzupełniający wprowadza krawędź $uv \in E(G)$ (uzupełnia krawędziami reprezentację grafu $G$ w drzewie $T$). \emph{Kubełek} $t$ \texttt{UZUPEŁNIAJĄCY} $uv$ zawiera oba \emph{wierzchołki} krawędzi: $u \in X_t$ i $v \in X_t$. Dla każdego $uv$ istnieje dokładnie jeden kubełek uzupełniający i - przyjmując bez straty ogólności $t(u)$ jest przodkiem $t(v)$ (gdzie $t(v)$ to najwyższy \emph{kubełek}, taki że $v \in X_{t(v)}$) - znajduje się on pomiędzy $t(v)$ a \texttt{ZAPOMINAJĄCY v}.}
 \end{itemize}
 
 \begin{figure}
 \centering
+\label{kwadrat}
 \includegraphics[width=5cm]{square_steiner_tree_standard_graph.png}
 \caption{Przykładowy graf $G$.}
-\label{kwadrat}
 \end{figure}
 
 \begin{figure}
 \centering
+\label{dekompozycja_kwadratu}
 \makebox[\textwidth]{\includegraphics[width=18cm, height=14cm]{square_steiner_tree_standard.png}}
 \caption{Ładna dekompozycja drzewowa grafu $G$ z rys. \ref{kwadrat}.}
-\label{dekompozycja_kwadratu}
 \end{figure}
 
-Rysunek \ref{dekompozycja_kwadratu} przedstawia ładną dekompozycję drzewową dla grafu z rysunku \ref{kwadrat}.
+Na rysunku \ref{dekompozycja_kwadratu} przedstawiam ładną dekompozycję drzewową dla grafu przedstawionego na rysunku \ref{kwadrat}.
+
+		\section{Obliczanie dekompozycji drzewowej}
 
 Problem obliczania dekompozycji drzewowej należy do klasy problemów FPT. Odkąd Robertson i Seymour \cite{robertson&seymour} wprowadzili w latach osiemndziesiątych definicję dekompozycji drzewowej i jako pierwsi podali parametryzowany algorytm znajdowania dekompozycji drzewowej rozmiaru $\Omicron(k)$ (dla pewnej stałej $k$) o czasie działania $\Omicron(n^{f(k)})$ na grafie $n$-wierzchołkowym ($f(k)$ nigdy nie obliczyli), zostało opublikowanych wiele nowych, wielomianowych algorytmów parametryzowanych o znacznie lepszych złożonościach czasowych. Jednakże Bodlaender \cite{bodlaender} jako pierwszy podał liniowy algorytm znajdowania dekompozycji drzewowej o szerokości $k$ (o ile taka dekompozycja istnieje). 
 
@@ -164,6 +159,21 @@ Ponadto Kloks \cite{kloks} pokazał, że dla każdego grafu o szerokości drzewo
 Każdy graf $G$ o szerokości drzewowej $k$ posiada ładną dekompozycję drzewową o szerokości $k$. Ponadto, jeśli $G$ jest grafem $n$-wierzchołkowym, to istnieje ładna dekompozycja drzewowa grafu $G$ o co najwyżej $4n$ kubełkach.
 \end{lemma}
 
+\begin{proof}[Dowód indukcyjny]
+Graf $G$ ma szerokość drzewową $k$, wobec czego ma co najmniej $k+1$ wierzchołki. Ponadto każdy graf o szerokości drzewowej $k$ da się striangulować do postaci $k$-drzewa. Triangulacja grafu $G$ do $k$-drzewa opiera się na znalezieniu zrównoważonej dekompozycji drzewowej $\mathcal{T} = (T, \{X_t\}_{t \in V(T)})$, w której dla każdego $t \in V(T)$: $\abs{X_t} = k+1$ oraz dla każdej krawędzi $(t, p) \in E(T)$: $\abs{X_t \cap X_p} = k$, a następnie na dodaniu do $G$ krawędzi między każdą parą wierzchołków $(u, v)$, dla której istnieje kubełek nowo powstałej dekompozycji $t$ : $u \in X_t$ $\wedge$ $v \in X_t$. Algorytm równoważenia dekompozycji drzewowej został przedstawiony przez Bodlaender \cite{bodlaender} i działa on w czasie liniowym. Niech $H$ będzie striangulowanym grafem $G$ o $n$ wierzchołkach. Indukcyjnie można pokazać, że istnieje ładna dekompozycja grafu $H$ o szerokości drzewowej $k$ (w tym twierdzeniu ładna dekompozycja nie zakłada, że liście są puste).
+\begin{description}
+\item[Dla $n=k+1$,]{możemy wziąć trywialną dekompozycję drzewową, tj. umieścić wszystkie wierzchołki w jednym kubełku.}
+\item[Dla $n>k+1$,]{$H$ posiada wierzchołek $v$, którego sąsiedzi tworzą klikę. Niech $H^{\prime}$ będzie grafem otrzymanym z $H$ poprzez usunięcie wierzchołka $v$. Z indukcji dostajemy, że istanieje ładna dekompozycja drzewowa $H^{\prime}$ o co najwyżej $4(n-1)$ kubełkach. Niech $S$ oznacza zbiór sąsiadów wierzchołka $v$. Ponieważ $S$ jest kliką (rozmiaru $k$), musi istnieć kubełek $X_t$ ładnej dekompozycji drzewowej, który zawiera $S$. Rozważmy trzy następujące przypadki dotyczące kubełka $t$:
+\begin{enumerate}
+\item{$t$ ma dwoje dzieci $p$ i $q$, wobec czego $X_t = X_p = X_q$. Schodzimy w dół drzewa do dowolnego z dzieci i kontynuujemy aż nie znajdziemy się w kubełku $p$ o co najwyżej jednym dziecku.}
+\item{$p$ jest liściem. Jeśli $X_p = S$, tworzymy nowy kubełek $a$: $X_a = S \cup \{v\}$, który staje się dzieckiem $p$. Wpp. $X_p \neq S$, niech $z \in X_p \setminus{S}$, $p$ dostaje nowe dziecko $a$: $X_a = X_p \setminus \{z\}$. Ponieważ $S \subset X_p$ i $k = \abs{S} \leq k+1$, $X_a = S$. Dodajemy kolejny kubełek $b$ jako dziecko $a$: $X_b = S \cup {v}$.}
+\label{przypadek2}
+\item{$p$ ma jedno dziecko $q$. Usuwamy krawędź $(p, q)$ z drzewa. Tworzymy nowy kubełek $a$: $X_a = X_p$ i dodajemy go do drzewa jako dziecko $p$, natomiast $q$ podpinamy jako dziecko $a$. Tworzymy kolejny nowy kubełek $b$: $X_b = X_p$ i podpinamy $b$ jako dziecko $p$ (drugie dziecko). Schodzimy w dół drzewa do kubełka $b$, który jest liściem i postępujemy zgodnie z \ref{przypadek2}. Łatwo zauważyć, że wprowadzimy co najwyżej 4 nowe wierzchołki.} 
+\end{enumerate}
+Ponieważ dekompozycja drzewowa dla $H^{\prime}$ ma co najwyżej $4(n-1)$ wierzchołki, dekompozycja drzewowa dla $H$ ma co najwyżej $4n$ wierzchołki, co kończy dowód.}
+\end{description}
+\end{proof}
+
 \begin{lemma}[Kloks]
 Dla stałej $k$, mając daną dekompozycję drzewową grafu $G$ o szerokości $k$ i $\Omicron(n)$ wierzchołkach, gdzie $n$ jest liczbą wierzchołków grafu $G$, da się skonstruować ładną dekompozycję drzewową grafu $G$ o szerokości $k$ i co najwyżej $4n$ kubełkach w czasie $\Omicron(n)$. 
 \end{lemma}
@@ -172,17 +182,13 @@ Dla stałej $k$, mając daną dekompozycję drzewową grafu $G$ o szerokości $k
 Dowód opiera się na konstrukcji przedstawionej w dowodzie lematu \ref{kloks}. Konstrukcja ta wymaga na wejściu striangulowanego grafu $G$ do postaci $k$-drzewa, triangulacja wymaga czasu liniowego. Szukanie odpowiedniej kolejności usuwania kubełków z $k$-drzewa $H$, czyli takiej w której sąsiedzi usuwanego kubełka indukują klikę, jest również liniowe. Dowód lematu wynika już teraz bezpośrednio z konstrukcji przedstawionej w dowodzie lematu \ref{kloks}.
 \end{proof}
 
-\begin{definition}
-Mamy dany nieskierowany graf $G$ oraz zbiór wierzchołków $K$ będący podzbiorem $V(G)$, $K \subset V(G)$. Wierzchołki te nazywane są terminalami.
-Naszym zadaniem jest znalezienie dla grafu $G$ takiego jego spójnego podgrafu $H$, który zawiera wszystkie terminale i jego rozmiar jest minimalny.
-Zakładamy, że mamy daną ładną dekompozycję drzewową grafu wyjściowego $G$ : $\mathcal{T} = (T, \{X_t\}_{t \in V(T)})$. 
-\end{definition}
-
 \newpage
   	\chapter{Klasyczne algorytmy dynamiczne}
     	\section{Drzewo Steinera}
 
-Niniejszy algorytm został przedstawiony w \cite{parametrized_algorithms}. Dodatkowo, dla uproszczenia samego algorytmu, przyjmujemy, że każdy \emph{kubełek} zawiera przynajmniej jeden terminal. Możemy to łatwo osiągnąć - wybieramy dowolny wierzchołek ${v*}$ będący terminalem (terminale będą dla ułatwienia dodatkowo oznaczane przez *) i dodajemy go do każdego kubełka, usuwamy $\texttt{WPROWADZAJĄCY v}$ i $\texttt{ZAPOMINAJĄCY v}$, własność ładnej dekompozycji drzewowej jest zachowana z tą małą modyfikacją, że liście i korzeń nie są puste.
+Niniejszy algorytm został przedstawiony w \cite{parametrized_algorithms}. Mamy dany nieskierowany graf $G$ oraz zbiór wierzchołków $K$ będący podzbiorem $V(G)$, $K \subset V(G)$. Wierzchołki te nazywane są terminalami.
+Naszym zadaniem jest znalezienie dla grafu $G$ takiego jego spójnego podgrafu $H$, który zawiera wszystkie terminale i jego rozmiar jest minimalny.
+Zakładamy, że mamy daną ładną dekompozycję drzewową grafu wyjściowego $G$ : $\mathcal{T} = (T, \{X_t\}_{t \in V(T)})$. Dodatkowo, dla uproszczenia samego algorytmu, przyjmujemy, że każdy \emph{kubełek} zawiera przynajmniej jeden terminal. Możemy to łatwo osiągnąć - wybieramy dowolny wierzchołek ${v*}$ będący terminalem (terminale będą dla ułatwienia dodatkowo oznaczane przez *) i dodajemy go do każdego kubełka, usuwamy $\texttt{WPROWADZAJĄCY v}$ i $\texttt{ZAPOMINAJĄCY v}$, własność ładnej dekompozycji drzewowej jest zachowana z tą małą modyfikacją, że liście i korzeń nie są puste.
 \newline
 Zanim przejdziemy do zdefiniowania algorytmu dynamicznego dla problemu Steinera, wprowadźmy kilka dodatkowych oznaczeń.
 Dla kubełka $t$, definiujemy:
@@ -243,9 +249,9 @@ $$c[t][X][\mathcal{P}] = \min \big\{ \min\limits_{\mathcal{P}^{\prime}} c[t^{\pr
 
 \begin{figure}
 \centering
+\label{find_n_union}
 \includegraphics[width=16cm]{find_n_union7.png}
 \caption{Rezultaty otrzymane w wyniku połączenia poszczególnych lasów $G_{\mathcal{P}_1}$, $G_{\mathcal{P}_2}$ w kubełku \texttt{SCALAJĄCYM} z rys. \ref{dekompozycja_kwadratu}.}
-\label{find_n_union}
 \end{figure}
 
 Warunki, które muszą zostać spełnione przy scalaniu dwóch rozwiązań są następujące:
@@ -283,9 +289,9 @@ Niech $H$ będzie szukanym cyklem Hamiltona. Przecięcie $H$ i $G_t$ składa si�
 
 \begin{figure}
 \centering
+\label{hamiltonian}
 \includegraphics[width=16cm]{hamiltonian3.png}
 \caption{Jedno z możliwych rozwiązań częściowych problemu znajdowania ścieżki Hamiltona dla kubełka $t$.}
-\label{hamiltonian}
 \end{figure}
 
 By utrzymać powyższe niezmienniki, w każdym kubełku $t$ musimy rozważyć wszystkie możliwe podziały zbioru $X_t$ na trzy podzbiory $\mathcal{D} = (X_{t\_0}$, $X_{t\_1}$, $X_{t\_2})$, odpowiadające stopniom wierzchołków, które się w nich znajdują. Ponadto by w kubełkach \texttt{SCALAJĄCY} oraz \texttt{UZUPEŁNIAJĄCY uw}, nie otrzymać cyklu, musimy się przeiterować po wszystkich możliwych skojarzeniach $M$ wierzchołków ze zbioru $X_{t\_1}$. Rozwiązanie częściowe jest poprawne, jeśli spełnione są następujące warunki:
