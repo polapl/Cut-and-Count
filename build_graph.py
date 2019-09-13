@@ -28,7 +28,6 @@ def parse_gtest_output(output):
       'time': test_run_metadata[7]
     }
 
-
 def build_test_name(rec):
   return 'rand(tw:%s,mw:%s,ec:%s)' % (rec['tree_width'], rec['max_weight'], rec['edge_count'])
 
