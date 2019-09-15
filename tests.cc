@@ -688,7 +688,7 @@ std::unique_ptr<Tree>
 GENERATE_STEINER_TESTS(0x11234, 4, 100, 10, 50, 100, 4);
 GENERATE_STEINER_TESTS(0x11234, 5, 100, 10, 50, 100, 5);
 GENERATE_STEINER_TESTS(0x11234, 6, 100, 10, 50, 100, 6);
-GENERATE_STEINER_TESTS(0x11234, 6, 100, 10, 50, 100, 4);
+GENERATE_STEINER_TESTS(0x11234, 7, 100, 10, 50, 100, 4);
 
 int main(int argc, char** argv) {
   testing::InitGoogleTest(&argc, argv);
