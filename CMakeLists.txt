@@ -2,7 +2,7 @@ cmake_minimum_required (VERSION 3.0.2)
 
 project(magisterka)
 
-# set(CMAKE_CXX_FLAGS "-g -O0")
+set(CMAKE_CXX_FLAGS "-O3")
 
 OPTION(GENERATE_DOT "When ON tests will generate dot files for each testcase and save it to `{Hamiltonian,Steiner}TestExample_*.dot`" OFF) # Disabled by default
 
@@ -16,8 +16,8 @@ add_library(tree_lib tree.cc)
 add_library(state_utils_lib SHARED state_utils.cc)
 add_library(cnc_steiner_tree_lib SHARED cnc_steiner_tree.cc)
 add_library(standard_steiner_tree_lib SHARED standard_steiner_tree.cc)
-add_library(standard_hamiltonian_lib SHARED standard_hamiltonian.cc)
-add_library(cnc_hamiltonian_lib SHARED cnc_hamiltonian.cc)
+add_library(standard_hamiltonian_lib STATIC standard_hamiltonian.cc)
+add_library(cnc_hamiltonian_lib STATIC cnc_hamiltonian.cc)
 
 
 target_link_libraries(cnc_steiner_tree_lib state_utils_lib)

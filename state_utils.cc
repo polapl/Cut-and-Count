@@ -8,13 +8,6 @@
 
 using namespace std;
 
-const vector<vector<int>> add_edge_trans[4][4] = {
-    {{{1, 1}, {3, 3}}, {{1, 2}}, {}, {{3, 2}}},
-    {{{2, 1}}, {{2, 2}}, {}, {}},
-    {{}, {}, {}, {}},
-    {{{2, 3}}, {}, {}, {{2, 2}}},
-};
-
 hash_t h_make_window(hash_t hsh, int indx) {
   hash_t prefix_mask = (1 << (6 * (indx))) - 1;
   return ((hsh >> (6 * indx)) << (6 * (indx + 1))) | (hsh & prefix_mask);
@@ -76,7 +69,7 @@ void h_print(hash_t h) {
 // Given a set, class State is used to iterate through all assignments
 // of its elements to 0, 1, .., s.
 // In terms of cut & cout algoritm:
-// 0 ~= isolated Node
+// 0 ~= not taken Node
 // 1 ~= partial solution in V1
 // 2 ~= partial solution in V2
 
@@ -139,6 +132,13 @@ set<int> State::Iterator::GetAllOnesIndexes() {
   }
   return res;
 }
+
+const vector<vector<int>> add_edge_trans[4][4] = {
+    {{{1, 1}, {3, 3}}, {{1, 2}}, {}, {{3, 2}}},
+    {{{2, 1}}, {{2, 2}}, {}, {}},
+    {{}, {}, {}, {}},
+    {{{2, 3}}, {}, {}, {{2, 2}}},
+};
 
 set<unsigned long long> State::Iterator::GetAllMatchingsHashes(set<int> ones) {
   set<unsigned long long> res;
@@ -211,6 +211,15 @@ vector<unsigned long long> State::Iterator::GetAssignmentHashWithEdge(int id1,
   return res;
 }
 
+vector<int> State::Iterator::GetAssignmentHashDiffWithEdge(int val1, int val2, int pow1, int pow2, bool v0) {
+  vector<int> res;
+  for (const auto& it : add_edge_trans[val1][val2]) {
+    if (v0 && it[0] == 3) continue;
+    res.push_back(pow1*(it[0] - val1) +  (pow2*(it[1] - val2))); 
+  }
+  return res;
+}
+
 State::Iterator::Iterator(bool last, unsigned int s)
     : m_(), last_(last), s_(s) {}
 
@@ -272,4 +281,12 @@ hash_t State::h_without_node(hash_t hsh, int val) {
     h_insert(&res, a, b);
   }
   return res;
+}
+
+int State::GetIdxUsingId(int id) {
+  int i = 0;
+  for (const auto& it : nodes_) {
+    if (it.value == id) return i;
+    i++;
+  }
 }

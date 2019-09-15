@@ -81,6 +81,11 @@ dynamic_results merge(Bag* bag, dynamic_results& left, dynamic_results& right) {
   return vec;
 }
 
+typedef long long ll_t;
+ll_t pow(const ll_t x, const ll_t y) {
+  return y ? (y & 1 ? x : 1) * pow(x * x, y >> 1) : 1;
+}
+
 dynamic_results recursive_cnc_hamiltonian(Bag* bag) {
   dynamic_results vec;
 
@@ -106,6 +111,41 @@ dynamic_results recursive_cnc_hamiltonian(Bag* bag) {
     return vec;
   }
 
+  if (bag->type ==  Bag::INTRODUCE_EDGE) {
+
+    int idx1 = state.GetIdxUsingId(bag->introduced_edge.first.value);
+    int idx2 = state.GetIdxUsingId(bag->introduced_edge.second.value);
+    ll_t pow1 = pow(4, idx1);
+    ll_t pow2 = pow(4, idx2);
+
+    for (auto it = state.begin(); it != state.end(); ++it) {
+      unsigned long long it_hash = *it;
+
+      for (auto& weight : left[it_hash]) {
+        add_value(vec, it_hash, weight.first, weight.second);
+      }
+      int id_1 = it.GetMapping(bag->introduced_edge.first.value);
+      int id_2 = it.GetMapping(bag->introduced_edge.second.value);
+
+      if (in_first(id_1, id_2) || in_second(id_1, id_2)) {
+        //auto hash_with_edge =
+        //    it.GetAssignmentHashWithEdge(bag->introduced_edge.first.value,
+        //                                 bag->introduced_edge.second.value);
+        auto hash_with_edge_diff =
+            it.GetAssignmentHashDiffWithEdge(id_1, id_2, pow1, pow2, bag->introduced_edge.first.value == 0);
+        //assert(hash_with_edge.size() == hash_with_edge_diff.size());
+        for (const auto& hash_with_edge_it : hash_with_edge_diff) {
+          for (auto& weight : left[it_hash]) {
+            add_value(vec, it_hash + hash_with_edge_it, weight.first + bag->edge_weight,
+                      weight.second);
+          }
+        }
+      }
+    }
+    return vec;
+  }
+
+
   for (auto it = state.begin(); it != state.end(); ++it) {
     unsigned long long it_hash = *it;
 
@@ -128,26 +168,6 @@ dynamic_results recursive_cnc_hamiltonian(Bag* bag) {
             it.GetAssignmentHashWithNode(bag->forgotten_node.value, 2);
         for (auto& weight : left[hash_with_node]) {
           add_value(vec, it_hash, weight.first, weight.second);
-        }
-        break;
-      }
-      case Bag::INTRODUCE_EDGE: {
-        for (auto& weight : left[it_hash]) {
-          add_value(vec, it_hash, weight.first, weight.second);
-        }
-        int id_1 = it.GetMapping(bag->introduced_edge.first.value);
-        int id_2 = it.GetMapping(bag->introduced_edge.second.value);
-
-        if (in_first(id_1, id_2) || in_second(id_1, id_2)) {
-          auto hash_with_edge =
-              it.GetAssignmentHashWithEdge(bag->introduced_edge.first.value,
-                                           bag->introduced_edge.second.value);
-          for (const auto& hash_with_edge_it : hash_with_edge) {
-            for (auto& weight : left[it_hash]) {
-              add_value(vec, hash_with_edge_it, weight.first + bag->edge_weight,
-                        weight.second);
-            }
-          }
         }
         break;
       }

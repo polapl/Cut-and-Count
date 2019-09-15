@@ -261,7 +261,7 @@ TEST(StandardSteinerTree, SmallTests_HighProbability_OnlyStandard) {
     EXPECT_EQ(res_standard, res_standard);
   }
 }
-
+*/
 TEST(StandardHamiltonian, SimpleTriangle) {
   Node a(0, false);
   Node b(1, false);
@@ -513,7 +513,7 @@ TEST(Hamiltonian, SmallTests_HighProbability_OnlyCnC) {
     printf("RESULT: %d\n", res_dyn);
   }
 }
-*/
+
 template <int seed, int tree_width, int max_weight, int bags_gen_type,
           int terminal_prob, int edge_count, bool result>
 class HamiltonianTestsTemplate : public ::testing::Test {
@@ -523,6 +523,7 @@ class HamiltonianTestsTemplate : public ::testing::Test {
     tree_ = std::make_unique<Tree>(tree_width, max_weight);
     tree_->Generate(bags_gen_type, terminal_prob);
     tree_->IntroduceEdges(edge_count);
+    cerr << "tree size: " << tree_->GetTreeSize() << endl;
 
 #ifdef GENERATE_DOT
     tree_->DotTransitionGraph(BuildDotFileName());
@@ -615,6 +616,7 @@ TEST_F(HamiltonianTest_5_100_10_0_60, StandardHamiltonianTest) {
 GENERATE_HAMILTONIAN_TESTS(0x11234, 4, 100, 10, 0, 100, true);
 GENERATE_HAMILTONIAN_TESTS(0x11234, 5, 100, 10, 0, 100, true);
 GENERATE_HAMILTONIAN_TESTS(0x11234, 6, 100, 10, 0, 100, true);
+//GENERATE_HAMILTONIAN_TESTS(0x11234, 7, 100, 10, 0, 100, true);
 
 template <int seed, int tree_width, int max_weight, int bags_gen_type,
           int terminal_prob, int edge_count, int result>
@@ -625,6 +627,7 @@ class SteinerTestsTemplate : public ::testing::Test {
     tree_ = std::make_unique<Tree>(tree_width, max_weight);
     tree_->Generate(bags_gen_type, terminal_prob);
     tree_->IntroduceEdges(edge_count);
+    cerr << "tree size: " << tree_->GetTreeSize() << endl;
 
 #ifdef GENERATE_DOT
     tree_->DotTransitionGraph(BuildDotFileName());
@@ -681,7 +684,7 @@ std::unique_ptr<Tree>
     EXPECT_EQ(dyn->Compute(), result_);                                                         \
   }
 
-GENERATE_STEINER_TESTS(0x11234, 3, 100, 10, 50, 100, 4);
+//GENERATE_STEINER_TESTS(0x11234, 3, 100, 10, 50, 100, 4);
 GENERATE_STEINER_TESTS(0x11234, 4, 100, 10, 50, 100, 4);
 GENERATE_STEINER_TESTS(0x11234, 5, 100, 10, 50, 100, 5);
 GENERATE_STEINER_TESTS(0x11234, 6, 100, 10, 50, 100, 6);

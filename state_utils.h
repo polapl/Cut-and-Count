@@ -82,6 +82,8 @@ class State {
 
     vector<unsigned long long> GetAssignmentHashWithEdge(int id1, int id2);
 
+    vector<int> GetAssignmentHashDiffWithEdge(int val1, int val2, int pow1, int pow2, bool v0);
+
    private:
     Iterator(bool last, unsigned int s);
 
@@ -107,4 +109,6 @@ class State {
   pair<int, int> GetEdgeIndexes(const Node& a, const Node& b);
 
   hash_t h_without_node(hash_t hsh, int val);
+
+  int GetIdxUsingId(int id);
 };
