@@ -7,6 +7,7 @@
 #include "tree.h"
 
 #include <gtest/gtest.h>
+#include <sstream>
 using namespace std;
 /*
 TEST(StandardSteinerTree, SimpleTriangle) {
@@ -522,9 +523,21 @@ class HamiltonianTestsTemplate : public ::testing::Test {
     tree_ = std::make_unique<Tree>(tree_width, max_weight);
     tree_->Generate(bags_gen_type, terminal_prob);
     tree_->IntroduceEdges(edge_count);
+
+#ifdef GENERATE_DOT
+    tree_->DotTransitionGraph(BuildDotFileName());
+#endif
   }
 
   static void TearDownTestSuite() { tree_.reset(nullptr); }
+
+
+  static string BuildDotFileName() {
+    stringstream sstr;
+    sstr << "HamiltonianTestsExample_" << tree_width << "_" << max_weight << "_" << bags_gen_type
+        << "_" << terminal_prob << "_" << edge_count << "_" << result << ".dot";
+    return sstr.str();
+  }
 
   static bool result_;
   static std::unique_ptr<Tree> tree_;
@@ -612,6 +625,17 @@ class SteinerTestsTemplate : public ::testing::Test {
     tree_ = std::make_unique<Tree>(tree_width, max_weight);
     tree_->Generate(bags_gen_type, terminal_prob);
     tree_->IntroduceEdges(edge_count);
+
+#ifdef GENERATE_DOT
+    tree_->DotTransitionGraph(BuildDotFileName());
+#endif
+  }
+
+  static string BuildDotFileName() {
+    stringstream sstr;
+    sstr << "SteinerTestsExample_" << tree_width << "_" << max_weight << "_" << bags_gen_type
+        << "_" << terminal_prob << "_" << edge_count << "_" << result << ".dot";
+    return sstr.str();
   }
 
   static void TearDownTestSuite() { tree_.reset(nullptr); }

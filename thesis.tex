@@ -12,6 +12,7 @@
 \usepackage{enumitem}
 \usepackage{mathtools}
 \usepackage{amsfonts}
+\usepackage{scalefnt}
 
 \newtheorem{theorem}{Twierdzenie}
 \newtheorem{lemma}{Lemat}
@@ -97,9 +98,29 @@ Instytut Informatyki Analitycznej
 
 \newpage
   	\chapter{Wprowadzenie}
-  		
+	\emph{Problem Cyklu Hamiltona} oraz \emph{problem Drzewa Steinera} są jednymi z najstarszych i najczęściej badanych problemów należących do klasy problemów $\mathcal{NP}$-trudnych. W niniejszej pracy rozważam warianty decyzyjne tych problemów, których definicje przedstawiam poniżej. 
+\newline\newline
+\textsc{Problem Cyklu Hamiltona}
+\newline
+\textsc{\scalefont{0.75} Wejście:} Graf $G$.
+\newline
+\textsc{\scalefont{0.75} Wyjście:} Czy istnieje cykl prosty o długości $\abs{V(G)}$.
+\newline\newline
+\textsc{Problem Drzewa Steinera}
+\newline
+\textsc{\scalefont{0.75} Wejście:} Graf $G(V,E)$, zbiór wierzchołków terminalnych $K \subset V(G)$, liczba naturalna $\ell$.
+\newline
+\textsc{\scalefont{0.75} Wyjście:} Czy istnieje spójny podgraf $H \subset G$ taki, że $K \subset V(H)$ oraz $\abs{E(H) \leq \ell}$.
+\newline\newline
+Dla powyższych problemów istnieją algorytmy dynamiczne, parametryzowane po szerokości tzw. \emph{dekompozycji drzewowej}, które należą do klasy problemów $\mathcal{FPT}$. Złożoność czasowa ich klasycznych wersji zależy od czynnika $k^{\Omicron(k)}$, gdzie $k$ jest \emph{szerokością drzewową grafu $G$}. Definicje dekompozycji drzewowej, jak i szerokości drzewowej są przedstawione w rozdziale \ref{definitions}. W \emph{Parametrized Algorithms} \cite{parametrized_algorithms} autorzy opisują algorytmy probabilistyczne, które zbijają tę zależność do $2^{\Omicron(k)}$. Algorytmy te bazują na technice \emph{Cut \& Count}, która redukuje problem decyzyjny do problemu zliczania rozwiązań modulo $2$. Dokładnie jest ona opisana w rozdziale \ref{cut_n_count}.
+
+Celem niniejszej pracy jest opis, analiza, implementacja oraz porównanie wydajności klasycznych algorytmów dynamicznych po dekompozycji drzewowej oraz algorytmów probabilistycznych wykorzystujących technikę Cut \& Count dla problemów: Cyklu Hamiltona oraz Drzewa Steinera. 
+
+Wszystkie powyższe algorytmy zostały zaimplementowane w języku programowania C++ oraz przetestowane. Testy wydajnościowe zostały przeprowadzone na wygenerowanych instancjach dekompozycji drzewowych, ich wyniki są zobrazowane na wykresach przedstawionych w rozdziale \ref{summary}. Implementacja algorytmów jest udostępniona w repozytorium na githubie \cite{github}. Wszystkie instancje wejściowe dekompozycji drzewowych można wyeksportować do plików .dot, a następnie wyrenderować z nich wizualizacje drzew. Więcej informacji znajduje się w pliku README.txt na githubie.  
+
 \newpage
   	\chapter{Podstawowe definicje}
+  	\label{definitions}
 	
 \begin{definition}
 \em \emph{Dekompozycją drzewową grafu} $G$ nazywamy parę $\mathcal{T} = (T, \{X_t : t \in V(T)\})$, gdzie $T$ jest drzewem, a $\{X_t : t \in V(T)\}$ rodziną zbiorów wierzchołków grafu $G$ spełniającą następujące warunki:
@@ -119,7 +140,7 @@ Od tej pory wierzchołki grafu $G$ będą nazywane po prostu \emph{wierzchołkam
 \em \emph{Szerokość drzewowa grafu $G$}, standardowo oznaczana przez $sd_G$ lub $k$, jest minimalną szerokością drzewową wziętą po wszystkich możliwych dekompozycjach drzewowych $G$: $$sd_G = min \{sd_\mathcal{T}: \mathcal{T} \text{ jest dekompozycją drzewową }G\}$$
 \end{definition}
 
-Przy konstruowaniu algorytmów dynamicznych działających po dekompozycji drzewowej grafu, łatwiej jest posługiwać się tzw. \emph{ładną dekompozycją drzewową}.
+Przy konstruowaniu algorytmów dynamicznych działających po dekompozycji drzewowej grafu łatwiej jest posługiwać się tzw. \emph{ładną dekompozycją drzewową}.
 
 \begin{definition}
 \em \emph{Ładna dekompozycja drzewowa} $\mathcal{T} = (T, \{X_t\}_{t \in V(T)})$ to dekompozycja drzewowa o następujących własnościach:
@@ -129,7 +150,7 @@ Przy konstruowaniu algorytmów dynamicznych działających po dekompozycji drzew
 	\begin{enumerate}[label=\arabic*)]
 		\item{$t$ jest \texttt{LIŚCIEM:} $X_t = \emptyset$.}
 		\item{$t$ jest węzłem \texttt{WPROWADZAJĄCYM} $v$: $t$ ma o jeden wierzchołek więcej niż jego jedyne dziecko: $X_t = X_{t'} \cup \{v\}$. Każdy wierzchołek $v \in V(G)$, ma co najmniej jeden węzeł wprowadzający.}
-		\item{$t$ jest węzłem \texttt{ZAPOMINAJĄCYM} $v$: $t$ ma o jeden wierzchołek mniej niż jego jedyne dziecko: $X_t = X_{t'} \setminus \{v\}$. Jego specjalnym reprezentantem jest korzeń. Dla każdego wierzchołka $v \in V(G)$, istnieje dokładnie jeden węzeł zapominający.}
+		\item{$t$ jest węzłem \texttt{ZAPOMINAJĄCYM} $v$: $t$ ma o jeden wierzchołek mniej niż jego jedyne dziecko: $X_t = X_{t'} \setminus \{v\}$. Jego szczególnym reprezentantem jest korzeń. Dla każdego wierzchołka $v \in V(G)$, istnieje dokładnie jeden węzeł zapominający.}
 		\item{$t$ jest węzłem \texttt{SCALAJĄCYM}: $t$ posiada dwoje dzieci: $X_t = X_{t'} = X_{t''}$, scala dwa podgrafy o przecięciu $X_t$.}
 		\item{$t$ jest węzłem \texttt{WPROWADZAJĄCYM KRAWĘDŹ} $uv$: $X_t = X_{t'}$, ten typ węzła nie pojawił się w pierwotnej definicji ładnej dekompozycji drzewowej, ale znacząco ułatwia definiowanie algorytmów, które na nich operują. Węzeł wprowadzający uzupełnia reprezentację grafu $G$ w drzewie $T$ o krawędź $uv \in E(G)$, $u \in X_t$ i $v \in X_t$. Dla każdego $uv$ istnieje dokładnie jeden węzeł wprowadzający i - przyjmując bez straty ogólności, $t(u)$ jest przodkiem $t(v)$ (gdzie $t(v)$ to najwyższy węzeł, taki że $v \in X_{t(v)}$) - znajduje się on pomiędzy $t(v)$ a węzłem zapominającym $v$.}
 \end{enumerate}
@@ -161,7 +182,7 @@ Przy konstruowaniu algorytmów dynamicznych działających po dekompozycji drzew
 Problem obliczania dekompozycji drzewowej należy do klasy problemów FPT. Bodlaender \cite{bodlaender} jako pierwszy podał liniowy algorytm znajdowania dekompozycji drzewowej o szerokości $k$ (o ile taka dekompozycja istnieje). Natomiast Kloks \cite{kloks} pokazał, że dla każdego grafu o szerokości drzewowej $k$ istnieje ładna dekompozycja drzewowa o szerokości drzewowej $k$, którą można skonstruować w czasie liniowym od ilości wierzchołków grafu $G$.
 
 \begin{definition}
-\em \emph{Problem Drzewa Steinera.} Na wejściu mamy dany graf $G$ wraz z jego ładną dekompozycją drzewową $\mathcal{T} = (T, \{X_t\}_{t \in V(T)})$, zbiór tzw. terminali $K \subseteq V(G)$ oraz liczbę naturalną $\ell$. Pytamy, czy istnieje spójny graf acykliczny łączący wszystkie terminale o co najwyżej $\ell$ krawędziach potocznie zwany drzewem Steinera.
+\em \emph{Problem Drzewa Steinera.} Na wejściu mamy dany graf $G$ wraz z jego ładną dekompozycją drzewową $\mathcal{T} = (T, \{X_t\}_{t \in V(T)})$, zbiór tzw. terminali $K \subseteq V(G)$ oraz liczbę naturalną $\ell$. Pytamy, czy istnieje spójny graf acykliczny, który łączy wszystkie terminale i ma co najwyżej $\ell$ krawędzi, potocznie zwany drzewem Steinera.
 \end{definition}
 
 \begin{definition}
@@ -179,24 +200,24 @@ W celu uproszczenia algorytmu, przyjmujemy, że każdy węzeł drzewa $T$ zawier
 \begin{figure}
 \centering
 \includegraphics[width=16cm]{steiner_tree.png}
-\caption{Opis}
+\caption{Przykładowy ślad drzewa Steinera w węźle $t$.}
 \label{steiner_tree}
 \end{figure}
 
-Zastanówmy się, jak wygląda ślad drzewa Steinera w węźle $t$, przykładowy został zobrazowany na rys. Dla $H$ będącego dowolnym drzewem Steinera łączącym wszystkie terminale $K$, przecięcie $H$ i $G_t$ tworzy las $F$, który zawiera przynajmniej jeden wierzchołek terminalny $v_0$. Szukane $H$ jest spójne oraz $X_t$ zawiera terminal, co implikuje, że każde drzewo należące do $F$ przecina $X_t$. Ponadto każdy terminal $v_t \in K \cap V_t$ należy do $F$. Zauważmy, że ślad drzewa Steinera $(X, \mathcal{P})$ w węźle $t$ jest jednoznacznie zdefiniowany przez zbiór wierzchołków $X = V(F) \cap X_t$ oraz jego podział $\mathcal{P} = \{X_1, X_2, \dots, X_z\}$ na zbiory wierzchołków przynależnych do poszczególnych drzew $F$.
+Zastanówmy się, jak wygląda ślad drzewa Steinera w węźle $t$, przykładowy został zobrazowany na rys. \ref{steiner_tree}. Dla $H$ będącego dowolnym drzewem Steinera łączącym wszystkie terminale $K$, przecięcie $H$ i $G_t$ tworzy las $F$, który zawiera przynajmniej jeden wierzchołek terminalny $v_0$. Szukane $H$ jest spójne oraz $X_t$ zawiera terminal, co implikuje, że każde drzewo należące do $F$ przecina $X_t$. Ponadto każdy terminal $\in K \cap V_t$ należy do $F$. Zauważmy, że ślad drzewa Steinera $(X, \mathcal{P})$ w węźle $t$ jest jednoznacznie zdefiniowany przez zbiór wierzchołków $X = V(F) \cap X_t$ oraz jego podział $\mathcal{P} = \{X_1, X_2, \dots, X_z\}$ na zbiory wierzchołków przynależnych do poszczególnych drzew $F$.
 
-Dla każdej trójki $(t, X, \mathcal{P})$ trzymamy w $c(t, X, \mathcal{P})$ rozmiar (liczbę krawędzi) najmniejszego $F$ w $G_t$. Jeśli dana trójka nie spełnia wszystkich warunków $c(t, X, \mathcal{P}) = \infty$. Musimy na bieżąco śledzić partycję $\mathcal{P}$, ponieważ może się ona zmieniać wraz z każdym nowo przetwarzanym węzłem. Węzły \texttt{SCALAJĄCY} lub \texttt{UZUPEŁNIAJĄCY} $uv$ mogą zepsuć wcześniej poprawną partycję, tworząc cykl. Wynik końcowy odpowiada wartości $c(r, \{v_0*\}, \{\{v_0*\}\})$, gdzie $r$ jest korzeniem. Poniżej prezentuję formuły rekurencyjne obliczania wartości $c$ ze względu na typ węzła $t$. Dla wszystkich niewymienionych przypadków, $c$ przyjmuje wartość $\infty$.
+Dla każdej trójki $(t, X, \mathcal{P})$ trzymamy w $c(t, X, \mathcal{P})$ rozmiar (liczbę krawędzi) najmniejszego $F$ w $G_t$. Jeśli dla danej trójki nie istnieje poprawny ślad: $c(t, X, \mathcal{P}) = \infty$. Musimy na bieżąco śledzić partycję $\mathcal{P}$, ponieważ może się ona zmieniać wraz z każdym nowo przetwarzanym węzłem. Węzły \texttt{SCALAJĄCY} lub \texttt{UZUPEŁNIAJĄCY} $uv$ mogą zepsuć wcześniej poprawną partycję, tworząc cykl. Wynik końcowy odpowiada wartości $c(r, \{v_0*\}, \{\{v_0*\}\})$, gdzie $r$ jest korzeniem. Poniżej prezentuję formuły rekurencyjne obliczania wartości $c$ ze względu na typ węzła $t$. Dla parametrów niezdefiniowanych poniżej, $c$ przyjmuje wartość $\infty$.
 \newline\newline
 $t$ jest \texttt{LIŚCIEM}
 $$c(t, \{v_0*\}, \{\{v_0*\}\}) = 0$$
 \newline
-$t$ jest węzłem \texttt{WPROWADZAJĄCYM} $v$ - zauważmy, że $v$ nie należał do żadnego z dzieci, wobec czego krawędzie incydentne z $v$ nie zostały jeszcze wprowadzone poprzez węzły wprowadzające i $v$ jest wierzchołkiem izolowanym. Wierzchołek izolowany ma swój własny, jednoelementowy komponent w $\mathcal{P}$. Jeśli $v$ jest terminalem, musi należeć do $X$. Jeśli powyższy warunek jest spełniony: 
+$t$ jest węzłem \texttt{WPROWADZAJĄCYM} $v$ - zauważmy, że $v$ nie należał do żadnego z dzieci, wobec czego krawędzie incydentne z $v$ nie zostały jeszcze wprowadzone poprzez węzły wprowadzające i $v$ jest wierzchołkiem izolowanym. Wierzchołek izolowany ma swój własny, jednoelementowy komponent w $\mathcal{P}$. Jeśli $v$ jest terminalem, musi należeć do $X$.
 \[
 c(t, X, \mathcal{P}) =  
 \left \{
   \begin{tabular}{ccc}
   $c(t', X \setminus \{v\}, \mathcal{P} \setminus \{\{v\}\})$ & jeśli $v \in X$,\\
-  $c(t', X, \mathcal{P})$ & wpp.
+  $c(t', X, \mathcal{P})$ & jeśli $v \notin X \wedge v \notin K$.
   \end{tabular}
 \right. 
 \]
@@ -209,13 +230,13 @@ t jest węzłem \texttt{WPROWADZAJĄCYM KRAWĘDŹ} $uv$ - mamy 3 przypadki, któ
 \item \label{edgepossible} $u \in X \land v \in X$ oraz $u$ i $v$ są w tych samych komponentach $\mathcal{P}$ ($u,v \in X_i$)
 \end{enumerate} 
 
-W przypadkach \ref{notinx} oraz \ref{notinthesamecomponent} krawędź $uv$ nie może należeć do rozwiązania. Natomiast w przypadku \ref{edgepossible} mamy dwie możliwości - albo włączamy krawędź do rozwiązania, albo nie. Jeśli nie dorzucamy krawędzi do śladu, przepisujemy częściowy wynik z $t'$ dla tej samej partycji. W przeciwnym przypadku, nowo dodawana krawędź musiała połączyć dwa rozłączne bloki partycji $t'$. Ponieważ optymalizujemy po rozmiarze śladu, iterujemy się po wszystkich partycjach $\mathcal{P}'$ węzła $t'$, gdzie $u$ ($\in X_i$) i $v$ ($\in X_j$) nie należą do tego samego komponentu ($i \neq j$) (inaczej powstałby cykl), ale po połączeniu $X_i$ z $X_j$ dają partycję $\mathcal{P}$. Możemy to zapisać następująco:
+W przypadkach \ref{notinx} oraz \ref{notinthesamecomponent} krawędź $uv$ nie może należeć do rozwiązania. Natomiast w przypadku \ref{edgepossible} mamy dwie możliwości - albo włączamy krawędź do rozwiązania, albo nie. Jeśli nie dodajemy krawędzi do rozwiązania, przepisujemy wynik dla podproblemu $G_{t'}$ dla tej samej partycji. W przeciwnym przypadku, nowo dodawana krawędź musiała połączyć dwa rozłączne bloki partycji $t'$. Ponieważ optymalizujemy po rozmiarze śladu, iterujemy się po wszystkich partycjach $\mathcal{P}'$ węzła $t'$, gdzie $u$ ($\in X_i$) i $v$ ($\in X_j$) nie należą do tego samego komponentu ($i \neq j$) (inaczej powstałby cykl), ale po połączeniu $X_i$ z $X_j$ dają partycję $\mathcal{P}$. Możemy to zapisać następująco:
 $$c(t, X, \mathcal{P}) = \min \big\{ \min\limits_{\mathcal{P}'} c(t', X, \mathcal{P}') + 1, \quad c(t', X, \mathcal{P}) \big\}$$
 \newline
-$t$ jest węzłem \texttt{ZAPOMINAJĄCYM} $v$ - wierzchołek $v$ może być incydentny z częściowym rozwiązaniem, wtedy trzeba popatrzeć na te partycje $\mathcal{P}'$ węzła $t'$, które go zawierają, a po jego usunięciu dają nam $\mathcal{P}$. Jednakże tylko te, w których nie jest on singletonem, w przeciwnym przypadku nasze częściowe rozwiązanie nigdy nie stałoby się spójnym drzewem Steinera (wszystkie krawędzie incydentne z zapominanym wierzchołkiem są wprowadzane przed jego zapomnieniem i tylko wtedy mogą one zostać dodane do rozwiązania). Jednocześnie musimy pamiętać, że wierzchołek $v$ może nie należeć do końcowego rozwiązania, wtedy przepisujemy wynik dla $t'$, nie zmieniając parametrów. Kluczową obserwacją dla tego przypadku jest fakt, że jeśli $v$ był terminalem, nie istnieją częściowe rozwiązania dla $t'$ nie uwzględniające $v$ (tzn. ich wynikiem jest $\infty$).
+$t$ jest węzłem \texttt{ZAPOMINAJĄCYM} $v$ - wierzchołek $v$ mógł należeć do śladu w węźle $t'$. Dlatego musimy popatrzeć na te partycje $\mathcal{P}'$ węzła $t'$, które go zawierają, a po jego usunięciu dają nam $\mathcal{P}$. Jednakże tylko na te, w których nie jest on singletonem, w przeciwnym przypadku nasz ślad nigdy nie stałby się spójnym drzewem Steinera (wszystkie krawędzie incydentne z zapominanym wierzchołkiem są wprowadzane przed jego zapomnieniem i tylko wtedy mogą one zostać dodane do rozwiązania). Jednocześnie musimy pamiętać, że wierzchołek $v$, który nie jest terminalem, może nie należeć do końcowego rozwiązania - wtedy przepisujemy wynik dla $t'$, nie zmieniając parametrów. Kluczowa dla tego przypadku jest obserwacja, że jeśli $v$ jest terminalem, nie istnieją rozwiązania dla podproblemu $G_{t'}$ nie uwzględniające $v$ (tzn. ich wynikiem jest $\infty$).
 $$c(t, X, \mathcal{P}) = \min \big\{ \min\limits_{\mathcal{P}'} c(t', X \cup \{v\}, \mathcal{P}'), \quad c(t', X, \mathcal{P}) \big\}$$
 \newline
-$t$ jest węzłem \texttt{SCALAJĄCYM} - dla węzła scalającego łączymy dwa częściowe rozwiązania - jedno pochodzące z poddrzewa $G_{t'}$, drugie z poddrzewa $G_{t''}$. Poniżej znajduje się kilka spostrzeżeń kluczowych dla obliczania częściowego rozwiązania po scaleniu:
+$t$ jest węzłem \texttt{SCALAJĄCYM} - dla węzła scalającego łączymy rozwiązania podproblemów $G_{t'}$ i $G_{t''}$. Poniżej znajduje się kilka spostrzeżeń kluczowych przy definiowaniu formuły rekurencyjnej dla węzła scalającego:
 \begin{enumerate}[label=(\alph*)]
 \item $V_{t'} \cap V_{t''} = X$
 \item $E_{t'} \cap E_{t''} = \emptyset$, ponieważ krawędzie wprowadzane są najpóźniej jak to możliwe, tj. przed węzłami zapominającymi. Zakładając nie wprost, że istnieje krawędź $uv$ zarówno w $E_{t'}$ jak i w $E_{t''}$, muszą również istnieć dwa węzły zapominjące $u$ lub $v$. Prowadzi to do sprzeczności, ponieważ dla każdego wierzchołka może istnieć tylko jeden węzeł zapominający (z definicji dekompozycji drzewowej).
@@ -244,8 +265,8 @@ Przedstawione zostały formuły rekurencyjne dla wszystkich typów węzłów. Pr
 \item Każdy węzeł ma co najwyżek $k+2$ wierzchołki.
 \item Wszystkich $X \subseteq X_t$ jest $2^{\abs{X_t}}$ a zatem nie więcej niż $2^{k+2}$.
 \item Wszystkich partycji $X$ jest $\abs{X}^{\abs{X}}$ a zatem nie więcej niż $(k+2)^{k+2}$
-\item Dla każdego węzła mamy $2^{k+2} \cdot (k+2)^{k+2} = k^{\Omicron(k)}$.
-\item Wartości dla każdego węzła wyliczamy w czasie $(k^{\Omicron(k)})^2$.
+\item Dla każdego węzła mamy $2^{k+2} \cdot (k+2)^{k+2} = k^{\Omicron(k)}$ stanów.
+\item Wartości funkcji $c$ dla każdego węzła wyliczamy w czasie $(k^{\Omicron(k)})^2$.
 \end{enumerate}
  
 \begin{theorem}
@@ -256,9 +277,9 @@ Mając dany $n$-wierzchołkowy graf $G$ razem ze zbiorem terminali $K \subseteq 
     	
 W tym rozdziale przedstawię klasyczny algorytm dynamiczny po dekompozycji drzewowej dla problemu istnienia cyklu Hamiltona. 
 
-Zakładamy, że mamy daną ładną dekompozycję drzewową lekko zmodyfikowanego grafu $G'$ : $\mathcal{T} = (T, \{X_t\}_{t \in V(T)})$. Modyfikacja polega na tym, że kopiujemy wierzchołek $v_r$, będący w korzeniu dekompozycji drzewowej grafu $G$ (\texttt{ZAPOMINAJĄCY} $v_r$) wraz z jego krawędziami, tj. dla z każdej krawędzi $uv_r \in E(G)$, dostajemy dwie krawędzie $uv_{r_1}$ i $uv_{r_2}$, gdzie $v_{r_1}$ jest byłym wierzchołkiem $v_r$, a $v_{r_2}$ jego kopią. $\mathcal(T)$ nie zawiera węzłów zapominających $v_{r_1}$ oraz $v_{r_2}$. Problem szukania cyklu Hamiltona modyfikujemy do problemu szukania ścieżki Hamiltona o końcach $v_{r_1}$ i $v_{r_2}$.
+Zakładamy, że mamy daną ładną dekompozycję drzewową lekko zmodyfikowanego grafu $G'$ : $\mathcal{T} = (T, \{X_t\}_{t \in V(T)})$. Modyfikacja polega na tym, że kopiujemy wierzchołek $v_r$, będący w korzeniu dekompozycji drzewowej grafu $G$ (\texttt{ZAPOMINAJĄCY} $v_r$) wraz z jego krawędziami, tj. dla każdej krawędzi $uv_r \in E(G)$, dostajemy dwie krawędzie $uv_{r_1}$ i $uv_{r_2}$, gdzie $v_{r_1}$ jest byłym wierzchołkiem $v_r$, a $v_{r_2}$ jego kopią. Z dekompozycji drzewowej $\mathcal{T}$ grafu $G'$ usuwamy węzły: zapominających $v_{r_1}$ oraz zapominający $v_{r_2}$. Problem szukania cyklu Hamiltona modyfikujemy do problemu szukania ścieżki Hamiltona o końcach $v_{r_1}$ i $v_{r_2}$.
 
-Ślad cyklu Hamiltona w poddrzewie węzła $t$ składa się ze zbioru rozłącznych ścieżek $F = H \cap G_t = \{C_1, C_2, \ldots, C_z\}$, gdzie $H$ jest szukanym cyklem. $F$ poza liśćmi nie jest puste, ponieważ wszystkie wprowadzone wierzchołki muszą należeć do śladu. Szukane $H$ jest spójne, co implikuje, że każda ścieżka $C_1, \ldots, C_z$ z $F$ przecina $X_t$. Ponadto musi ona przecinać $X_t$ oboma swoimi końcami, wpp. nie dostalibyśmy spójnego rozwiązania końcowego. Z powyższych warunków wynika, że wierzchołki $X_t$ możemy sklasyfikować następująco (rys. \ref{hamiltonian}):
+Ślad cyklu Hamiltona w poddrzewie węzła $t$ składa się ze zbioru rozłącznych ścieżek $F = H \cap G_t = \{C_1, C_2, \ldots, C_z\}$, gdzie $H$ jest szukanym cyklem. $F$ poza liśćmi nie jest puste, ponieważ wszystkie wprowadzone wierzchołki muszą należeć do śladu. Szukane $H$ jest spójne, co implikuje, że każda ścieżka $C_1, C_2, \ldots, C_z$ należąca do $F$ przecina $X_t$. Ponadto musi ona przecinać $X_t$ oboma swoimi końcami, w przeciwnym przypadku nie dostalibyśmy spójnego rozwiązania końcowego. Z powyższych warunków wynika, że wierzchołki $X_t$ możemy sklasyfikować następująco (rys. \ref{hamiltonian}):
 \begin{itemize}[noitemsep,topsep=5pt,parsep=0pt,partopsep=0pt]
 \item[$X_{t_0}$] zbiór wierzchołków izolowanych w $F$ (o stopniu $0$)
 \item[$X_{t_1}$] zbiór wierzchołków będących końcami ścieżek $C_1, C_2, \ldots, C_z$ (o stopniu $1$)
@@ -272,14 +293,14 @@ Zakładamy, że mamy daną ładną dekompozycję drzewową lekko zmodyfikowanego
 \label{hamiltonian}
 \end{figure}
 
-Ślad cyklu w węźle $t$ jest jednoznacznie zdefiniowany podziałem zbioru $X_t$ na trzy podzbiory $\mathcal{D} = (X_{t_0}$, $X_{t_1}$, $X_{t_2})$ oraz dopasowaniem $M$. Ślad jest poprawny, jeśli spełnione są poniższe warunki:
+Ślad cyklu Hamiltona w węźle $t$ jest jednoznacznie zdefiniowany podziałem zbioru $X_t$ na trzy podzbiory $\mathcal{D} = (X_{t_0}$, $X_{t_1}$, $X_{t_2})$ oraz dopasowaniem $M$. Ślad jest poprawny, jeśli spełnione są poniższe warunki:
 \begin{enumerate}[label=(\roman*)]
 \item $V(F) = V_t$
 \item $u \in X_{t_i}$ $\Leftrightarrow$ $u \in X_t$ i wierzchołek $v$ ma stopień $i$ w $F$
-\item $u$ jest skojarzone z $v$ (${u, v} \in M$) $\Leftrightarrow$ $u \in X_{t_1} \wedge v \in X_{t_1} \wedge \exists y: u \in C_y \wedge v \in C_y$ ($u$ i $v$ są końcami ścieżki $C_y$) 
+\item $u$ jest skojarzone z $v$ ($\{u, v\} \in M$) $\Leftrightarrow$ $u \in X_{t_1} \wedge v \in X_{t_1} \wedge \exists y: u \in C_y \wedge v \in C_y$ ($u$ i $v$ są końcami ścieżki $C_y$) 
 \end{enumerate}  
 
-Dla każdej trójki $(t, \mathcal{D}, M)$ algorytm liczy, czy wyznacza ona poprawny ślad - \emph{true}/\emph{false}. Musimy na bieżąco śledzić dopasowanie $M$, ponieważ węzły typu \texttt{SCALAJĄCY} oraz \texttt{UZUPEŁNIAJĄCY} $uv$ mogą utworzyć cykl. Wynik końcowy odpowiada wartości $c(r, (\emptyset, \{v_1, v_2\}, \emptyset), \{v_{r_1}, v_{r_2}\})$, gdzie $r$ jest korzeniem. Poniżej prezentuję formuły rekurencyjne obliczania wartości $c$ ze względu na typ węzła $t$.
+Dla każdej trójki $(t, \mathcal{D}, M)$ algorytm liczy, czy wyznacza ona poprawny ślad - \emph{true}/\emph{false}. Musimy na bieżąco śledzić dopasowanie $M$, ponieważ węzły typu \texttt{SCALAJĄCY} oraz \texttt{WPROWADZAJĄCY KRAWĘDŹ} $uv$ mogą utworzyć cykl. Wynik końcowy odpowiada wartości $c(r, (\emptyset, \{v_{r_1}, v_{r_2}\}, \emptyset), \{\{v_{r_1}, v_{r_2}\}\})$, gdzie $r$ jest korzeniem $T$. Poniżej prezentuję formuły rekurencyjne obliczania wartości $c$ ze względu na typ węzła $t$.
 \newline\newline
 $t$ jest \texttt{LIŚCIEM}
 $$c(t, (\emptyset, \emptyset, \emptyset), \emptyset) = true$$
@@ -291,54 +312,55 @@ c(t, (X_{t_0}, X_{t_1}, X_{t_2}), M) =
 \left \{
   \begin{tabular}{ccc}
   $c(t', (X_{t_0} \setminus \{v\}, X_{t_1}, X_{t_2}), M)$ & jeśli $v \in X_{t_0}$,\\
-  $0$ & wpp.
+  $false$ & wpp.
   \end{tabular}
 \right. 
 \]
 \newline
-$t$ jest węzłem \texttt{ZAPOMINAJĄCYM} $v$ - wszystkie krawędzie incydentne do zapominanego wierzchołka zostały już wprowadzone, wobec czego zapominany wierzchołek jest stopnia $2$:
+$t$ jest węzłem \texttt{ZAPOMINAJĄCYM} $v$ - wszystkie krawędzie incydentne do zapominanego wierzchołka zostały już wprowadzone. Ślad jest poprawny tylko wtedy, kiedy zapominany wierzchołek jest stopnia $2$:
 
-$$c(t, (X_{t\_0}, X_{t\_1}, X_{t\_2}), M) = c(t', (X_{t\_0}, X_{t\_1}, X_{t\_2} \cup \{v\}), M)$$
+$$c(t, (X_{t_0}, X_{t_1}, X_{t_2}), M) = c(t', (X_{t_0}, X_{t_1}, X_{t_2} \cup \{v\}), M)$$
 \newline
-$t$ jest węzłem \texttt{WPROWADZAJĄCYM} $uv$ - dodawanie krawędzi incydentnej do wierzchołka zwiększa jego stopień o $1$, wobec czego możemy dodawać krawędź, jeśli $u \in X_{t_0} \vee u \in X_{t\_1}$ oraz $v \in X_{t_0} \vee v \in X_{t_1}$. Nie jest to jednak warunek wystarczający, ponieważ nie gwarantuje nam, że nie dostaniemy cyklu. Jeśli $u \in X_{t_1} \wedge v \in X_{t_1}$ oraz $\exists m : m \in M \wedge u \in m \wedge v \in m$, nie możemy wziąć krawędzi $uv$. Niezależnie od tego, czy krawędź może zostać dodana do rozwiązania, czy nie, dla każdej trójki $(t, \mathcal{D}, M)$ możemy jej nie brać, dlatego bierzemy alternatywę $c(t', (X_{t_0}, X_{t_1}, X_{t_2}), M)$ i poniższych wartości:
+$t$ jest węzłem \texttt{WPROWADZAJĄCYM} $uv$ - dodawanie krawędzi incydentnej do wierzchołka zwiększa jego stopień o $1$, wobec czego możemy dodać krawędź $uv$, jeśli $u \in X_{t_i}$: $i<2$ oraz $v \in X_{t_j}$: $j<2$. Nie jest to jednak warunek wystarczający, ponieważ nie gwarantuje nam, że nie dostaniemy cyklu. Jeśli $u \in X_{t_1} \wedge v \in X_{t_1}$ oraz $\exists m : m \in M \wedge m = \{u,v\}$, nie możemy wziąć krawędzi $uv$, ponieważ powstałby cykl. W takim przypadku wynik przepisujemy z węzła $t'$, nie zmieniając dopasowania $M$. Jeśli natomiast dodanie krawędzi do rozwiązania jest możliwe, mamy alternatywę - albo jej nie dodajemy i przepisujemy wynik jak poprzednio, albo ją dodajemy. Poniżej przedstawiam formuły rekurencyjne dla wymienionych przypadków:
 
-\[
-c(t, (X_{t_0}, X_{t_1}, X_{t_2}), M) =  
-\left \{
-  \begin{tabular}{ccc}
-  $c(t', (X_{t_0} \cup \{u, v\}, X_{t_1} \setminus \{u, v\}, X_{t_2}), M \cup \{u, v\})$\\
-  jeśli $u \in X_{t_1} \wedge v \in X_{t_1}$\\  
-  \\
-  $c(t', (X_{t_0} \cup \{u\}, X_{t_1} \setminus \{u\} \cup \{v\}, X_{t_2} \setminus \{v\}), M \cup \{u, v\})$\\
-  jeśli $u \in X_{t_1} \wedge v \in X_{t_2}$\\
-  \\
-  $c(t', (X_{t_0} \cup \{v\}, X_{t_1} \setminus \{v\} \cup \{u\}, X_{t_2} \setminus \{u\}), M \cup \{u, v\})$\\
-  jeśli $u \in X_{t_2} \wedge v \in X_{t_1}$\\
-  \\
-  $c(t', (X_{t_0}, X_{t_1} \cup \{u, v\}, X_{t_2} \setminus \{u, v\}), M \cup \{u, v\})$\\
-  jeśli $u \in X_{t_2} \wedge v \in X_{t_2}$\\
-  \\  
-  $0$ wpp.\\
-  \end{tabular}
-\right. 
-\]
+\begin{enumerate}
+\item $\{u,v\} \notin M$
+$$c(t, (X_{t_0}, X_{t_1}, X_{t_2}), M) = c(t', (X_{t_0}, X_{t_1}, X_{t_2}), M)$$
+\item $\{u,v\} \in M$ oraz $u \in X_{t_1} \wedge v \in X_{t_1}$ (\emph{przypadek $1$} na rys. \ref{introduce_edge})
+$$c(t, (X_{t_0}, X_{t_1}, X_{t_2}), M) = c(t', (X_{t_0} \cup \{u,v\}, X_{t_1} \setminus \{u,v\}, X_{t_2}), M \setminus \{u,v\})$$
+\item \label{case_3}$\{u,v\} \in M$ oraz $u \in X_{t_1} \wedge v \in X_{t_2}$ (\emph{przypadek $2$} na rys. \ref{introduce_edge})
+$$c(t, (X_{t_0}, X_{t_1}, X_{t_2}), M) = \bigvee_{M'} c(t', (X_{t_0} \cup \{u\}, X_{t_1} \cup \{v\} \setminus \{u\}, X_{t_2} \setminus \{v\}), M \setminus \{u,v'\} \cup \{v,v'\})$$
+\item $\{u,v\} \in M$ oraz $u \in X_{t_2} \wedge v \in X_{t_1}$ (analogicznie jak w punkcie \ref{case_3})
+\item $\{u,v\} \in M$ oraz $u \in X_{t_2} \wedge v \in X_{t_2}$ (\emph{przypadek $3$} na rys. \ref{introduce_edge})
+$$c(t, (X_{t_0}, X_{t_1}, X_{t_2}), M) = \bigvee_{M'} c(t', (X_{t_0}, X_{t_1} \cup \{u,v\}, X_{t_2} \setminus \{u,v\}), M \setminus \{u',v'\} \cup \{u,u'\} \cup \{v,v'\})$$
+\item $\{u,v\} \in M$ oraz $u \in X_{t_2} \wedge v \in X_{t_2}$ (\emph{przypadek $4$} na rys. \ref{introduce_edge})
+$$c(t, (X_{t_0}, X_{t_1}, X_{t_2}), M) = false$$
+\end{enumerate}
 
 \begin{figure}
 \centering
-\label{hamiltonian_merge}
-\includegraphics[width=16cm]{hamiltonian_merge.png}
-\caption{Dodawanie nowej krawędzi $m_{next}$ do dopasowania $M$.}
+\includegraphics[width=16cm]{introduce_edge.png}
+\caption{Dodawanie nowej krawędzi $uv$ do dopasowania $M$.}
+\label{introduce_edge}
 \end{figure}
 $$$$
-$t$ jest węzłem \texttt{SCALAJĄCYM} - zauważmy, że scalane $F_{t'}$ oraz $F_{t''}$ nie mają wspólnych krawędzi, jedynie wierzchołki. Z powyższego wynika, że dla każdego wierzchołka $v$ należącego do $X_t$: $deg_t(v) = deg_{t'}(v) + deg_{t''}(v)$. Zauważmy, że musi być spełniony warunek $deg_t(v) \leq 2$. Jeśli $\mathcal{D}_{t'}$ i $\mathcal{D}_{t''}$ nie spełniają tego warunku, nie rozpatrujemy ich. Jednakże nie jest to warunek wystarczający, by wartość dla węzła $t$ była poprawna. Może się zdarzyć (jak przy dodawaniu krawędzi), że scalanie utworzy nam cykl. Obliczając nowe dopasowanie, dodajemy dopasowania $m_{next} = \{m_{next_1}, m_{next_2}\}$ z $M_{t'} \cup M_{t''}$ pojedynczo, aktualizując obecny stan $M$ w następujący sposób (patrz rys. \ref{hamiltonian_merge}):
+$t$ jest węzłem \texttt{SCALAJĄCYM} - zauważmy, że scalane $F_{t'}$ oraz $F_{t''}$ nie mają wspólnych krawędzi, jedynie wierzchołki. Z powyższego wynika, że dla każdego wierzchołka $v$ należącego do $X_t$: $deg_t(v) = deg_{t'}(v) + deg_{t''}(v)$. Zauważmy, że musi być spełniony warunek $deg_t(v) \leq 2$. Jeśli $\mathcal{D}_{t'}$ i $\mathcal{D}_{t''}$ nie spełniają tego warunku, nie rozpatrujemy ich. Jednakże nie jest to warunek wystarczający, by wartość dla węzła $t$ była poprawna. Może się zdarzyć (jak przy dodawaniu krawędzi), że scalanie utworzy nam cykl. Obliczając nowe dopasowanie, dodajemy dopasowania $m_{next} = \{m_{next_1}, m_{next_2}\} \in M_{t'} \cup M_{t''}$ pojedynczo, aktualizując obecny stan $M$ w następujący sposób (patrz rys. \ref{hamiltonian_merge}):
+
+\begin{figure}
+\centering
+\includegraphics[width=16cm]{hamiltonian_merge.png}
+\caption{Dodawanie nowej krawędzi $m_{next}$ do dopasowania $M$.}
+\label{hamiltonian_merge}
+\end{figure}
+
 \begin{enumerate}
 \item $\forall_{m \in M}: m_{next} \cap m = \emptyset$, do dopasowania $M$ dodajemy $m_{next}$.
 \item $\exists_{m = \{m_1, m_2\} \in M}: \abs{m_{next} \cap m} = 1 \wedge \forall_{m' \in M, m' \ne m}: m_{next} \cap m' = \emptyset$ - bez straty ogólności załóżmy, że $m_1 = m_{next_1}$, czyli $m_{next} \cap m = \{m_1\}$, z $M$ usuwamy $m$ i dodajemy nowe dopasowanie $\{m_2, m_{next_2}\}$.
-\item $\exists_{m = \{m_1, m_2\} \in M}: \abs{m_{next} \cap m} = 1 \wedge \exists_{m' = \{m'_1, m'_2\} \in M, m \ne m'}: \abs{m_{next} \cap m'} = 1$ - bez straty ogólności załóżmy, że $m_{next_1} = m_1$ i $m_{next_2} = m'_1$, usuwamy $m_1$ i $m'_1$ z $M$ oraz dodajemy nowe dopasowanie $\{m_2, m'_2\}$.
+\item $\exists_{m = \{m_1, m_2\} \in M}: \abs{m_{next} \cap m} = 1 \wedge \exists_{m' = \{m'_1, m'_2\} \in M, m \ne m'}: \abs{m_{next} \cap m'} = 1$ - bez straty ogólności załóżmy, że $m_{next_1} = m_1$ i $m_{next_2} = m'_1$, usuwamy $m$ i $m'$ z $M$ oraz dodajemy nowe dopasowanie $\{m_2, m'_2\}$.
 \item $\exists_{m \in M}: \abs{m_{next} \cap m} = 2$ - \texttt{CYKL}, $M_{t'}$ i $M_{t''}$ nie utworzą nam poprawnego rozwiązania.
 \end{enumerate}
 
-Końcowy wynik dla parametrów $(t, \mathcal{D}, M)$ jest alternatywą po wszystkich $(t', \mathcal{D}_{t'}, M_{t'})$ i $(t'', \mathcal{D}_{t''}, M_{t''})$, które spełniają wyżej wymienione warunki:
+Końcowy wynik dla parametrów $(t, \mathcal{D}, M)$ jest alternatywą po wszystkich $(t', \mathcal{D}_{t'}, M_{t'})$ i $(t'', \mathcal{D}_{t''}, M_{t''})$, dla których graf $(X_t, M_{t'} \cup M_{t''})$ jest acykliczny.
 
 $$c[t][\mathcal{D}][M] = \bigvee \limits_{\mathcal{D}_{t'}, \mathcal{D}_{t''}, M_{t'}, M_{t''}} c[t'][\mathcal{D}_{t'}][M_{t'}] \wedge c[t''][\mathcal{D}_{t''}][M_{t''}]$$
 
@@ -346,6 +368,7 @@ Dla każdego węzła mamy nie więcej niż $3^k \cdot k^k$ stanów. Zatem złoż
 
 \newpage
   	\chapter{Algorytmy dynamiczne z zastosowaniem techniki Cut \& Count}
+  	\label{cut_n_count}
 
 W poprzednim rozdziale zostały przedstawione klasyczne algorytmy dynamiczne po dekompozycji drzewowej dla dwóch problemów decyzyjnych: drzewa Steinera oraz cyklu Hamiltona. Złożoność czasowa obu tych algorytmów jest uwarunkowana liczbą wszystkich możliwych podziałów zbioru $k$-elementowego oraz liczbą dopasowań wierzchołków ze zbioru $k$-elementowego, która w obu przypadkach jest rzędu $k^{\Omicron{(k)}}$.
 W tym rodziale przedstawię randomizowane algorytmy dynamiczne po dekompozycji drzewowej, bazujące na technice Cut \& Count opisanej w \emph{Parameterized Algorithms} \cite{parametrized_algorithms}. Technika Cut \& Count redukuje problemy decyzyjne do problemów zliczania wszystkich możliwych rozwiązań modulo $2$, eliminując czynnik $k^{\Omicron{(k)}}$, tym samym znacznie poprawiając złożoność czasową w stosunku do klasycznych algorytmów dynamicznych. Cut \& Count tymczasowo dopuszcza rozwiązania niespójne (las w przypadku drzewa Steinera, zbiór cykli w przypadku cyklu Hamiltona), które następnie wzajemnie się znoszą przy zliczaniu modulo $2$.\newline\newline
@@ -402,7 +425,7 @@ Wobec powyższego lematu, pozostaje pokazać algorytm obliczania parzystości $\
 
 \begin{enumerate}[label=(\roman*)]
 \item $H$ jest podgrafem $(V_t, E_t)$ o dokładnie $i$ krawędziach oraz $H$ zawiera wszystkie terminale wprowadzone w bieżącym poddrzewie, tj. $K \cap V_t$.
-\item $(V^1, V^2)$ jest przecięciem kompatybilnym z $H$, tj. $(H, (V^1, V^2)) \in \mathcal{C}$.
+\item $(V^1, V^2)$ jest podziałem kompatybilnym z $H$, tj. $(H, (V^1, V^2)) \in \mathcal{C}$.
 \item Przecięcie $H$ z wierzchołkami należącymi do węzła $t$ jest równe $V(H) \cap X_t = f^{-1}(1) \cup f^{-1}(2)$.
 \item Funkcja $f$ opisuje przynależność wierzchołków ze zbioru $X_t \setminus f^{-1}(0)$ do $V^1$ i $V^2$, tj. $V^j \cap V(H) \cap X_t = f^{-1}(j)$ gdzie $j \in \{1,2\}$.
 \end{enumerate} 
@@ -453,7 +476,10 @@ c(t,f,i,w) =
 \]
 $t$ jest węzłem \texttt{SCALAJĄCYM} - dla węzła scalającego wynik jest sumą po wszystkich parach ($\mathcal{C}_{\mathbf{w}(H')}$, $\mathcal{C}_{\mathbf{w}(H'')}$), gdzie $H'$ jest podgrafem $G_{t'}$, a $H''$ podgrafem $G_{t''}$.
 
-$$c(t,f,i,w) = \sum_{i' + i'' = i, \quad w' + w'' = w} c(t',f,i',w') + c(t'',f,i'',w'')$$
+$$c(t,f,i,w) = \sum_{\substack{
+   i' + i'' = i \\
+   w' + w'' = w
+  }} c(t',f,i',w') + c(t'',f,i'',w'')$$
 
 Złożoność powyższego algorytmu wynosi $3^k \cdot n^{\Omicron(1)}$, czyli zależność złożoności czasowej od szerokości drzewowej jest rzędu $2^{\Omicron(k)}$, a nie jak w przypadku standardowego algorytmu dynamicznego $k^{\Omicron(k)}$, co kończy dowód twierdzenia \ref{monte_carlo}.
 \end{proof}
@@ -494,7 +520,7 @@ Dla każdego węzła $t \in V(T)$, funkcji $f: X_t \to \{0,1_1,1_2,2\}$ oraz wag
 
 \begin{enumerate}[label=(\roman*)]
 \item $H$ jest podgrafem $(V_t, E_t)$ oraz $H$ zawiera wszystkie wierzchołki dotychczasowo wprowadzone w bieżącym poddrzewie, tj. $V(H) = V_t$.
-\item $(V^1, V^2)$ jest przecięciem kompatybilnym z $H$.
+\item $(V^1, V^2)$ jest podziałem kompatybilnym z $H$.
 \item Funkcja $f$ opisuje przynależność wierzchołków ze zbioru $X_t$ do podzbiorów $X_{t_0}, X_{t_{1_1}}, X_{t_{1_2}}, X_{t_2}$, tj. $X_{t_j} \cap V(H) = f^{-1}(j)$, gdzie $j \in \{0,1_1,1_2,2\}$.
 \item $X_t = f^{-1}(0) \cup f^{-1}(1_1) \cup f^{-1}(1_2) \cup f^{-1}(2)$
 \item $V^1 \cup V^2$ nie ma wierzchołków poza $X_t$, innymi słowy $V_{deg_1}(H) \cap X_t = V_{deg_1}(H)$, inaczej nieodwołalnie zostawilibyśmy niedomknięty cykl.
@@ -585,7 +611,29 @@ c(t,f,w) =
 Złożoność powyższego algorytmu wynosi $4^k \cdot n^{\Omicron(1)}$, czyli zależność złożoności czasowej od szerokości drzewowej jest rzędu $2^{\Omicron(k)}$, a nie jak w przypadku standardowego algorytmu dynamicznego $k^{\Omicron(k)}$.
 
 \newpage
+  	\chapter{Porównanie wydajności zaimplementowanych algorytmów}
+  	\label{summary}
+
+\begin{figure}
+\centering
+\includegraphics[width=16cm]{hamiltonian_test_time.png}
+\caption{Porównanie czas działania algorytmów dla problemu cyklu Hamiltona.}
+\label{hamiltonian_test_time}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[width=16cm]{steiner_test_time.png}
+\caption{Porównanie czas działania algorytmów dla problemu drzewa Steinera}
+\label{steiner_test_time}
+\end{figure}
+
+\newpage
 	\begin{thebibliography}{9}
+		\bibitem{parametrized_algorithms}
+			M. Cygan, F. V. Fomin, Ł. Kowalik, D. Lokshtanov, D. Marx, M. Pilipczuk, M. Pilipczuk, S. Saurabh
+ 			\textit{Parameterized Algorithms}.
+ 					
 		\bibitem{bodlaender}  
 			H. L. Bodlaender. 
 			\textit{A linear-time algorithm for finding tree-decompositions of small treewidth}. 
@@ -595,10 +643,6 @@ Złożoność powyższego algorytmu wynosi $4^k \cdot n^{\Omicron(1)}$, czyli za
 			T. Kloks. 
 			\textit{Treewidth. Computations and approximations}. 
 			Lecture Notes in Computer Science, 842, 1994.
-			
-		\bibitem{parametrized_algorithms}
-			M. Cygan, F. V. Fomin, Ł. Kowalik, D. Lokshtanov, D. Marx, M. Pilipczuk, M. Pilipczuk, S. Saurabh
- 			\textit{Parameterized Algorithms}.
  			
 		\bibitem{github} 
 			P. Kyzioł: Cut \& Count - Code repository, 2019

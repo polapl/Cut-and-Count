@@ -1,6 +1,8 @@
+#!/usr/bin/env python
 import matplotlib
 matplotlib.use('Agg')
 
+import argparse
 import sys
 import matplotlib.pyplot as plt
 import numpy as np
@@ -29,7 +31,7 @@ def parse_gtest_output(output):
     }
 
 def build_test_name(rec):
-  return 'rand(tw:%s,mw:%s,ec:%s)' % (rec['tree_width'], rec['max_weight'], rec['edge_count'])
+  return 'tw:%s' % (rec['tree_width'],)
 
 def generate_test_records(output):
   algorithms_names = []
@@ -52,7 +54,7 @@ def build_test_info_metadata(output):
   for tc in testcases:
     for (idx, alg) in enumerate(algorithms_names):
       algorithms_times[idx].append(int(testcases[tc][alg]))
-  return testcases.keys(), algorithms_names, algorithms_times, 'my_file_output.png'
+  return testcases.keys(), algorithms_names, algorithms_times
 
 def build_bar_graph(tests_cases_names, algorithms_names, values, output_file, width=0.35):
   lbl_locations = np.arange(len(tests_cases_names))
@@ -70,7 +72,7 @@ def build_bar_graph(tests_cases_names, algorithms_names, values, output_file, wi
                   xytext=(0, 3),  # 3 points vertical offset
                   textcoords="offset points",
                   ha='center', va='bottom')
-  ax.set_ylabel('Running time')
+  ax.set_ylabel('Running time (ms)')
   ax.set_xticks(lbl_locations)
   ax.set_xticklabels(tests_cases_names)
   ax.legend()
@@ -81,5 +83,14 @@ def build_bar_graph(tests_cases_names, algorithms_names, values, output_file, wi
   plt.savefig(output_file)
 
 
+def get_args():
+  parser = argparse.ArgumentParser(description='Build running time graphs')
+  parser.add_argument('-o', dest='output',type=str, required=True, help='name of the file where the graph will be saved.')
+  parser.add_argument('-i', dest='input', type=str, required=True, help='name of the input file with gtest output')
+  return parser.parse_args()
+
 if __name__ == '__main__':
-  build_bar_graph(*build_test_info_metadata(sys.stdin))
+  args = get_args()
+  input_file = args.input
+  with open(input_file, 'r') as test_out:
+    build_bar_graph(*build_test_info_metadata(test_out), output_file=args.output)

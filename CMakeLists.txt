@@ -2,7 +2,13 @@ cmake_minimum_required (VERSION 3.0.2)
 
 project(magisterka)
 
-set(CMAKE_CXX_FLAGS "-g -O0")
+# set(CMAKE_CXX_FLAGS "-g -O0")
+
+OPTION(GENERATE_DOT "When ON tests will generate dot files for each testcase and save it to `{Hamiltonian,Steiner}TestExample_*.dot`" OFF) # Disabled by default
+
+IF(GENERATE_DOT)
+    ADD_DEFINITIONS(-DGENERATE_DOT)
+ENDIF(GENERATE_DOT)
 
 add_executable(magisterka main.cc)
 add_library(tree_lib tree.cc)
@@ -19,7 +25,7 @@ target_link_libraries(standard_hamiltonian_lib state_utils_lib)
 
 target_link_libraries(magisterka tree_lib)
 target_link_libraries(magisterka state_utils_lib)
-target_link_libraries(magisterka cnc_steiner_tree_lib)
+target_link_libraries(magisterka cnc_steiner_tree_lib)  
 target_link_libraries(magisterka standard_steiner_tree_lib)
 target_link_libraries(magisterka standard_hamiltonian_lib)
 target_link_libraries(magisterka cnc_hamiltonian_lib)
@@ -74,6 +80,59 @@ add_custom_target(generate_image DEPENDS ${IMAGES})
 
 # =============================================================================
 
+
+set (
+  STEINER_TEST_OUT
+  "${CMAKE_CURRENT_BINARY_DIR}/steiner_test_out.txt"
+)
+
+set (
+  HAMILTONIAN_TEST_OUT
+  "${CMAKE_CURRENT_BINARY_DIR}/hamiltonian_test_out.txt"
+)
+
+set (
+  STEINER_TEST_GRAPH
+  "steiner_test_time.png"
+)
+
+set (
+  HAMILTONIAN_TEST_GRAPH
+  "hamiltonian_test_time.png"
+)
+
+add_custom_command(OUTPUT ${STEINER_TEST_OUT}
+  COMMAND ${CMAKE_CURRENT_BINARY_DIR}/example_test --gtest_filter="SteinerTest*" > ${STEINER_TEST_OUT}
+  WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+  DEPENDS example_test
+)
+
+add_custom_command(OUTPUT ${HAMILTONIAN_TEST_OUT}
+  COMMAND ${CMAKE_CURRENT_BINARY_DIR}/example_test --gtest_filter="HamiltonianTest_*.*" > ${HAMILTONIAN_TEST_OUT}
+  WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+  DEPENDS example_test
+)
+
+add_custom_target(test_output DEPENDS ${STEINER_TEST_OUT} ${HAMILTONIAN_TEST_OUT})
+
+add_custom_command(OUTPUT ${STEINER_TEST_GRAPH}
+  COMMAND ${PROJECT_SOURCE_DIR}/build_graph.py -i=${STEINER_TEST_OUT} -o=${STEINER_TEST_GRAPH}
+  WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+  DEPENDS test_output
+  # ${STEINER_TEST_OUT}
+)
+
+add_custom_command(OUTPUT ${HAMILTONIAN_TEST_GRAPH}
+  COMMAND ${PROJECT_SOURCE_DIR}/build_graph.py -i=${HAMILTONIAN_TEST_OUT} -o=${HAMILTONIAN_TEST_GRAPH}
+  WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+  DEPENDS ${HAMILTONIAN_TEST_OUT}
+)
+
+add_custom_target(steiner_graph DEPENDS ${STEINER_TEST_GRAPH})
+add_custom_target(hamiltonian_graph DEPENDS ${HAMILTONIAN_TEST_GRAPH})
+
+# =============================================================================
+
 set(
     TEX_FILES
     "thesis.tex"
@@ -91,15 +150,12 @@ set(
     "${PROJECT_SOURCE_DIR}/${TEX_FILES}"
 )
 
-
-
 add_custom_command(OUTPUT ${THESIS_OUT}
     COMMAND pdflatex ${THESIS_TEXT}
-    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-    DEPENDS ${THESIS_TEXT}
+    COMMAND pdflatex ${THESIS_TEXT}
+    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+    DEPENDS ${THESIS_TEXT} steiner_graph hamiltonian_graph
     COMMENT "Generating thesis PDF"
-    VERBATIM
 )
-
 
 add_custom_target(generate_pdf DEPENDS ${THESIS_OUT})
