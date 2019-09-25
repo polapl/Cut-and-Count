@@ -261,6 +261,28 @@ TEST(StandardSteinerTree, SmallTests_HighProbability_OnlyStandard) {
     EXPECT_EQ(res_standard, res_standard);
   }
 }
+
+TEST(StandardSteinerTree, BigTest_HighProbability_OnlyStandard) {
+  int number_of_tests = 1;
+  while (number_of_tests--) {
+    Tree tree(7, 100);
+    printf("tree width = %d\n", tree.tree_width);
+    tree.Generate(10, 50);
+    tree.IntroduceEdges(100);
+    tree.DotTransitionGraph("example_cnc.dot");
+
+    tree.AddNodeToAllBags(tree.root, tree.root->forgotten_node, true);
+    tree.root = tree.root->left;
+    delete tree.root->parent;
+    tree.root->parent = nullptr;
+    tree.DotTransitionGraph("example_standard.dot");
+    tree.tree_width++;
+    StandardSteinerTree* standard_dyn = new StandardSteinerTree(&tree);
+    unsigned long long res_standard = standard_dyn->Compute();
+    // printf("RESULTS: %d vs. %d\n", res_dyn, res_standard);
+    EXPECT_EQ(res_standard, res_standard);
+  }
+}
 */
 TEST(StandardHamiltonian, SimpleTriangle) {
   Node a(0, false);
@@ -514,6 +536,36 @@ TEST(Hamiltonian, SmallTests_HighProbability_OnlyCnC) {
   }
 }
 
+TEST(Hamiltonian, BigTest_HighProbability_OnlyStandard) {
+  int number_of_tests = 1;
+  while (number_of_tests--) {
+    Tree tree(7, 100);
+    tree.Generate(10, 0);
+    tree.IntroduceEdges(100);
+
+    Node n(-1, false);
+    tree.PrepareBeforeStandardHamiltonian(n);
+    tree.DotTransitionGraph("example_standard.dot");
+    StandardHamiltonian* standard_dyn = new StandardHamiltonian(&tree);
+    bool res_standard = standard_dyn->Compute();
+    printf("RESULT: %d\n", res_standard);
+  }
+}
+
+TEST(Hamiltonian, BigTest_HighProbability_OnlyCnC) {
+  int number_of_tests = 1;
+  while (number_of_tests--) {
+    Tree tree(7, 100);
+    tree.Generate(10, 0);
+    tree.IntroduceEdges(100);
+    tree.DotTransitionGraph("example_cnc.dot");
+
+    CnCHamiltonian* dyn = new CnCHamiltonian(&tree);
+    bool res_dyn = dyn->Compute();
+    printf("RESULT: %d\n", res_dyn);
+  }
+}
+
 template <int seed, int tree_width, int max_weight, int bags_gen_type,
           int terminal_prob, int edge_count, bool result>
 class HamiltonianTestsTemplate : public ::testing::Test {
@@ -688,7 +740,7 @@ std::unique_ptr<Tree>
 GENERATE_STEINER_TESTS(0x11234, 4, 100, 10, 50, 100, 4);
 GENERATE_STEINER_TESTS(0x11234, 5, 100, 10, 50, 100, 5);
 GENERATE_STEINER_TESTS(0x11234, 6, 100, 10, 50, 100, 6);
-GENERATE_STEINER_TESTS(0x11234, 7, 100, 10, 50, 100, 4);
+//GENERATE_STEINER_TESTS(0x11234, 7, 100, 10, 50, 100, 4);
 
 int main(int argc, char** argv) {
   testing::InitGoogleTest(&argc, argv);
