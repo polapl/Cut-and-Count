@@ -8,9 +8,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import re
 
-# GTEST_OK_LINE_PARSE = re.compile(r'\[ *FAILED *\] ([^. ]+)\.([^. ]+) \(([0-9]+) ms\)')
 GTEST_OK_LINE_PARSE = re.compile(r'\[ *OK *\] ([a-zA-Z]+)_([0-9]+)_([0-9]+)_([0-9]+)_([0-9]+)_([0-9]+)\.([^. ]+) \(([0-9]+) ms\)')
-
 
 def parse_gtest_line(line):
   parsed = GTEST_OK_LINE_PARSE.findall(line)
