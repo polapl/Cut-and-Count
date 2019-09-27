@@ -190,6 +190,7 @@ class PartitionView {
       printf("\n");
     }
 
+    // Returns true if el is a singleton.
     bool singleton(const T& el) {
       int partition, idx;
       for (int i = 0; i < data_.size(); i++) {
@@ -220,6 +221,8 @@ class PartitionView {
 
     int max_partition() { return g_[data_.size() - 1]; }
 
+    // Returns hash for a partition modified in the way that subset part
+    // contains el.
     int add_to_partition_hash(const T& el, int part) {
       int i = 0;
       while (i < data_.size() && data_[i] < el) {
@@ -250,12 +253,14 @@ class PartitionView {
       return result;
     }
 
+    // Returns an index of subset that includes el.
     int partition(const T& el) const {
       for (int i = 0; i < data_.size(); i++) {
         if (data_[i] == el) return c_[i];
       }
     }
 
+    // Merge subsets a and b.
     int merge(int a, int b) {
       int min = (a <= b ? a : b);
       int max = (a <= b ? b : a);
@@ -270,6 +275,7 @@ class PartitionView {
       return result;
     }
 
+    // Returns map: partition subset -> all its elements
     map<int, vector<std::reference_wrapper<T>>> distribution() {
       map<int, vector<std::reference_wrapper<T>>> res;
       for (int i = 0; i < data_.size(); i++) {
@@ -287,6 +293,7 @@ class PartitionView {
     int r_;
     bool last_;
     vector<T> data_;
+    // c_[i] = p when subset p contains i.
     vector<int> c_;
     // g_[i] = max of {c_[0],...,c_[i-1]}
     vector<int> g_;

@@ -578,11 +578,11 @@ class HamiltonianTestsTemplate : public ::testing::Test {
 
   static void TearDownTestSuite() { tree_.reset(nullptr); }
 
-
   static string BuildDotFileName() {
     stringstream sstr;
-    sstr << "HamiltonianTestsExample_" << tree_width << "_" << max_weight << "_" << bags_gen_type
-        << "_" << terminal_prob << "_" << edge_count << "_" << result << ".dot";
+    sstr << "HamiltonianTestsExample_" << tree_width << "_" << max_weight << "_"
+         << bags_gen_type << "_" << terminal_prob << "_" << edge_count << "_"
+         << result << ".dot";
     return sstr.str();
   }
 
@@ -602,7 +602,6 @@ std::unique_ptr<Tree>
     HamiltonianTestsTemplate<seed, tree_width, max_weight, bags_gen_type,
                              terminal_prob, edge_count, result>::tree_ =
         nullptr;
-
 
 #define GENERATE_HAMILTONIAN_TESTS(SEED, TREEWIDTH, MAXWEIGHT, BAGSGENTYPE,                     \
                                    TERMINALPROB, EDGECOUNT, RESULT)                             \
@@ -627,7 +626,7 @@ std::unique_ptr<Tree>
 GENERATE_HAMILTONIAN_TESTS(0x11234, 4, 100, 10, 0, 100, true);
 GENERATE_HAMILTONIAN_TESTS(0x11234, 5, 100, 10, 0, 100, true);
 GENERATE_HAMILTONIAN_TESTS(0x11234, 6, 100, 10, 0, 100, true);
-//GENERATE_HAMILTONIAN_TESTS(0x11234, 7, 100, 10, 0, 100, true);
+// GENERATE_HAMILTONIAN_TESTS(0x11234, 7, 100, 10, 0, 100, true);
 
 template <int seed, int tree_width, int max_weight, int bags_gen_type,
           int terminal_prob, int edge_count, int result>
@@ -647,8 +646,9 @@ class SteinerTestsTemplate : public ::testing::Test {
 
   static string BuildDotFileName() {
     stringstream sstr;
-    sstr << "SteinerTestsExample_" << tree_width << "_" << max_weight << "_" << bags_gen_type
-        << "_" << terminal_prob << "_" << edge_count << "_" << result << ".dot";
+    sstr << "SteinerTestsExample_" << tree_width << "_" << max_weight << "_"
+         << bags_gen_type << "_" << terminal_prob << "_" << edge_count << "_"
+         << result << ".dot";
     return sstr.str();
   }
 
@@ -661,45 +661,43 @@ class SteinerTestsTemplate : public ::testing::Test {
 template <int seed, int tree_width, int max_weight, int bags_gen_type,
           int terminal_prob, int edge_count, int result>
 int SteinerTestsTemplate<seed, tree_width, max_weight, bags_gen_type,
-                         terminal_prob, edge_count, result>::result_ =
-    result;
+                         terminal_prob, edge_count, result>::result_ = result;
 
 template <int seed, int tree_width, int max_weight, int bags_gen_type,
           int terminal_prob, int edge_count, int result>
 std::unique_ptr<Tree>
     SteinerTestsTemplate<seed, tree_width, max_weight, bags_gen_type,
-                             terminal_prob, edge_count, result>::tree_ =
-        nullptr;
+                         terminal_prob, edge_count, result>::tree_ = nullptr;
 
-
-#define GENERATE_STEINER_TESTS(SEED, TREEWIDTH, MAXWEIGHT, BAGSGENTYPE,                         \
-                               TERMINALPROB, EDGECOUNT, RESULT)                                 \
-  typedef SteinerTestsTemplate<SEED, TREEWIDTH, MAXWEIGHT, BAGSGENTYPE,                         \
-                               TERMINALPROB, EDGECOUNT, RESULT>                                 \
-      SteinerTest_##TREEWIDTH##_##MAXWEIGHT##_##BAGSGENTYPE##_##TERMINALPROB##_##EDGECOUNT;     \
-  TEST_F(                                                                                       \
-      SteinerTest_##TREEWIDTH##_##MAXWEIGHT##_##BAGSGENTYPE##_##TERMINALPROB##_##EDGECOUNT,     \
-      Cnc) {                                                                                    \
-    CnCSteinerTree* dyn = new CnCSteinerTree(tree_.get(), tree_->tree_width + 1);               \
-    EXPECT_EQ(dyn->Compute(), result_);                                                         \
-  }                                                                                             \
-  TEST_F(                                                                                       \
-      SteinerTest_##TREEWIDTH##_##MAXWEIGHT##_##BAGSGENTYPE##_##TERMINALPROB##_##EDGECOUNT,     \
-      Standard) {                                                                               \
-    tree_->AddNodeToAllBags(tree_->root, tree_->root->forgotten_node, true);                    \
-    tree_->root = tree_->root->left;                                                            \
-    delete tree_->root->parent;                                                                 \
-    tree_->root->parent = nullptr;                                                              \
-    tree_->tree_width++;                                                                        \
-    StandardSteinerTree* dyn = new StandardSteinerTree(tree_.get());                            \
-    EXPECT_EQ(dyn->Compute(), result_);                                                         \
+#define GENERATE_STEINER_TESTS(SEED, TREEWIDTH, MAXWEIGHT, BAGSGENTYPE,                     \
+                               TERMINALPROB, EDGECOUNT, RESULT)                             \
+  typedef SteinerTestsTemplate<SEED, TREEWIDTH, MAXWEIGHT, BAGSGENTYPE,                     \
+                               TERMINALPROB, EDGECOUNT, RESULT>                             \
+      SteinerTest_##TREEWIDTH##_##MAXWEIGHT##_##BAGSGENTYPE##_##TERMINALPROB##_##EDGECOUNT; \
+  TEST_F(                                                                                   \
+      SteinerTest_##TREEWIDTH##_##MAXWEIGHT##_##BAGSGENTYPE##_##TERMINALPROB##_##EDGECOUNT, \
+      Cnc) {                                                                                \
+    CnCSteinerTree* dyn =                                                                   \
+        new CnCSteinerTree(tree_.get(), tree_->tree_width + 1);                             \
+    EXPECT_EQ(dyn->Compute(), result_);                                                     \
+  }                                                                                         \
+  TEST_F(                                                                                   \
+      SteinerTest_##TREEWIDTH##_##MAXWEIGHT##_##BAGSGENTYPE##_##TERMINALPROB##_##EDGECOUNT, \
+      Standard) {                                                                           \
+    tree_->AddNodeToAllBags(tree_->root, tree_->root->forgotten_node, true);                \
+    tree_->root = tree_->root->left;                                                        \
+    delete tree_->root->parent;                                                             \
+    tree_->root->parent = nullptr;                                                          \
+    tree_->tree_width++;                                                                    \
+    StandardSteinerTree* dyn = new StandardSteinerTree(tree_.get());                        \
+    EXPECT_EQ(dyn->Compute(), result_);                                                     \
   }
 
-//GENERATE_STEINER_TESTS(0x11234, 3, 100, 10, 50, 100, 4);
+// GENERATE_STEINER_TESTS(0x11234, 3, 100, 10, 50, 100, 4);
 GENERATE_STEINER_TESTS(0x11234, 4, 100, 10, 50, 100, 4);
 GENERATE_STEINER_TESTS(0x11234, 5, 100, 10, 50, 100, 5);
 GENERATE_STEINER_TESTS(0x11234, 6, 100, 10, 50, 100, 6);
-//GENERATE_STEINER_TESTS(0x11234, 7, 100, 10, 50, 100, 4);
+// GENERATE_STEINER_TESTS(0x11234, 7, 100, 10, 50, 100, 4);
 
 int main(int argc, char** argv) {
   testing::InitGoogleTest(&argc, argv);

@@ -12,7 +12,8 @@ using namespace std;
 
 const unsigned long long int INF = 1000000;
 
-// subset hash -> partition hash -> number of edges for the smallest, valid Steiner forest
+// subset hash -> partition hash -> number of edges for the smallest, valid
+// Steiner forest
 typedef vector<unordered_map<size_t, unsigned long long>> dynamic_results;
 typedef unsigned long long ull;
 
@@ -123,14 +124,12 @@ dynamic_results recursive_standard_steiner_tree(int k, Bag* bag) {
           break;
         }
         case Bag::MERGE: {
-          // part1 and part2 are used to iterate through all possible pairs
-          // that:
+          // part_it1 and part_it2 are used to iterate through all possible
+          // pairs of partitions of set sset_materialize that:
           // - do not create an cycle
           // - sum up to pset
-          // PartitionView<Node> part1 = PartitionView<Node>(sset_materialize);
-          // PartitionView<Node> part2 = PartitionView<Node>(sset_materialize);
-          // Check whether after merging part1 and part2 we will end up with
-          // cycle
+          // Check whether after merging part_it1 and part_it2 we will end up
+          // with cycle.
           for (auto part_it1 = pset.begin(); part_it1 != pset.end();
                ++part_it1) {
             DisjointSet<int> disjoint_set;
@@ -148,8 +147,7 @@ dynamic_results recursive_standard_steiner_tree(int k, Bag* bag) {
                  ++part_it2) {
               bool cycle = false;
               DisjointSet<int> disjoint_set_copy = disjoint_set;
-              const auto& distribution2 =
-                  part_it2.distribution();  // set setow zamiast mapy?
+              const auto& distribution2 = part_it2.distribution();
               for (const auto& distr_it : distribution2) {
                 for (int s = 1; s < distr_it.second.size(); s++) {
                   if (disjoint_set_copy.find(distr_it.second[0].get().value) ==
@@ -163,8 +161,8 @@ dynamic_results recursive_standard_steiner_tree(int k, Bag* bag) {
               }
               if (!cycle) {
                 bool equal = true;
-                // Check whether x,y in the same part in pset => find(x) ==
-                // find(y)
+                // Check whether u, v in the same partition subset in pset =>
+                // find(u) == find(v).
                 auto pset_distribution = it.distribution();
                 for (const auto& map_it : pset_distribution) {
                   for (int s = 1; s < map_it.second.size(); s++) {

@@ -20,7 +20,6 @@ typedef vector<vector<unordered_map<size_t, unsigned long long>>>
 }  // namespace
 
 void add_value(dynamic_results& vec, int a, int b, int c, ull val) {
-  // if (val == 0) return;
   if (val % 2 == 0) return;
   if (vec[a][b][c] % 2 == 1) {
     vec[a][b].erase(c);
@@ -92,12 +91,10 @@ dynamic_results recursive_cnc_steiner_tree(int l, Bag* bag) {
             add_value(vec, j, it_hash, weight.first, weight.second);
           }
 
-          // hash_with_node = it.hash_with_node(bag->forgotten_node.value, 1);
           for (auto& weight : left[j][hash_with_node.val_1]) {
             add_value(vec, j, it_hash, weight.first, weight.second);
           }
 
-          // hash_with_node = it.hash_with_node(bag->forgotten_node.value, 2);
           for (auto& weight : left[j][hash_with_node.val_2]) {
             add_value(vec, j, it_hash, weight.first, weight.second);
           }

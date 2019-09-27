@@ -42,16 +42,24 @@ struct HashWithNodeValues {
 };
 
 // Given a set, class State is used to iterate through all assignments
-// of its elements to 1, 2, .., s.
+// of its elements to sets: 1, 2, .., s.
+
+// In terms of Hamiltonian Cycle standard algorithm (s=3):
+//  0 ~= isolated Node
+//  1 ~= Node with degree 1
+//  2 ~= Node with degree 2
+
 // In terms of Steiner Tree Cut & Cout algoritm (s=3):
 //  0 ~= Node that doesn't belong to partial solution
 //  1 ~= Node in partial solution, in V1
 //  2 ~= Node in partial solution, in V2
+
 // In terms of Hamiltonian Cycle Cut & Cout algorithm (s=4):
 //  0 ~= isolated Node
 //  1 ~= Node with one incident edge, in V1
 //  2 ~= Node with two incidents edges
 //  3 ~= Node with one incident edge, in V2
+
 class State {
  public:
   class Iterator {
@@ -64,25 +72,33 @@ class State {
 
     bool operator!=(const Iterator& it) const;
 
+    // Node -> set
     int GetMapping(int id);
 
     int GetIdUsingIdx(int idx);
 
+    // Returns nodes that are mapped to 1.
     set<int> GetAllOnesIndexes();
 
+    // Given a set of nodes with deg = 1, this function returns set of hashes
+    // corresponding to all possible matchings.
     set<unsigned long long> GetAllMatchingsHashes(set<int> ones);
 
     set<unsigned long long> GetAllMatchingsHashes();
 
+    // For simplicity, the same as GetAssignmentHashWithNode, but with all
+    // possible assignment values.
     HashWithNodeValues GetHashWithNode(int id);
 
     unsigned long long GetAssignmentHashWithNode(int id, int val);
 
     unsigned long long GetAssignmentHashWithoutNode(int id);
 
-    vector<unsigned long long> GetAssignmentHashWithEdge(int id1, int id2);
-
-    vector<int> GetAssignmentHashDiffWithEdge(int val1, int val2, int pow1, int pow2, bool v0);
+    // Returns how hash changes after adding an edge uv. val1, val2 correspond
+    // to a current assignment. pow1, pow2 are equal to pow(s, u index), pow(s,
+    // v index). v0 equals true when either u or v is v0.
+    vector<int> GetAssignmentHashDiffWithEdge(int val1, int val2, int pow1,
+                                              int pow2, bool v0);
 
    private:
     Iterator(bool last, unsigned int s);

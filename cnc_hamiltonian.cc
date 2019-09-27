@@ -111,8 +111,7 @@ dynamic_results recursive_cnc_hamiltonian(Bag* bag) {
     return vec;
   }
 
-  if (bag->type ==  Bag::INTRODUCE_EDGE) {
-
+  if (bag->type == Bag::INTRODUCE_EDGE) {
     int idx1 = state.GetIdxUsingId(bag->introduced_edge.first.value);
     int idx2 = state.GetIdxUsingId(bag->introduced_edge.second.value);
     ll_t pow1 = pow(4, idx1);
@@ -128,23 +127,18 @@ dynamic_results recursive_cnc_hamiltonian(Bag* bag) {
       int id_2 = it.GetMapping(bag->introduced_edge.second.value);
 
       if (in_first(id_1, id_2) || in_second(id_1, id_2)) {
-        //auto hash_with_edge =
-        //    it.GetAssignmentHashWithEdge(bag->introduced_edge.first.value,
-        //                                 bag->introduced_edge.second.value);
-        auto hash_with_edge_diff =
-            it.GetAssignmentHashDiffWithEdge(id_1, id_2, pow1, pow2, bag->introduced_edge.first.value == 0);
-        //assert(hash_with_edge.size() == hash_with_edge_diff.size());
+        auto hash_with_edge_diff = it.GetAssignmentHashDiffWithEdge(
+            id_1, id_2, pow1, pow2, bag->introduced_edge.first.value == 0);
         for (const auto& hash_with_edge_it : hash_with_edge_diff) {
           for (auto& weight : left[it_hash]) {
-            add_value(vec, it_hash + hash_with_edge_it, weight.first + bag->edge_weight,
-                      weight.second);
+            add_value(vec, it_hash + hash_with_edge_it,
+                      weight.first + bag->edge_weight, weight.second);
           }
         }
       }
     }
     return vec;
   }
-
 
   for (auto it = state.begin(); it != state.end(); ++it) {
     unsigned long long it_hash = *it;

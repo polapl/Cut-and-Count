@@ -68,10 +68,10 @@ void h_print(hash_t h) {
 
 // Given a set, class State is used to iterate through all assignments
 // of its elements to 0, 1, .., s.
-// In terms of cut & cout algoritm:
-// 0 ~= not taken Node
-// 1 ~= Node in partial solution in V1
-// 2 ~= Node in partial solution in V2
+// In terms of cut & cout algorithm:
+// 0 ~= not taken Node.
+// 1 ~= Node in partial solution, in V1.
+// 2 ~= Node in partial solution, in V2.
 
 void State::Iterator::operator++() {
   for (auto& it : m_) {
@@ -133,6 +133,7 @@ set<int> State::Iterator::GetAllOnesIndexes() {
   return res;
 }
 
+// Tab represents which X_i v belongs to after adding an edge.
 const vector<vector<int>> add_edge_trans[4][4] = {
     {{{1, 1}, {3, 3}}, {{1, 2}}, {}, {{3, 2}}},
     {{{2, 1}}, {{2, 2}}, {}, {}},
@@ -194,28 +195,13 @@ unsigned long long State::Iterator::GetAssignmentHashWithoutNode(int id) {
   return hash;
 }
 
-vector<unsigned long long> State::Iterator::GetAssignmentHashWithEdge(int id1,
-                                                                      int id2) {
-  vector<unsigned long long> res;
-  int val1 = m_[id1];
-  int val2 = m_[id2];
-  for (const auto& it : add_edge_trans[val1][val2]) {
-    m_[id1] = it[0];
-    m_[id2] = it[1];
-    // id1 == v1
-    if (id1 == 0 && m_[id1] == 3) continue;
-    res.push_back(hash());
-  }
-  m_[id1] = val1;
-  m_[id2] = val2;
-  return res;
-}
-
-vector<int> State::Iterator::GetAssignmentHashDiffWithEdge(int val1, int val2, int pow1, int pow2, bool v0) {
+vector<int> State::Iterator::GetAssignmentHashDiffWithEdge(int val1, int val2,
+                                                           int pow1, int pow2,
+                                                           bool v0) {
   vector<int> res;
   for (const auto& it : add_edge_trans[val1][val2]) {
     if (v0 && it[0] == 3) continue;
-    res.push_back(pow1*(it[0] - val1) +  (pow2*(it[1] - val2))); 
+    res.push_back(pow1 * (it[0] - val1) + (pow2 * (it[1] - val2)));
   }
   return res;
 }
