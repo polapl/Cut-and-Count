@@ -12,6 +12,7 @@ using namespace std;
 
 const unsigned long long int INF = 1000000;
 
+// subset hash -> partition hash -> number of edges for the smallest, valid Steiner forest
 typedef vector<unordered_map<size_t, unsigned long long>> dynamic_results;
 typedef unsigned long long ull;
 

@@ -152,6 +152,7 @@ class PartitionView {
       return it.c_ != c_;
     }
 
+    // Iterates through each partition only once.
     void operator++() {
       r_ = data_.size() - 1;
       while (c_[r_] > g_[r_ - 1] && r_) r_--;
@@ -204,9 +205,7 @@ class PartitionView {
       return true;
     }
 
-    // Instead of modyfying object, make this function static
-    // and directly return hash as it would be after singleton
-    // removal.
+    // Returns hash of partition w/o given singleton.
     int remove_singleton(const T& el_to_remove) {
       int partition = this->partition(el_to_remove);
       unsigned long long result = 0;
@@ -221,32 +220,13 @@ class PartitionView {
 
     int max_partition() { return g_[data_.size() - 1]; }
 
-    void fix_object() {
-      int next_part = 1;
-      map<int, int> transl;
-      for (int i = 0; i < data_.size(); i++) {
-        if (transl.find(c_[i]) != transl.end()) {
-          c_[i] = transl[c_[i]];
-          if (i > 0) g_[i] = max(c_[i], g_[i - 1]);
-          continue;
-        }
-        transl[c_[i]] = next_part;
-        next_part++;
-        c_[i] = transl[c_[i]];
-        if (i > 0) g_[i] = max(c_[i], g_[i - 1]);
-      }
-    }
-
     int add_to_partition_hash(const T& el, int part) {
       int i = 0;
       while (i < data_.size() && data_[i] < el) {
         i++;
       }
-      // data_.insert(data_.begin() + i, el);
       c_.insert(c_.begin() + i, part);
-      // g_.insert(g_.begin() + i, 1);
 
-      // fix_object();
       unsigned long long result = 0;
       int base = 1;
 
@@ -256,13 +236,10 @@ class PartitionView {
         int c_i;
         if (transl.find(c_[i]) != transl.end()) {
           c_i = transl[c_[i]];
-          // if (i > 0) g_[i] = max(c_[i], g_[i-1]);
-          // continue;
         } else {
           transl[c_[i]] = next_part;
           next_part++;
           c_i = transl[c_[i]];
-          // if (i > 0) g_[i] = max(c_[i], g_[i-1]);
         }
 
         result += c_i * base;
@@ -282,12 +259,7 @@ class PartitionView {
     int merge(int a, int b) {
       int min = (a <= b ? a : b);
       int max = (a <= b ? b : a);
-      /*
-      for (int i=0; i < c_.size(); i++) {
-          if (c_[i] == max) c_[i] = min;
-          if (c_[i] > max) c_[i]--;
-      }
-      */
+
       unsigned long long result = 0;
       int base = 1;
       for (int i = 0; i < data_.size(); i++) {

@@ -9,6 +9,7 @@
 #include <unordered_map>
 
 typedef unsigned long long ull;
+// X_t partition hash -> matching hash -> true iff. valid Hamiltonian trace exists
 typedef unordered_map<size_t, map<size_t, bool>> dynamic_results;
 
 bool get_value(const dynamic_results& vec, int idx1, int idx2) {
@@ -64,10 +65,12 @@ dynamic_results MergeChildren(Bag* bag, const dynamic_results& left,
       }
 
       if (incorrect_colors) continue;
+      // Following cases are incorrect as for matching we need an even number of vertices.
       if (ones1 % 2 == 1) continue;
       if (ones2 % 2 == 1) continue;
       if (ones3 % 2 == 1) continue;
 
+      // Following three cases are easy as we don't have to merge matchings.
       if (ones1 == 0 && ones2 == 0) {
         bool partial = get_value(left, it_state1_hash, 0) &&
                        get_value(right, it_state2_hash, 0);
@@ -93,12 +96,12 @@ dynamic_results MergeChildren(Bag* bag, const dynamic_results& left,
       }
 
       auto all_matchings1 =
-          it_state1.GetAllMatchingsHashes();  // x:0, y:1, z:1, q:1 -> (0:1,
-                                              // 2:3), (0:2, 1:3), (0:3, 1:2)
+          it_state1.GetAllMatchingsHashes();
       auto all_matchings2 = it_state2.GetAllMatchingsHashes();
 
+      // Check whether it_m1 and it_m2 create a cycle.
       for (const auto& it_m1 :
-           all_matchings1) {  // one matching : (0:1, 2:3) -> 0:1, 1:0, 2:3, 3:2
+           all_matchings1) {
 
         for (const auto& it_m2 : all_matchings2) {
           hash_t res_matching = it_m1;
@@ -109,9 +112,12 @@ dynamic_results MergeChildren(Bag* bag, const dynamic_results& left,
           for (int i = 0; i < l; ++i) {
             int a = GET_K(it_m2, i);
             int b = GET_V(it_m2, i);
+            // Find what vertex a is matched with.
             auto find_a = h_find_key(res_matching, a);
+            // Find what vertex b is matched with.
             auto find_b = h_find_key(res_matching, b);
             int a2, b2;
+            // a is matched with a2.
             if (find_a != NOT_FOUND) {
               auto key = GET_K(res_matching, find_a);
               auto value = GET_V(res_matching, find_a);
@@ -120,6 +126,7 @@ dynamic_results MergeChildren(Bag* bag, const dynamic_results& left,
               else
                 a2 = key;
             }
+            // b is matched with b2.
             if (find_b != NOT_FOUND) {
               auto key = GET_K(res_matching, find_b);
               auto value = GET_V(res_matching, find_b);
@@ -141,16 +148,19 @@ dynamic_results MergeChildren(Bag* bag, const dynamic_results& left,
               continue;
             }
 
+            // Merge a -> b, a -> a2. Result: a2 -> b 
             if (find_a != NOT_FOUND) {
               h_remove(&res_matching, a);
               h_insert(&res_matching, a2, b);
               continue;
             }
+            // Merge a -> b, b -> b2. Result: a -> b2
             if (find_b != NOT_FOUND) {
               h_remove(&res_matching, b);
               h_insert(&res_matching, a, b2);
               continue;
             }
+            // Add a -> b when both of them are not matched.
             h_insert(&res_matching, a, b);
           }
 
@@ -194,6 +204,7 @@ dynamic_results AddEdge(Bag* bag, const dynamic_results& left) {
 
     bool incorrect_colors = false;
     int ones = 0;
+    // Check whether degrees are smaller or equal 2 after adding edge.
     for (int i = 0, pow = 1, it_color = it_state_hash; i < bag->nodes.size();
          i++, pow *= 3, it_color /= 3) {
       int cur_val = it_color % 3;
@@ -217,6 +228,7 @@ dynamic_results AddEdge(Bag* bag, const dynamic_results& left) {
 
     const auto& all_matchings = it_state.GetAllMatchingsHashes();
 
+    // Similar as for merging.
     for (const auto& it_m : all_matchings) {
       hash_t res_matching = 0;
       h_insert(&res_matching, edge_idx.first, edge_idx.second);
@@ -287,7 +299,7 @@ dynamic_results ForgetNode(Bag* bag, const dynamic_results& left) {
   dynamic_results vec;
   State state(bag->left->nodes, 3);
   for (auto it = state.begin(); it != state.end();
-       ++it) {  // different colors: x:1, y:2, z:3
+       ++it) {
 
     if (it.GetMapping(bag->forgotten_node.value) != 2) continue;
     auto hash_c_wo_n =
@@ -320,7 +332,7 @@ dynamic_results AddNode(Bag* bag, const dynamic_results& left) {
   dynamic_results vec;
   State state(bag->nodes, 3);
   for (auto it = state.begin(); it != state.end();
-       ++it) {  // different colors: x:1, y:2, z:3
+       ++it) {
 
     if (it.GetMapping(bag->introduced_node.value) != 0) continue;
     auto hash_c_wo_n =

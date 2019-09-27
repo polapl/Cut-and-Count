@@ -70,8 +70,8 @@ void h_print(hash_t h) {
 // of its elements to 0, 1, .., s.
 // In terms of cut & cout algoritm:
 // 0 ~= not taken Node
-// 1 ~= partial solution in V1
-// 2 ~= partial solution in V2
+// 1 ~= Node in partial solution in V1
+// 2 ~= Node in partial solution in V2
 
 void State::Iterator::operator++() {
   for (auto& it : m_) {

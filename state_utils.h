@@ -42,12 +42,12 @@ struct HashWithNodeValues {
 };
 
 // Given a set, class State is used to iterate through all assignments
-// of its elements to 0, 1, .., s.
-// In terms of Steiner Tree Cut & Cout algoritm:
-//  0 ~= isolated Node
-//  1 ~= partial solution in V1
-//  2 ~= partial solution in V2
-// In terms of Hamiltonian Cycle Cut & Cout algorithm:
+// of its elements to 1, 2, .., s.
+// In terms of Steiner Tree Cut & Cout algoritm (s=3):
+//  0 ~= Node that doesn't belong to partial solution
+//  1 ~= Node in partial solution, in V1
+//  2 ~= Node in partial solution, in V2
+// In terms of Hamiltonian Cycle Cut & Cout algorithm (s=4):
 //  0 ~= isolated Node
 //  1 ~= Node with one incident edge, in V1
 //  2 ~= Node with two incidents edges

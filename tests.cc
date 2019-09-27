@@ -9,7 +9,7 @@
 #include <gtest/gtest.h>
 #include <sstream>
 using namespace std;
-/*
+
 TEST(StandardSteinerTree, SimpleTriangle) {
   Node c(0, true);
   Node b(1, false);
@@ -257,11 +257,10 @@ TEST(StandardSteinerTree, SmallTests_HighProbability_OnlyStandard) {
     tree.tree_width++;
     StandardSteinerTree* standard_dyn = new StandardSteinerTree(&tree);
     unsigned long long res_standard = standard_dyn->Compute();
-    // printf("RESULTS: %d vs. %d\n", res_dyn, res_standard);
     EXPECT_EQ(res_standard, res_standard);
   }
 }
-
+/*
 TEST(StandardSteinerTree, BigTest_HighProbability_OnlyStandard) {
   int number_of_tests = 1;
   while (number_of_tests--) {
@@ -279,7 +278,6 @@ TEST(StandardSteinerTree, BigTest_HighProbability_OnlyStandard) {
     tree.tree_width++;
     StandardSteinerTree* standard_dyn = new StandardSteinerTree(&tree);
     unsigned long long res_standard = standard_dyn->Compute();
-    // printf("RESULTS: %d vs. %d\n", res_dyn, res_standard);
     EXPECT_EQ(res_standard, res_standard);
   }
 }
@@ -361,7 +359,7 @@ TEST(StandardHamiltonian, SimpleSquare) {
   Node e(-1, false);
   tree.PrepareBeforeStandardHamiltonian(e);
   tree.DotTransitionGraph("example.dot");
-  tree.tree_width = 3;  // 4 ?
+  tree.tree_width = 3;
   StandardHamiltonian* dyn = new StandardHamiltonian(&tree);
   bool res = dyn->Compute();
   EXPECT_EQ(res, true);
@@ -384,7 +382,6 @@ TEST(CnCHamiltonian, SimpleTriangle) {
       new Bag(Bag::BagType::LEAF)};
   Tree tree(bags);
   tree.DotTransitionGraph("example.dot");
-  // tree.tree_width = 3;
   CnCHamiltonian* dyn = new CnCHamiltonian(&tree);
   bool res = dyn->Compute();
   EXPECT_EQ(res, true);
@@ -406,7 +403,6 @@ TEST(CnCHamiltonian, SimplePath) {
       new Bag(Bag::BagType::LEAF)};
   Tree tree(bags);
   tree.DotTransitionGraph("example.dot");
-  // tree.tree_width = 3;
   CnCHamiltonian* dyn = new CnCHamiltonian(&tree);
   bool res = dyn->Compute();
   EXPECT_EQ(res, false);
@@ -437,7 +433,6 @@ TEST(CnCHamiltonian, SimpleSquare) {
       new Bag(Bag::BagType::LEAF)};
   Tree tree(bags);
   tree.DotTransitionGraph("example.dot");
-  // tree.tree_width = 3;
   CnCHamiltonian* dyn = new CnCHamiltonian(&tree);
   bool res = dyn->Compute();
   EXPECT_EQ(res, true);
@@ -479,7 +474,6 @@ TEST(Hamiltonian, SmallTests_LowProbability) {
     StandardHamiltonian* standard_dyn = new StandardHamiltonian(&tree);
     bool res_standard = standard_dyn->Compute();
     printf("RESULTS: %d vs. %d\n", res_dyn, res_standard);
-    // if (res_dyn != res_standard) break;
     EXPECT_EQ(res_dyn, res_standard);
   }
 }
@@ -535,7 +529,7 @@ TEST(Hamiltonian, SmallTests_HighProbability_OnlyCnC) {
     printf("RESULT: %d\n", res_dyn);
   }
 }
-
+/*
 TEST(Hamiltonian, BigTest_HighProbability_OnlyStandard) {
   int number_of_tests = 1;
   while (number_of_tests--) {
@@ -551,7 +545,7 @@ TEST(Hamiltonian, BigTest_HighProbability_OnlyStandard) {
     printf("RESULT: %d\n", res_standard);
   }
 }
-
+*/
 TEST(Hamiltonian, BigTest_HighProbability_OnlyCnC) {
   int number_of_tests = 1;
   while (number_of_tests--) {
@@ -609,41 +603,6 @@ std::unique_ptr<Tree>
                              terminal_prob, edge_count, result>::tree_ =
         nullptr;
 
-/*
-typedef HamiltonianTestsTemplate<0x51234, 4, 1000, 10, 0 , 60, true>
-HamiltonianTest_4_1000_10_0_60;
-
-TEST_F(HamiltonianTest_4_1000_10_0_60, CncHamiltonianTest) {
-  CnCHamiltonian* dyn = new CnCHamiltonian(tree_.get());
-
-  EXPECT_EQ(dyn->Compute(), result_);
-}
-
-TEST_F(HamiltonianTest_4_1000_10_0_60, StandardHamiltonianTest) {
-  Node n(-1, false);
-  tree_->PrepareBeforeStandardHamiltonian(n);
-  StandardHamiltonian* dyn = new StandardHamiltonian(tree_.get());
-
-  EXPECT_EQ(dyn->Compute(), result_);
-}
-
-typedef HamiltonianTestsTemplate<0x91234, 5, 100, 10, 0 , 60, true>
-HamiltonianTest_5_100_10_0_60;
-
-TEST_F(HamiltonianTest_5_100_10_0_60, CncHamiltonianTest) {
-  CnCHamiltonian* dyn = new CnCHamiltonian(tree_.get());
-
-  EXPECT_EQ(dyn->Compute(), result_);
-}
-
-TEST_F(HamiltonianTest_5_100_10_0_60, StandardHamiltonianTest) {
-  Node n(-1, false);
-  tree_->PrepareBeforeStandardHamiltonian(n);
-  StandardHamiltonian* dyn = new StandardHamiltonian(tree_.get());
-
-  EXPECT_EQ(dyn->Compute(), result_);
-}
-*/
 
 #define GENERATE_HAMILTONIAN_TESTS(SEED, TREEWIDTH, MAXWEIGHT, BAGSGENTYPE,                     \
                                    TERMINALPROB, EDGECOUNT, RESULT)                             \
