@@ -66,13 +66,6 @@ void h_print(hash_t h) {
   cout << endl;
 }
 
-// Given a set, class State is used to iterate through all assignments
-// of its elements to 0, 1, .., s.
-// In terms of cut & cout algorithm:
-// 0 ~= not taken Node.
-// 1 ~= Node in partial solution, in V1.
-// 2 ~= Node in partial solution, in V2.
-
 void State::Iterator::operator++() {
   for (auto& it : m_) {
     last_ = true;

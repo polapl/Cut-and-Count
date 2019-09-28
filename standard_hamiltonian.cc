@@ -9,8 +9,8 @@
 #include <unordered_map>
 
 typedef unsigned long long ull;
-// X_t partition hash -> matching hash -> true iff. valid Hamiltonian trace
-// exists
+// For bag t: partition hash -> matching hash -> true iff a valid Hamiltonian
+// trace exists.
 typedef unordered_map<size_t, map<size_t, bool>> dynamic_results;
 
 bool get_value(const dynamic_results& vec, int idx1, int idx2) {
@@ -41,6 +41,8 @@ dynamic_results MergeChildren(Bag* bag, const dynamic_results& left,
          ++it_state2) {
       unsigned long long it_state2_hash = *it_state2;
 
+      // Ones refers to a number of vertices of degree 1, i.e. |X_t1| for bag t.
+      // ones1 refers to bag t', ones2 refers to bag t'', ones3 refers to bag t.
       int ones1 = 0, ones2 = 0, ones3 = 0;
 
       unsigned long long res_color = 0;
@@ -72,7 +74,8 @@ dynamic_results MergeChildren(Bag* bag, const dynamic_results& left,
       if (ones2 % 2 == 1) continue;
       if (ones3 % 2 == 1) continue;
 
-      // Following three cases are easy as we don't have to merge matchings.
+      // Following three cases are easy as we don't have to merge matchings
+      // (at least one of matchings for t' and t'' is empty).
       if (ones1 == 0 && ones2 == 0) {
         bool partial = get_value(left, it_state1_hash, 0) &&
                        get_value(right, it_state2_hash, 0);
@@ -103,6 +106,8 @@ dynamic_results MergeChildren(Bag* bag, const dynamic_results& left,
       // Check whether it_m1 and it_m2 create a cycle.
       for (const auto& it_m1 : all_matchings1) {
         for (const auto& it_m2 : all_matchings2) {
+          // We set current matching as it_m1 and will be adding every pair from
+          // it_m2 separately checking whether it creates a cycle.
           hash_t res_matching = it_m1;
 
           bool cycle = false;
@@ -136,6 +141,7 @@ dynamic_results MergeChildren(Bag* bag, const dynamic_results& left,
             }
 
             if (find_a != NOT_FOUND && find_b != NOT_FOUND) {
+              // If b is already matched with a, we get a cycle.
               if (a == b2) {
                 cycle = true;
                 break;
@@ -159,7 +165,7 @@ dynamic_results MergeChildren(Bag* bag, const dynamic_results& left,
               h_insert(&res_matching, a, b2);
               continue;
             }
-            // Add a -> b when both of them are not matched.
+            // Add a -> b when both of a, b haven't been matched yet.
             h_insert(&res_matching, a, b);
           }
 
@@ -193,6 +199,7 @@ dynamic_results AddEdge(Bag* bag, const dynamic_results& left) {
   for (auto it_state = state.begin(); it_state != state.end(); ++it_state) {
     unsigned long long it_state_hash = *it_state;
 
+    // When we don't add the edge to the solution.
     if (left.find(it_state_hash) != left.end()) {
       for (const auto& prev_m : left.at(it_state_hash)) {
         set_value(vec, it_state_hash, prev_m.first, prev_m.second);
@@ -203,7 +210,7 @@ dynamic_results AddEdge(Bag* bag, const dynamic_results& left) {
 
     bool incorrect_colors = false;
     int ones = 0;
-    // Check whether degrees are smaller or equal 2 after adding edge.
+    // Check whether degrees are smaller or equal 2 after adding an edge.
     for (int i = 0, pow = 1, it_color = it_state_hash; i < bag->nodes.size();
          i++, pow *= 3, it_color /= 3) {
       int cur_val = it_color % 3;
@@ -227,7 +234,7 @@ dynamic_results AddEdge(Bag* bag, const dynamic_results& left) {
 
     const auto& all_matchings = it_state.GetAllMatchingsHashes();
 
-    // Similar as for merging.
+    // Similar as for merging, see above.
     for (const auto& it_m : all_matchings) {
       hash_t res_matching = 0;
       h_insert(&res_matching, edge_idx.first, edge_idx.second);
@@ -298,6 +305,7 @@ dynamic_results ForgetNode(Bag* bag, const dynamic_results& left) {
   dynamic_results vec;
   State state(bag->left->nodes, 3);
   for (auto it = state.begin(); it != state.end(); ++it) {
+    // Forgotten node's degree must equal 2.
     if (it.GetMapping(bag->forgotten_node.value) != 2) continue;
     auto hash_c_wo_n =
         it.GetAssignmentHashWithoutNode(bag->forgotten_node.value);
@@ -305,6 +313,7 @@ dynamic_results ForgetNode(Bag* bag, const dynamic_results& left) {
     set<int> ones = it.GetAllOnesIndexes();
     if (ones.size() % 2 == 1) continue;
 
+    // If |X_t1| == 0.
     bool current = get_value(vec, hash_c_wo_n, 0);
     bool partial = get_value(left, *it, 0);
 
@@ -315,6 +324,11 @@ dynamic_results ForgetNode(Bag* bag, const dynamic_results& left) {
     const auto& all_matchings = it.GetAllMatchingsHashes(ones);
 
     for (const auto& m : all_matchings) {
+      // Matching is the same as previously since forgotten node had degree 2,
+      // not 1. However matching hash might have changed as hash is computed
+      // based on indexes, e.g. if u is matched with v, we represent this as a
+      // pair (u_idx, v_idx) and thus after removing forgotten node one of
+      // u_idx, v_idx might have changed.
       auto m_wo_n = state.h_without_node(m, bag->forgotten_node.value);
 
       bool partial = get_value(left, *it, m);
@@ -336,6 +350,7 @@ dynamic_results AddNode(Bag* bag, const dynamic_results& left) {
     set<int> ones = it.GetAllOnesIndexes();
     if (ones.size() % 2 == 1) continue;
 
+    // If |X_t1| == 0.
     bool current = get_value(vec, *it, 0);
     bool partial = get_value(left, hash_c_wo_n, 0);
     set_value(vec, *it, 0, current || partial);
@@ -345,6 +360,11 @@ dynamic_results AddNode(Bag* bag, const dynamic_results& left) {
     const auto& all_matchings = it.GetAllMatchingsHashes(ones);
 
     for (const auto& m : all_matchings) {
+      // Matching is the same as previously since introduced node has degree 0,
+      // not 1. However matching hash might have changed as hash is computed
+      // based on indexes, e.g. if u is matched with v, we represent this as a
+      // pair (u_idx, v_idx) and thus after adding introduced node one of
+      // u_idx, v_idx might have changed.
       auto m_wo_n = state.h_without_node(m, bag->introduced_node.value);
 
       bool current = get_value(vec, *it, m);
