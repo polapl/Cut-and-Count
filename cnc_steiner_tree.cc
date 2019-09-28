@@ -14,13 +14,14 @@ const unsigned long long int INF = 1000000;
 
 namespace {
 typedef unsigned long long ull;
-// Bag id -> number of edges -> f -> weight -> how many solutions
-typedef vector<vector<unordered_map<size_t, unsigned long long>>>
+// For bag t: number of edges -> f -> weight -> how many solutions mod 2.
+typedef vector<vector<unordered_map<size_t, bool>>>
     dynamic_results;
 }  // namespace
 
 void add_value(dynamic_results& vec, int a, int b, int c, ull val) {
   if (val % 2 == 0) return;
+  // Keep only values that modulo 2 give 1.
   if (vec[a][b][c] % 2 == 1) {
     vec[a][b].erase(c);
     return;
@@ -39,13 +40,14 @@ dynamic_results recursive_cnc_steiner_tree(int l, Bag* bag) {
   State state(bag->nodes, 3);
 
   for (int j = 0; j <= l; j++) {
-    vec[j] = vector<unordered_map<size_t, unsigned long long>>(
+    vec[j] = vector<unordered_map<size_t, bool>>(
         pow(3, bag->nodes.size() + 1));
 
     if (bag->type == Bag::LEAF) {
       if (j == 0) vec[j][0][0] = 1;
       continue;
     }
+    // Root.
     if (bag->type == Bag::FORGET_NODE && state.nodes_.size() == 0) {
       for (auto& weight : left[j][0]) {
         add_value(vec, j, 0, weight.first, weight.second);
@@ -71,7 +73,7 @@ dynamic_results recursive_cnc_steiner_tree(int l, Bag* bag) {
             vec[j][it_hash].clear();
             break;
           }
-          // v1
+          // v0
           if (bag->introduced_node.value == 0 &&
               it.GetMapping(bag->introduced_node.value) != 1) {
             vec[j][it_hash].clear();
@@ -114,8 +116,13 @@ dynamic_results recursive_cnc_steiner_tree(int l, Bag* bag) {
         }
         case Bag::INTRODUCE_EDGE: {
           vec[j][it_hash] = left[j][it_hash];
+          // id_1, id_2 refer to sets that introduced edge's endpoints belong
+          // to.
           int id_1 = it.GetMapping(bag->introduced_edge.first.value);
           int id_2 = it.GetMapping(bag->introduced_edge.second.value);
+          // If the edge may be taken to a solution, i.e. number of all edges is
+          // at least 1 and both edge endpoints belong to the same side of a
+          // cut.
           if (j > 0 && id_1 == id_2 && id_1 > 0) {
             for (auto& weight : left[j - 1][it_hash]) {
               add_value(vec, j, it_hash, weight.first + bag->edge_weight,

@@ -72,7 +72,7 @@ class State {
 
     bool operator!=(const Iterator& it) const;
 
-    // Node -> set
+    // Node -> set.
     int GetMapping(int id);
 
     int GetIdUsingIdx(int idx);
@@ -102,8 +102,9 @@ class State {
     unsigned long long GetAssignmentHashWithoutNode(int id);
 
     // Returns how hash changes after adding an edge uv. val1, val2 correspond
-    // to a current assignment. pow1, pow2 are equal to pow(s, u index), pow(s,
-    // v index). v0 equals true when either u or v is v0.
+    // to an assignment of u, v when the edge uv has already been introduced.
+    // pow1, pow2 are equal to pow(s, u index), pow(s, v index). v0 equals true
+    // when either u or v is v0.
     vector<int> GetAssignmentHashDiffWithEdge(int val1, int val2, int pow1,
                                               int pow2, bool v0);
 

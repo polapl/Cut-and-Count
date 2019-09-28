@@ -8,12 +8,14 @@ using namespace std;
 
 namespace {
 typedef unsigned long long ull;
-typedef std::unordered_map<size_t, std::unordered_map<size_t, ull>>
+// For bag t: f -> weight -> how many solutions mod 2.
+typedef std::unordered_map<size_t, std::unordered_map<size_t, bool>>
     dynamic_results;
 }  // namespace
 
 void add_value(dynamic_results& vec, int a, int b, ull val) {
   if (val % 2 == 0) return;
+  // Keep only values that modulo 2 give 1.
   if (vec[a][b] % 2 == 1) {
     vec[a].erase(b);
     return;
@@ -21,12 +23,17 @@ void add_value(dynamic_results& vec, int a, int b, ull val) {
   vec[a][b] = 1;
 }
 
+// Checks whether edge ab may be in cut V^1.
 bool in_first(int a, int b) { return (a == 0 || a == 1) && (b == 0 || b == 1); }
 
+// Checks whether edge ab may be in cut V^2.
 bool in_second(int a, int b) {
   return (a == 0 || a == 3) && (b == 0 || b == 3);
 }
 
+// Represents how changes vertex assignment to a subset of X_t after merging two
+// partial solutions, i.e. merge_trans[i][j] = h means that vertex was in 'i'
+// subset of X_t', 'j' subset of X_t'', and now it is in 'h' subset of X_t.
 const int merge_trans[4][4] = {
     {0, 1, 2, 3},
     {1, 2, -1, -1},
@@ -35,8 +42,8 @@ const int merge_trans[4][4] = {
 };
 
 unsigned long long hash_after_trans(unsigned long long h1,
-                                    unsigned long long h2, bool v1) {
-  if (v1) {
+                                    unsigned long long h2, bool v0) {
+  if (v0) {
     if (h1 % 4 == 0 && h2 % 4 == 3) return -1;
     if (h1 % 4 == 3 && h2 % 4 == 0) return -1;
   }
@@ -65,8 +72,11 @@ dynamic_results merge(Bag* bag, dynamic_results& left, dynamic_results& right) {
 
     for (auto it2 = state.begin(); it2 != state.end(); ++it2) {
       unsigned long long it_hash2 = *it2;
+      // Given function f' for bag t', function f'' for bag t'', compute f for
+      // bag t.
       auto hash_trans = hash_after_trans(it_hash1, it_hash2, v1);
 
+      // If such f for t doesn't exist.
       if (hash_trans == -1) continue;
 
       for (const auto& weight1 : left[it_hash1]) {
@@ -103,7 +113,8 @@ dynamic_results recursive_cnc_hamiltonian(Bag* bag) {
   }
 
   State state(bag->nodes, 4);
-  // 0 / 1,3 / 2
+  // 0 (nodes of degree 0)/ 1,3 (nodes of degree 1 in either a cut V^1 or a cut
+  // V^2)/ 2 (nodes of degree 2)
   if (bag->type == Bag::FORGET_NODE && state.nodes_.size() == 0) {
     for (auto& weight : left[2]) {
       add_value(vec, 0, weight.first, weight.second);
@@ -112,6 +123,9 @@ dynamic_results recursive_cnc_hamiltonian(Bag* bag) {
   }
 
   if (bag->type == Bag::INTRODUCE_EDGE) {
+    // For optimization reasons we don't compute an assignment hash with newly
+    // introduced edge from scratch, but only look at what has been changed and
+    // what's the difference between an old hash and a new one.
     int idx1 = state.GetIdxUsingId(bag->introduced_edge.first.value);
     int idx2 = state.GetIdxUsingId(bag->introduced_edge.second.value);
     ll_t pow1 = pow(4, idx1);
@@ -129,9 +143,9 @@ dynamic_results recursive_cnc_hamiltonian(Bag* bag) {
       if (in_first(id_1, id_2) || in_second(id_1, id_2)) {
         auto hash_with_edge_diff = it.GetAssignmentHashDiffWithEdge(
             id_1, id_2, pow1, pow2, bag->introduced_edge.first.value == 0);
-        for (const auto& hash_with_edge_it : hash_with_edge_diff) {
+        for (const auto& hash_with_edge_diff_it : hash_with_edge_diff) {
           for (auto& weight : left[it_hash]) {
-            add_value(vec, it_hash + hash_with_edge_it,
+            add_value(vec, it_hash + hash_with_edge_diff_it,
                       weight.first + bag->edge_weight, weight.second);
           }
         }
