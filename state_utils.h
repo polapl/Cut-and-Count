@@ -83,11 +83,10 @@ class State {
     // Given a set of nodes with deg = 1, this function returns set of hashes
     // corresponding to all possible matchings.
     // Notice that u is matched with v we represent as a pair (u_idx in X_t,
-    // v_idx in X_t), not as (u_id, v_id) in order to iterate through hashes by
-    // iterating through 0, 1, 2, ...
+    // v_idx in X_t), not as (u_id, v_id) in order to keep hashes small.
     // If matching is as follows: (u,v), (w,x) and corresponding indexes are:
     // (0,3), (1,5) hash is computed by sorting pairs by keys (where key is a
-    // smaller idx, value is a greater indx) and store them in a binary
+    // smaller idx, value is a greater idx) and store them in a binary
     // representation where key follows value: 3_bin | 0_bin | 5_bin | 1_bin,
     // i.e. 110|000|101|100.
     set<unsigned long long> GetAllMatchingsHashes(set<int> ones);
