@@ -40,22 +40,29 @@ void merge_child_partitions(const Node& first, const Node& second,
   for (; sset; ++sset) {
     ull sset_hash = sset.hash();
 
+    // Edge cannot be added to a forest since subset sset doesn't contain both
+    // its vertices.
     if (!sset.is_present(first) || !sset.is_present(second)) continue;
     vector<Node> sset_materialize = sset.materialize();
     PartitionView<Node> pset(sset_materialize);
     for (auto it = pset.begin(); it != pset.end(); ++it) {
       int p1 = it.partition(first);
       int p2 = it.partition(second);
+      // Already in the same partition.
       if (p1 == p2) continue;
       int merged = it.merge(p1, p2);
+      // Current refers to a value already set for given parameteres or default
+      // one where no value has been set.
       ull current = get_value(parent, sset_hash, merged);
+      // Partial refers to a value corresponding to an alternative case, e.g.
+      // for merge an alternative case is another pair P' and P''.
       ull partial = get_value(cur, sset_hash, it.hash());
       set_value(parent, sset_hash, merged, min(current, partial + 1));
     }
   }
 }
 
-// k = max width, l = max edges in Steiner tree
+// k = max width, l = max number of edges in Steiner tree
 dynamic_results recursive_standard_steiner_tree(int k, Bag* bag) {
   if (bag == nullptr) return dynamic_results{};
 
@@ -68,14 +75,14 @@ dynamic_results recursive_standard_steiner_tree(int k, Bag* bag) {
   bool one_edge_introduced = false;
 
   SubsetView<Node> sset(bag->nodes);
-  // Iterate through all subsets of bag->nodes
+  // Iterate through all subsets of bag->nodes.
   for (; sset; ++sset) {
     ull sset_hash = sset.hash();
 
     vector<Node> sset_materialize = sset.materialize();
 
     PartitionView<Node> pset(sset_materialize);
-    // Iterate through all possible partitions
+    // Iterate through all possible partitions.
     for (auto it = pset.begin(); it != pset.end(); ++it) {
       ull it_hash = it.hash();
 
@@ -111,6 +118,7 @@ dynamic_results recursive_standard_steiner_tree(int k, Bag* bag) {
           set_value(vec, sset_hash, it_hash, partial);
           int max_part = it.max_partition();
 
+          // Forgotten node might have been in any partition subset.
           for (int i = 1; i <= max_part; i++) {
             ull partition_with_node_hash =
                 it.add_to_partition_hash(bag->forgotten_node, i);
@@ -128,6 +136,7 @@ dynamic_results recursive_standard_steiner_tree(int k, Bag* bag) {
           // pairs of partitions of set sset_materialize that:
           // - do not create an cycle
           // - sum up to pset
+
           // Check whether after merging part_it1 and part_it2 we will end up
           // with cycle.
           for (auto part_it1 = pset.begin(); part_it1 != pset.end();
@@ -137,6 +146,7 @@ dynamic_results recursive_standard_steiner_tree(int k, Bag* bag) {
               disjoint_set.add(s_m_it.value);
             }
             const auto& distribution1 = part_it1.distribution();
+            // Create forest G_P'.
             for (const auto& distr_it : distribution1) {
               for (int s = 1; s < distr_it.second.size(); s++) {
                 disjoint_set.join(distr_it.second[0].get().value,
@@ -148,6 +158,7 @@ dynamic_results recursive_standard_steiner_tree(int k, Bag* bag) {
               bool cycle = false;
               DisjointSet<int> disjoint_set_copy = disjoint_set;
               const auto& distribution2 = part_it2.distribution();
+              // Merge G_P' with G_P''.
               for (const auto& distr_it : distribution2) {
                 for (int s = 1; s < distr_it.second.size(); s++) {
                   if (disjoint_set_copy.find(distr_it.second[0].get().value) ==
@@ -161,8 +172,8 @@ dynamic_results recursive_standard_steiner_tree(int k, Bag* bag) {
               }
               if (!cycle) {
                 bool equal = true;
-                // Check whether u, v in the same partition subset in pset =>
-                // find(u) == find(v).
+                // Check whether u, v in the same tree in G_P => find(u) ==
+                // find(v) after merging G_P' and G_P''.
                 auto pset_distribution = it.distribution();
                 for (const auto& map_it : pset_distribution) {
                   for (int s = 1; s < map_it.second.size(); s++) {

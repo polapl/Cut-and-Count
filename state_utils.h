@@ -57,7 +57,7 @@ struct HashWithNodeValues {
 // In terms of Hamiltonian Cycle Cut & Cout algorithm (s=4):
 //  0 ~= isolated Node
 //  1 ~= Node with one incident edge, in V1
-//  2 ~= Node with two incidents edges
+//  2 ~= Node with two incident edges
 //  3 ~= Node with one incident edge, in V2
 
 class State {
