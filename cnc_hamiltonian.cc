@@ -134,13 +134,19 @@ dynamic_results recursive_cnc_hamiltonian(Bag* bag) {
     for (auto it = state.begin(); it != state.end(); ++it) {
       unsigned long long it_hash = *it;
 
+      // If solution doesn't contain the edge.
       for (auto& weight : left[it_hash]) {
         add_value(vec, it_hash, weight.first, weight.second);
       }
+
+      // Get assignment of edge endpoints.
       int id_1 = it.GetMapping(bag->introduced_edge.first.value);
       int id_2 = it.GetMapping(bag->introduced_edge.second.value);
 
+      // If edge may belong to the solution.
       if (in_first(id_1, id_2) || in_second(id_1, id_2)) {
+        // Compute a new hash (by computing the difference between the old hash
+        // and the new one).
         auto hash_with_edge_diff = it.GetAssignmentHashDiffWithEdge(
             id_1, id_2, pow1, pow2, bag->introduced_edge.first.value == 0);
         for (const auto& hash_with_edge_diff_it : hash_with_edge_diff) {
