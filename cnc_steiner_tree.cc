@@ -15,8 +15,7 @@ const unsigned long long int INF = 1000000;
 namespace {
 typedef unsigned long long ull;
 // For bag t: number of edges -> f -> weight -> how many solutions mod 2.
-typedef vector<vector<unordered_map<size_t, bool>>>
-    dynamic_results;
+typedef vector<vector<unordered_map<size_t, bool>>> dynamic_results;
 }  // namespace
 
 void add_value(dynamic_results& vec, int a, int b, int c, ull val) {
@@ -40,8 +39,7 @@ dynamic_results recursive_cnc_steiner_tree(int l, Bag* bag) {
   State state(bag->nodes, 3);
 
   for (int j = 0; j <= l; j++) {
-    vec[j] = vector<unordered_map<size_t, bool>>(
-        pow(3, bag->nodes.size() + 1));
+    vec[j] = vector<unordered_map<size_t, bool>>(pow(3, bag->nodes.size() + 1));
 
     if (bag->type == Bag::LEAF) {
       if (j == 0) vec[j][0][0] = 1;
@@ -73,7 +71,7 @@ dynamic_results recursive_cnc_steiner_tree(int l, Bag* bag) {
             vec[j][it_hash].clear();
             break;
           }
-          // v0
+          // v0 must be in V^1.
           if (bag->introduced_node.value == 0 &&
               it.GetMapping(bag->introduced_node.value) != 1) {
             vec[j][it_hash].clear();

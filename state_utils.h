@@ -11,6 +11,13 @@
 
 using namespace std;
 
+// Following functions are used for handling matching hashes.
+// Used for standard_hamiltonian algorithm, where u is matched with v
+// only when there exists path uv. Keys and values are represent by 3 bits:
+// value_0 | key_0 | value_1 | key_1 |... | value_m | key_m, where key_0 < key_1
+// < ... < key_m and matching {u, v} is one of pair (key_i, value_i) where key_i
+// is a smaller index out of {u index, v index}, value_i is a greater index. For
+// more see description of GetAllMatchingsHashes method.
 #define SM_HASH(a, b) (((a) << 3) | b)
 #define INSERT_BLK(h, n) (((h) << 6) | n)
 #define GET_K(h, n) (((h) >> ((n)*6 + 3)) & 7)
@@ -42,7 +49,7 @@ struct HashWithNodeValues {
 };
 
 // Given a set, class State is used to iterate through all assignments
-// of its elements to sets: 1, 2, .., s.
+// of its elements to sets: 0, 1, .., (s-1).
 
 // In terms of Hamiltonian Cycle standard algorithm (s=3):
 //  0 ~= isolated Node
@@ -66,6 +73,11 @@ class State {
    public:
     void operator++();
 
+    // Returns hash(). Hash is computed in the following way:
+    // for every node assignment (node id, set id) stored in m_[node id]
+    // hash += s^(node index) * (set id), where node index refers to a position
+    // of (node id, set id) in m_. In this way all hashes are in {0, 1, 2, ...,
+    // last}, where last corresponds to an assignment of all nodes to set (s-1).
     long long int operator*() const;
 
     bool operator==(const Iterator& it) const;
@@ -75,6 +87,7 @@ class State {
     // Node -> set.
     int GetMapping(int id);
 
+    // If m_[idx] = (node id, set id), returns node id.
     int GetIdUsingIdx(int idx);
 
     // Returns nodes that are mapped to 1.
@@ -132,6 +145,7 @@ class State {
 
   pair<int, int> GetEdgeIndexes(const Node& a, const Node& b);
 
+  // Returns matching hash without node with id equal val.
   hash_t h_without_node(hash_t hsh, int val);
 
   int GetIdxUsingId(int id);

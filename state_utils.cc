@@ -126,7 +126,9 @@ set<int> State::Iterator::GetAllOnesIndexes() {
   return res;
 }
 
-// Tab represents which X_i v belongs to after adding an edge.
+// Tab represents which X_i, X_j u, v belong to after adding an edge uv.
+// Tab[k][m] = {i, j} means u was in X_k in t', v was in X_m in t',
+// now they are in X_i, X_j respectively.
 const vector<vector<int>> add_edge_trans[4][4] = {
     {{{1, 1}, {3, 3}}, {{1, 2}}, {}, {{3, 2}}},
     {{{2, 1}}, {{2, 2}}, {}, {}},
